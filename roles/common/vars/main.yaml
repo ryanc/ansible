@@ -1,0 +1,8 @@
+---
+sys_utils:
+  - git
+  - vim
+  - tmux
+  - dnsutils
+  - ldnsutils
+  - tcpdump

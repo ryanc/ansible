@@ -1,0 +1,19 @@
+---
+- name: install unbound
+  package:
+    name: "{{ unbound_package_name }}"
+    state: "{{ unbound_package_state }}"
+
+- name: configure unbound
+  template:
+    src: forward.conf.j2
+    dest: /etc/unbound/unbound.conf.d/forward.conf
+    validate: 'unbound-checkconf %s'
+  notify:
+    - reload unbound
+
+- name: start unbound
+  service:
+    name: "{{ unbound_service_name }}"
+    state: "{{ unbound_service_state }}"
+    enabled: "{{ unbound_service_enabled }}"

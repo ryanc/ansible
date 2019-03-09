@@ -1,0 +1,9 @@
+{% if unbound_forward_zones %}
+forward-zone:
+{% for zone in unbound_forward_zones %}
+  name: "{{ zone.name }}"
+{% for addr in zone.forward_addr %}
+  forward-addr: {{ addr }}
+{% endfor %}
+{% endfor %}
+{% endif %}
