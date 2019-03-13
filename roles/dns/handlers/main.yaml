@@ -3,4 +3,4 @@
   service:
     name: "{{ unbound_service_name }}"
     state: reloaded
-  when: "{{ unbound_service_enabled }}"
+  when: unbound_service_enabled
