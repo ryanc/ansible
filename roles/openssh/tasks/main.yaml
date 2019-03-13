@@ -1,0 +1,24 @@
+---
+- name: gather OS specific variables
+  include_vars: "{{ item }} "
+  with_first_found:
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+- name: install openssh
+  package:
+    name: "{{ openssh_package_name }}"
+    state: "{{ openssh_package_state }}"
+
+- name: configure openssh
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    validate: sshd -t -f %s
+  notify:
+    - reload openssh
+
+- name: start openssh
+  service:
+    name: "{{ openssh_service_name }}"
+    state: "{{ openssh_service_state }}"
+    enabled: "{{ openssh_service_enabled }}"

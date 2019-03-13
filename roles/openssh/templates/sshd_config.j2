@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+{% set sshd_config = openssh_default_sshd_config | combine(openssh_sshd_config) %}
+{% for k, v in sshd_config | dictsort %}
+{% if v is sameas true %}
+{{ k }} {{ v }}
+{% elif v is sameas false %}
+{{ k }} {{ v }}
+{% elif v is string or v is number %}
+{{ k }} {{ v }}
+{% else %}
+{% for vi in v %}
+{{ k }} {{ vi }}
+{% endfor %}
+{% endif %}
+{% endfor %}

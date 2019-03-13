@@ -1,0 +1,9 @@
+---
+openssh_package_name: 'openssh-server'
+openssh_package_state: 'present'
+
+openssh_service_name: 'sshd'
+openssh_service_state: 'started'
+openssh_service_enabled: true
+
+openssh_sshd_config: {}
