@@ -1,0 +1,32 @@
+---
+- name: install unattended-upgrades
+  package:
+    name: "{{ unattended_upgrades_package_name }}"
+    state: "{{ unattended_upgrades_package_state }}"
+
+- name: install apticron
+  package:
+    name: "{{ unattended_upgrades_apticron_package_name }}"
+    state: "{{ unattended_upgrades_apticron_package_state }}"
+
+- name: configure unattended-upgrades
+  template:
+    src: unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+
+- name: configure auto-upgrades
+  template:
+    src: auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+
+- name: configure apticron
+  template:
+    src: apticron.conf.j2
+    dest: /etc/apticron/apticron.conf
+  when: unattended_upgrades_apticron_package_state == 'present'
+
+- name: manage apticron.conf
+  file:
+    path: /etc/apticron/apticron.conf
+    state: absent
+  when: unattended_upgrades_apticron_package_state == 'absent'
