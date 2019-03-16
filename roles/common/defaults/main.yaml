@@ -1,0 +1,8 @@
+---
+cron_service_name: cron
+
+resolv_nameserver: []
+resolv_options:
+ - edns0
+
+timezone: UTC

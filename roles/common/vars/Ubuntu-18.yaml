@@ -1,0 +1,2 @@
+---
+resolv_service_name: systemd-resolved.service

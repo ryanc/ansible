@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+{% for ns in resolv_nameserver %}
+nameserver {{ ns }}
+{% endfor %}
+{% if resolv_options is defined %}
+options {{ resolv_options | join(' ') }}
+{% endif %}

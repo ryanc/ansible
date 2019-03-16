@@ -1,6 +1,24 @@
 ---
+- name: gather OS specific variables
+  include_vars: "{{ item }} "
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
 - name: install system utilities
   package:
     name: "{{ item }}"
     state: present
   with_items: "{{ sys_utils }}"
+
+- name: configure resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+  notify: "restart resolv"
+
+- name: configure system timezone
+  timezone:
+    name: "{{ timezone }}"
+  notify: restart cron
