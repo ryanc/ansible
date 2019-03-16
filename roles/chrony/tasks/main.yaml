@@ -1,0 +1,30 @@
+---
+- name: gather OS specific variables
+  include_vars: "{{ item }} "
+  with_first_found:
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
+- name: stop/disable systemd-timesyncd
+  service:
+    name: systemd-timesyncd.service
+    state: stopped
+    enabled: no
+
+- name: install chrony
+  package:
+    name: "{{ chrony_package_name }}"
+    state: "{{ chrony_package_state }}"
+
+- name: configure chrony
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+  notify:
+    - reload chrony
+
+- name: start chrony
+  service:
+    name: "{{ chrony_service_name }}"
+    state: "{{ chrony_service_state }}"
+    enabled: "{{ chrony_service_enabled }}"

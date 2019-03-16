@@ -1,0 +1,6 @@
+---
+chrony_pool:
+  - ntp.ubuntu.com        iburst maxsources 4
+  - 0.ubuntu.pool.ntp.org iburst maxsources 1
+  - 1.ubuntu.pool.ntp.org iburst maxsources 1
+  - 2.ubuntu.pool.ntp.org iburst maxsources 2

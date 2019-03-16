@@ -1,0 +1,6 @@
+---
+- name: reload chrony
+  service:
+    name: "{{ chrony_service_name }}"
+    state: reloaded
+  when: chrony_service_enabled

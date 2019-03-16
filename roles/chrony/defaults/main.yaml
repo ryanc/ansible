@@ -1,0 +1,7 @@
+---
+chrony_package_name: 'chrony'
+chrony_package_state: 'present'
+
+chrony_service_name: 'chrony'
+chrony_service_state: 'started'
+chrony_service_enabled: yes
