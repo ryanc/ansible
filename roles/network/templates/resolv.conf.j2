@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+{% for ns in (network_nameservers | shuffle(seed=inventory_hostname))[:3] %}
+nameserver {{ ns }}
+{% endfor %}
+{% if network_resolv_conf_options is defined %}
+options {{ network_resolv_conf_options | join(' ') }}
+{% endif %}

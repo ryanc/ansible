@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+[Resolve]
+{% for ns in (network_nameservers | shuffle(seed=inventory_hostname)) %}
+DNS={{ ns }}
+{% endfor %}

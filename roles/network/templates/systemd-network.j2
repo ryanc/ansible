@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+[Match]
+Name={{ item.name }}
+
+[Network]
+{% if item.address is string %}
+Address={{ item.address }}
+{% else %}
+{% for address in item.address %}
+Address={{ address }}
+{% endfor %}
+{% endif %}
+{% if item.gateway is string %}
+Gateway={{ item.gateway }}
+{% else %}
+{% for gateway in item.gateway %}
+Gateway={{ gateway }}
+{% endfor %}
+{% endif %}

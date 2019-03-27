@@ -1,0 +1,104 @@
+---
+- name: gather OS specific variables
+  include_vars: "{{ item }} "
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
+# systemd-networkd
+
+- name: manage systemd-networkd package
+  package:
+    name: "{{ _network_systemd_networkd_package_name }}"
+    state: "{{ _network_systemd_networkd_enabled | ternary('present', 'absent') }}"
+  when: _systemd_networkd_package_name is defined
+
+- name: manage systemd-networkd service
+  service:
+    name: "{{ _network_systemd_networkd_service_name }}"
+    state: "{{ _network_systemd_networkd_enabled | ternary('started', 'stopped') }}"
+    enabled: "{{ _network_systemd_networkd_enabled }}"
+
+- name: configure systemd-networkd
+  template:
+    src: systemd-network.j2
+    dest: "/etc/systemd/network/05-{{ item.name }}.network"
+  notify: restart systemd-networkd
+  with_items: "{{ network_interfaces }}"
+  when: _network_systemd_networkd_enabled
+
+# ifupdown
+
+- name: manage ifupdown services
+  service:
+    name: "{{ _network_ifupdown_service_name }}"
+    state: "{{ _network_ifupdown_enabled | ternary('started', 'stopped') }}"
+    enabled: "{{ _network_ifupdown_enabled }}"
+
+- name: manage ifupdown package
+  package:
+    name: "{{ _network_ifupdown_package_name }}"
+    state: "{{ _network_ifupdown_enabled | ternary('present', 'absent') }}"
+
+- name: manage /etc/network/interfaces
+  template:
+    src: network-interfaces.j2
+    dest: /etc/network/interfaces
+  notify: restart ifupdown
+  with_items: "{{ network_interfaces }}"
+  when: _network_ifupdown_enabled
+
+# netplan.io
+
+- name: manage netplan package
+  package:
+    name: "{{ _network_netplan_package_name }}"
+    state: "{{ _network_netplan_enabled | ternary('present', 'absent') }}"
+
+- name: manage netplan
+  template:
+    src: netcfg.yaml.j2
+    dest: /etc/netplan/01-netcfg.yaml
+  notify: netplan apply
+  when: _network_netplan_enabled
+
+# resolv.conf
+
+- name: configure resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+  notify: restart systemd-resolved
+  when: _network_resolv_conf_enabled
+
+# systemd-resolved
+
+- name: manage systemd-resolved service
+  service:
+    name: "{{ _network_systemd_resolved_service_name }}"
+    state: "{{ _network_systemd_resolved_enabled | ternary('started', 'stopped') }}"
+    enabled: "{{ _network_systemd_resolved_enabled }}"
+
+- name: symlink /etc/resolv.conf
+  file:
+    src: /run/systemd/resolve/stub-resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: yes
+  when: _network_systemd_resolved_enabled
+
+- name: configure systemd-resolved
+  template:
+    src: resolved.conf.j2
+    dest: /etc/systemd/resolved.conf
+  notify: restart systemd-resolved
+  when: _network_systemd_resolved_enabled
+
+- name: remove systemd-resolved configuration
+  file:
+    path: /etc/systemd/resolved.conf
+    state: absent
+  when: not _network_systemd_resolved_enabled
+
+# vim:ft=yaml.ansible:

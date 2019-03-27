@@ -1,0 +1,17 @@
+---
+network_interfaces: []
+
+network_nameservers: []
+network_resolv_conf_options:
+ - edns0
+
+_network_resolv_conf_enabled: yes
+
+_network_systemd_networkd_service_name: systemd-networkd.service
+_network_ifupdown_service_name: networking.service
+_network_systemd_resolved_service_name: systemd-resolved.service
+
+_network_ifupdown_package_name: ifupdown
+_network_netplan_package_name: netplan.io
+
+# vim:ft=yaml.ansible:
