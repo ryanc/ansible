@@ -5,7 +5,7 @@ _network_systemd_resolved_available: yes
 _network_ifupdown_enabled: no
 _network_netplan_enabled: no
 _network_systemd_networkd_enabled: yes
-_network_systemd_resolved_enabled: yes
-_network_resolv_conf_enabled: no
+_network_systemd_resolved_enabled: no
+_network_resolv_conf_enabled: yes
 
 # vim:ft=yaml.ansible:
