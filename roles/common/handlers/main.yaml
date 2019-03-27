@@ -1,10 +1,4 @@
 ---
-- name: "restart resolv"
-  service:
-    name: "{{ resolv_service_name }}"
-    state: restarted
-  when: resolv_service_name is defined
-
 - name: restart cron
   service:
     name: "{{ cron_service_name }}"

@@ -12,12 +12,6 @@
     state: present
   with_items: "{{ sys_utils }}"
 
-- name: configure resolv.conf
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolv.conf
-  notify: "restart resolv"
-
 - name: configure system timezone
   timezone:
     name: "{{ timezone }}"
