@@ -4,3 +4,10 @@
 {% for ns in (network_nameservers | shuffle(seed=inventory_hostname)) %}
 DNS={{ ns }}
 {% endfor %}
+{% if network_search is defined %}
+{% if network_search is iterable and network_search is not string %}
+Domains={{ network_search | join(' ') }}
+{% else %}
+Domains={{ network_search }}
+{% endif %}
+{% endif %}

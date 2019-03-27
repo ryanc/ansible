@@ -6,3 +6,10 @@ nameserver {{ ns }}
 {% if network_resolv_conf_options is defined %}
 options {{ network_resolv_conf_options | join(' ') }}
 {% endif %}
+{% if network_search is defined %}
+{% if network_search is iterable and network_search is not string %}
+search {{ network_search | join(' ') }}
+{% else %}
+search {{ network_search }}
+{% endif %}
+{% endif %}
