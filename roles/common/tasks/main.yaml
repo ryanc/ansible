@@ -22,3 +22,5 @@
   timezone:
     name: "{{ timezone }}"
   notify: restart cron
+
+# vim:ft=yaml.ansible:

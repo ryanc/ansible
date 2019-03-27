@@ -23,3 +23,5 @@
     name: "{{ openssh_service_name }}"
     state: "{{ openssh_service_state }}"
     enabled: "{{ openssh_service_enabled }}"
+
+# vim:ft=yaml.ansible:

@@ -4,3 +4,5 @@
     name: "{{ unbound_service_name }}"
     state: reloaded
   when: unbound_service_enabled
+
+# vim:ft=yaml.ansible:

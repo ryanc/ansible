@@ -7,3 +7,5 @@ openssh_service_state: 'started'
 openssh_service_enabled: true
 
 openssh_sshd_config: {}
+
+# vim:ft=yaml.ansible:

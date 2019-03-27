@@ -10,3 +10,5 @@
     name: "{{ cron_service_name }}"
     state: restarted
   when: cron_service_name is defined
+
+# vim:ft=yaml.ansible:

@@ -4,3 +4,5 @@ chrony_pool:
   - 0.ubuntu.pool.ntp.org iburst maxsources 1
   - 1.ubuntu.pool.ntp.org iburst maxsources 1
   - 2.ubuntu.pool.ntp.org iburst maxsources 2
+
+# vim:ft=yaml.ansible:

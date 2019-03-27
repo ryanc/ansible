@@ -28,3 +28,5 @@
     name: "{{ chrony_service_name }}"
     state: "{{ chrony_service_state }}"
     enabled: "{{ chrony_service_enabled }}"
+
+# vim:ft=yaml.ansible:

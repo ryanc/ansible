@@ -6,3 +6,5 @@ sys_utils:
   - dnsutils
   - ldnsutils
   - tcpdump
+
+# vim:ft=yaml.ansible:

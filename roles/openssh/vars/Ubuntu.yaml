@@ -7,3 +7,5 @@ openssh_default_sshd_config:
   PrintMotd: 'no'
   AcceptEnv: LANG LC_*
   Subsystem: 'sftp /usr/lib/openssh/sftp-server'
+
+# vim:ft=yaml.ansible:

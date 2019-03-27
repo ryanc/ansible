@@ -30,3 +30,5 @@
     path: /etc/apticron/apticron.conf
     state: absent
   when: unattended_upgrades_apticron_package_state == 'absent'
+
+# vim:ft=yaml.ansible:

@@ -6,3 +6,5 @@ resolv_options:
  - edns0
 
 timezone: UTC
+
+# vim:ft=yaml.ansible:

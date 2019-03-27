@@ -94,3 +94,5 @@ unattended_upgrades_mail: "{{ unattended_upgrades_mailto }}"
 # Download and install upgrades only on non-metered connection
 # (i.e. skip or gracefully stop updates on a metered connection)
 # unattended_upgrades_skip_updates_on_metered_connections: true
+
+# vim:ft=yaml.ansible:

@@ -4,3 +4,5 @@
     name: "{{ openssh_service_name }}"
     state: reloaded
   when: openssh_service_enabled
+
+# vim:ft=yaml.ansible:

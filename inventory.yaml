@@ -3,3 +3,5 @@ pi:
   hosts:
     pi:
       ansible_connection: local
+
+# vim:ft=yaml.ansible:
