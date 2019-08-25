@@ -1,0 +1,23 @@
+---
+# systemd-networkd
+
+- name: manage systemd-networkd package
+  package:
+    name: "{{ _network_systemd_networkd_package_name }}"
+    state: "{{ _network_systemd_networkd_enabled | ternary('present', 'absent') }}"
+  when: _systemd_networkd_package_name is defined
+
+- name: manage systemd-networkd service
+  service:
+    name: "{{ _network_systemd_networkd_service_name }}"
+    state: "{{ _network_systemd_networkd_enabled | ternary('started', 'stopped') }}"
+    enabled: "{{ _network_systemd_networkd_enabled }}"
+
+- name: configure systemd-networkd
+  template:
+    src: systemd-network.j2
+    dest: "/etc/systemd/network/05-{{ item.name }}.network"
+  notify: restart systemd-networkd
+  with_items: "{{ network_interfaces }}"
+  when: _network_systemd_networkd_enabled | bool
+

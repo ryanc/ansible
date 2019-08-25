@@ -1,6 +1,6 @@
 ---
 network_interfaces:
-  - name: "{{ facter_networking.primary }}"
+  - name: "{{ ansible_default_ipv4.interface }}"
     address:
       - "{{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ipaddr('prefix') }}"
       - "{{ ansible_default_ipv6.address + '/' + ansible_default_ipv6.prefix }}"

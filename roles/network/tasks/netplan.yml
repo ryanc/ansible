@@ -1,0 +1,15 @@
+---
+# netplan.io
+
+- name: manage netplan package
+  package:
+    name: "{{ _network_netplan_package_name }}"
+    state: "{{ _network_netplan_enabled | ternary('present', 'absent') }}"
+
+- name: manage netplan
+  template:
+    src: netcfg.yaml.j2
+    dest: /etc/netplan/01-netcfg.yaml
+  notify: netplan apply
+  when: _network_netplan_enabled | bool
+
