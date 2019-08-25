@@ -1,0 +1,77 @@
+*filter
+:INPUT {{ firewall_iptables_input_policy }}
+:FORWARD {{ firewall_iptables_forward_policy }}
+:OUTPUT {{ firewall_iptables_output_policy }}
+
+:LIMIT -
+
+:LOG_LIMIT -
+:LOG_ACCEPT - 
+:LOG_DROP -
+
+-A LOG_ACCEPT -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables ACCEPT] " --log-level info
+-A LOG_ACCEPT -j ACCEPT
+
+-A LOG_DROP -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables DROP] " --log-level info
+-A LOG_DROP -j DROP
+
+-A LOG_LIMIT -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables LIMIT] " --log-level info
+-A LOG_LIMIT -j DROP
+
+-A LIMIT -m state --state NEW -m recent --set
+-A LIMIT -m state --state NEW -m recent --update --seconds {{ firewall_limit_seconds }} --hitcount {{ firewall_limit_hitcount }} -j LOG_LIMIT
+-A LIMIT -j ACCEPT
+
+{% if firewall_drop_icmp_flood %}
+-N ICMP_FLOOD
+-A ICMP_FLOOD -m recent --set --name ICMP --rsource
+-A ICMP_FLOOD -m recent --update --seconds 1 --hitcount 6 --name ICMP --rsource --rttl -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables ICMP FLOOD] " --log-level info
+-A ICMP_FLOOD -m recent --update --seconds 1 --hitcount 6 --name ICMP --rsource --rttl -j DROP
+-A ICMP_FLOOD -j ACCEPT
+{% endif %}
+
+-A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
+
+{% for ipset in firewall_ipset_mgmt.v4 | default([]) %}
+-A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v4 src -m comment --comment "accept mgmt ssh" -j ACCEPT
+{% endfor %}
+
+{% for ipset in firewall_ipset_blacklist.v4 | default([]) %}
+-A INPUT -m set --match-set mgmt_v4 src -m comment --comment "drop blacklist" -j LOG_DROP
+{% endfor %}
+
+{% for ipset in firewall_ipset_bogons | default([]) %}
+-A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v4 src,dst -m comment --comment "drop bogons" -j LOG_DROP
+{% endfor %}
+
+-A INPUT -p icmp -m icmp --icmp-type destination-unreachable -m comment --comment "accept icmp destination-unreachable" -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type time-exceeded -m comment --comment "accept icmp time-exceeded" -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type parameter-problem -m comment --comment "accept icmp parameter-problem" -j ACCEPT
+{% if firewall_drop_icmp_flood %}
+-A INPUT -p icmp -m icmp --icmp-type echo-request -m comment --comment "accept icmp echo-request" -j ICMP_FLOOD
+{% else %}
+-A INPUT -p icmp -m icmp --icmp-type echo-request -m comment --comment "accept icmp echo-request" -j ACCEPT
+{% endif %}
+-A INPUT -p icmp -m icmp --icmp-type echo-reply -m comment --comment "accept icmp echo-reply" -j ACCEPT
+
+{% for type in firewall_allowed_icmp_types.v4 | default([]) %}
+-A INPUT -p icmp -m icmp --icmp-type {{ type }} -m comment --comment "accept icmp {{ type }}" -j ACCEPT
+{% endfor %}
+
+{% for port in firewall_allowed_tcp_ports.v4 | default([]) %}
+-A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "accept {{ port }}/tcp" -j ACCEPT
+{% endfor %}
+
+{% for port in firewall_allowed_udp_ports.v4 | default([]) %}
+-A INPUT -p udp -m udp --dport {{ port }} -m comment --comment "accept {{ port }}/udp" -j ACCEPT
+{% endfor %}
+
+{% for port in firewall_limited_tcp_ports.v4 | default([]) %}
+-A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "limit {{ port }}/tcp" -j LIMIT
+{% endfor %}
+
+-A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
+
+-A INPUT -m comment --comment "log drop" -j LOG_DROP
+
+COMMIT

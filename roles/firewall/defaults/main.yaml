@@ -1,0 +1,87 @@
+---
+firewall_iptables_rules_v4: /etc/iptables/rules.v4-tmp
+firewall_iptables_rules_v6: /etc/iptables/rules.v6-tmp
+
+firewall_ipset_v4: /etc/iptables/ipset.v4-tmp
+firewall_ipset_v6: /etc/iptables/ipset.v6-tmp
+
+firewall_iptables_persistent_package_name: iptables-persistent
+firewall_iptables_persistent_package_state: present
+
+firewall_iptables_persistent_service_state: started
+firewall_iptables_persistent_service_enabled: true
+
+firewall_iptables_persistent_plugin_path: /usr/share/netfilter-persistent/plugins.d
+firewall_ipset_save_path: /etc/iptables/ipset
+
+firewall_ipset_package_name: ipset
+firewall_ipset_package_state: present
+
+firewall_iptables_input_policy: DROP
+firewall_iptables_output_policy: ACCEPT
+firewall_iptables_forward_policy: DROP
+
+firewall_iptables_input_policy_v6: DROP
+firewall_iptables_output_policy_v6: ACCEPT
+firewall_iptables_forward_policy_v6: DROP
+
+firewall_drop_icmp_flood: true
+
+firewall_limited_tcp_ports: {}
+
+firewall_allowed_tcp_ports: {}
+firewall_allowed_udp_ports: {}
+
+firewall_log_limit: 3/min
+firewall_log_limit_burst: 10
+
+firewall_limit_seconds: 60
+firewall_limit_hitcount: 10
+
+firewall_bogon_interface: "{{ ansible_default_ipv4.interface }}"
+
+# ipset's
+firewall_ipset_blacklist: {}
+
+firewall_ipset_mgmt: {}
+
+firewall_ipset_bogons:
+  v4:
+    - 0.0.0.0/8
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.168.0.0/16
+    - 198.18.0.0/15
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 240.0.0.0/4
+  v6:
+    - ::/96
+    - ::/128
+    - ::1/128
+    - ::ffff:0.0.0.0/96
+    - ::224.0.0.0/100
+    - ::127.0.0.0/104
+    - ::0.0.0.0/104
+    - ::255.0.0.0/104
+    - 0000::/8
+    - 0200::/7
+    - 3ffe::/16
+    - 2001:db8::/32
+    - 2002:e000::/20
+    - 2002:7f00::/24
+    - 2002:0000::/24
+    - 2002:ff00::/24
+    - 2002:0a00::/24
+    - 2002:ac10::/28
+    - 2002:c0a8::/32
+    - fc00::/7
+    - fe80::/10
+    - fec0::/10
+    - ff00::/8

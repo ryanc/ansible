@@ -1,0 +1,13 @@
+{% macro render_ipset(ipset, name, type="hash:net", family="inet") %}
+create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters -exist
+flush {{ name }}
+{% for ip_or_net in ipset | default([]) %}
+add {{ name }} {{ ip_or_net }}
+{% endfor %}
+{% endmacro %}
+
+{{ render_ipset(firewall_ipset_mgmt.v4, 'mgmt_v4') }}
+
+{{ render_ipset(firewall_ipset_blacklist.v4, 'blacklist_v4') }}
+
+{{ render_ipset(firewall_ipset_bogons.v4, 'bogons_v4') }}

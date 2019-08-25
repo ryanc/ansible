@@ -1,0 +1,33 @@
+- name: ipset restore v4
+  command: ipset restore -file {{ firewall_ipset_v4 }}
+
+- name: ipset restore v6
+  command: ipset restore -file {{ firewall_ipset_v6 }}
+
+- name: iptables-restore
+  command: "{{ item }}"
+  loop:
+    - iptables-restore --test {{ firewall_iptables_rules_v4 }}
+    - iptables-restore {{ firewall_iptables_rules_v4 }}
+
+- name: ip6tables-restore
+  command: ip6tables-restore {{ firewall_iptables_rules_v6 }}
+
+- name: restart firewall v4
+  command: "{{ item }}"
+  loop:
+    - iptables-restore /etc/iptables/clear.v4
+    - ipset restore -file {{ firewall_ipset_v4 }}
+    - iptables-restore --test {{ firewall_iptables_rules_v4 }}
+    - iptables-restore {{ firewall_iptables_rules_v4 }}
+
+- name: restart firewall v6
+  command: "{{ item }}"
+  loop:
+    - ip6tables-restore /etc/iptables/clear.v6
+    - ipset restore -file {{ firewall_ipset_v6 }}
+    - ip6tables-restore --test {{ firewall_iptables_rules_v6 }}
+    - ip6tables-restore {{ firewall_iptables_rules_v6 }}
+
+- name: iptables-persistent
+  command: /usr/sbin/netfilter-persistent save

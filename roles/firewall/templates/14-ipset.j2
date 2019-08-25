@@ -1,0 +1,58 @@
+#!/bin/sh
+
+SAVE_PATH={{ firewall_ipset_save_path }}
+
+set -e
+
+rc=0
+
+load_ipset()
+{
+	if [ ! -f $SAVE_PATH ]; then
+		echo "Warning: skipping, no set to load" 
+	else
+		/sbin/ipset restore -exist < $SAVE_PATH 2> /dev/null
+		if [ $? -ne 0 ]; then
+			rc=1
+		fi
+	fi
+}
+
+save_ipset()
+{
+    touch $SAVE_PATH
+    chmod 0640 $SAVE_PATH
+    /sbin/ipset save > $SAVE_PATH
+    if [ $? -ne 0 ]; then
+        rc=1
+    fi
+}
+
+flush_ipset()
+{
+    /sbin/ipset flush
+    if [ $? -ne 0 ]; then
+        rc=1
+    fi
+}
+
+case "$1" in
+start|restart|reload|force-reload)
+	load_ipset
+	;;
+save)
+	save_ipset
+	;;
+stop)
+	echo "Automatic flushing disabled, use \"flush\" instead of \"stop\""
+	;;
+flush)
+	flush_ipset
+	;;
+*)
+    echo "Usage: $0 {start|restart|reload|force-reload|save|flush}" >&2
+    exit 1
+    ;;
+esac
+
+exit $rc

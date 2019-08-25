@@ -1,0 +1,85 @@
+---
+- name: gather OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
+- name: install iptables-persistent
+  package:
+    name: "{{ firewall_iptables_persistent_package_name }}"
+    state: "{{ firewall_iptables_persistent_package_state }}"
+
+- name: manage iptables-persistent service
+  service:
+    name: "{{ firewall_iptables_persistent_service_name }}"
+    state: "{{ firewall_iptables_persistent_service_state }}"
+    enabled: "{{ firewall_iptables_persistent_service_enabled }}"
+
+- name: install ipset
+  package:
+    name: "{{ firewall_ipset_package_name }}"
+    state: "{{ firewall_ipset_package_state }}"
+
+- name: patch iptables-persistent service for ipset
+  template:
+    src: 14-ipset.j2
+    dest: "{{ firewall_iptables_persistent_plugin_path }}/14-ipset"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: configure iptables clear rules
+  copy:
+    src: "{{ item }}"
+    dest: /etc/iptables/{{ item }}
+  loop:
+    - clear.v4
+    - clear.v6
+
+- name: configure IPv4 ipsets
+  template:
+    src: ipset.v4.j2
+    dest: "{{ firewall_ipset_v4 }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart firewall v4
+    - iptables-persistent
+
+- name: configure IPv4 firewall
+  template:
+    src: iptables.j2
+    dest: "{{ firewall_iptables_rules_v4 }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart firewall v4
+    - iptables-persistent
+
+- name: configure IPv6 ipsets
+  template:
+    src: ipset.v6.j2
+    dest: "{{ firewall_ipset_v6 }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart firewall v6
+    - iptables-persistent
+
+- name: configure IPv6 firewall
+  template:
+    src: ip6tables.j2
+    dest: "{{ firewall_iptables_rules_v6 }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart firewall v6
+    - iptables-persistent
+
+# vim:ft=yaml.ansible:
