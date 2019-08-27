@@ -26,6 +26,8 @@ firewall_iptables_output_policy_v6: ACCEPT
 firewall_iptables_forward_policy_v6: DROP
 
 firewall_drop_icmp_flood: true
+firewall_limit_icmp_flood_seconds: 1
+firewall_limit_icmp_flood_hitcount: 6
 
 firewall_limited_tcp_ports: {}
 

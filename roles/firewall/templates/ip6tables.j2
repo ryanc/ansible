@@ -9,88 +9,90 @@
 
 -N LOG_DROP
 -A LOG_DROP -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables DROP] " --log-level info
--A LOG_DROP -p tcp -m tcp -m comment --comment "reject tcp" -j REJECT --reject-with tcp-reset
--A LOG_DROP -p udp -m udp -m comment --comment "drop udp" -j DROP
--A LOG_DROP -m comment --comment "reject all" -j REJECT --reject-with icmp6-adm-prohibited
+-A LOG_DROP -p tcp -m tcp -m comment --comment "reject tcp6" -j REJECT --reject-with tcp-reset
+-A LOG_DROP -p udp -m udp -m comment --comment "drop udp6" -j DROP
+-A LOG_DROP -m comment --comment "reject all inet6" -j REJECT --reject-with icmp6-adm-prohibited
 
 {% if firewall_limit_ssh %}
 -N LIMIT_SSH
 -A LIMIT_SSH -m recent --set --name SSH --rsource
 -A LIMIT_SSH -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables SSH BRUTE] " --log-level info
--A LIMIT_SSH -p tcp -m tcp -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount}} --name SSH --rsource -m comment --comment "rate limit ssh v6" -j REJECT --reject-with tcp-reset
+-A LIMIT_SSH -p tcp -m tcp -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount}} --name SSH --rsource -m comment --comment "rate limit ssh 22/tcp6" -j REJECT --reject-with tcp-reset
 -A LIMIT_SSH -j ACCEPT
 {% endif %}
 
 {% if firewall_drop_icmp_flood %}
 -N ICMP_FLOOD
 -A ICMP_FLOOD -m recent --set --name ICMP --rsource
--A ICMP_FLOOD -m recent --update --seconds 1 --hitcount 6 --name ICMP --rsource --rttl -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables ICMP FLOOD] " --log-level info
--A ICMP_FLOOD -m recent --update --seconds 1 --hitcount 6 --name ICMP --rsource --rttl -m comment --comment "drop icmp flood v6" -j REJECT --reject-with icmp6-adm-prohibited
+-A ICMP_FLOOD -m recent --update --seconds {{ firewall_limit_icmp_flood_seconds }} --hitcount {{ firewall_limit_icmp_flood_hitcount }} --name ICMP --rsource --rttl -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables ICMP FLOOD] " --log-level info
+-A ICMP_FLOOD -m recent --update --seconds {{ firewall_limit_icmp_flood_seconds }} --hitcount {{ firewall_limit_icmp_flood_hitcount }} --name ICMP --rsource --rttl -m comment --comment "drop icmpv6 flood" -j REJECT --reject-with icmp6-adm-prohibited
 -A ICMP_FLOOD -j ACCEPT
 {% endif %}
 
--A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
+-A INPUT -i lo -m comment --comment "lo accept all inet6" -j ACCEPT
 
--A INPUT -m state --state INVALID -m comment --comment "drop invalid IPv6" -j DROP
+-A INPUT -m state --state INVALID -m comment --comment "drop invalid inet6" -j DROP
 
 {% if firewall_ipset_mgmt.v6 is defined %}
--A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v6 src -m comment --comment "accept mgmt ssh" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v6 src -m comment --comment "accept mgmt ssh 22/tcp6" -j ACCEPT
 {% endif %}
 
 {% if firewall_ipset_blacklist.v6 is defined %}
--A INPUT -m set --match-set mgmt_v6 src -m comment --comment "drop blacklist" -j LOG_DROP
+-A INPUT -m set --match-set mgmt_v6 src -m comment --comment "drop blacklist inet6" -j LOG_DROP
 {% endif %}
 
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 130 -m comment --comment "accept icmp 130" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 131 -m comment --comment "accept icmp 131" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 132 -m comment --comment "accept icmp 132" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 143 -m comment --comment "accept icmp 143" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 151 -m hl --hl-eq 1 -m comment --comment "accept icmp 151" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 152 -m hl --hl-eq 1 -m comment --comment "accept icmp 152" -j ACCEPT
--A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 153 -m hl --hl-eq 1 -m comment --comment "accept icmp 153" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 130 -m comment --comment "accept icmpv6 130" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 131 -m comment --comment "accept icmpv6 131" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 132 -m comment --comment "accept icmpv6 132" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 143 -m comment --comment "accept icmpv6 143" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 151 -m hl --hl-eq 1 -m comment --comment "accept icmpv6 151" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 152 -m hl --hl-eq 1 -m comment --comment "accept icmpv6 152" -j ACCEPT
+-A INPUT -s fe80::/10 -p icmpv6 -m icmpv6 --icmpv6-type 153 -m hl --hl-eq 1 -m comment --comment "accept icmpv6 153" -j ACCEPT
 
 -A INPUT -s fe80::/10 -p udp -m udp --sport 547 --dport 546 -m comment --comment "accept dhcpv6" -j ACCEPT
 
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type destination-unreachable -m comment --comment "accept icmp destination-unreachable" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type packet-too-big -m comment --comment "accept icmp packet-too-big" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type time-exceeded -m comment --comment "accept icmp time-exceeded" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type parameter-problem -m comment --comment "accept icmp parameter-problem" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type destination-unreachable -m comment --comment "accept icmpv6 destination-unreachable" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type packet-too-big -m comment --comment "accept icmpv6 packet-too-big" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type time-exceeded -m comment --comment "accept icmpv6 time-exceeded" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type parameter-problem -m comment --comment "accept icmpv6 parameter-problem" -j ACCEPT
 {% if firewall_drop_icmp_flood %}
 -A INPUT -p icmpv6 -m icmpv6 --icmpv6-type echo-request -m comment --comment "accept icmpv6 echo-request" -j ICMP_FLOOD
 {% else %}
 -A INPUT -p icmpv6 -m icmpv6 --icmpv6-type echo-request -m comment --comment "accept icmpv6 echo-request" -j ACCEPT
 {% endif %}
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type echo-reply -m comment --comment "accept icmp echo-reply" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type echo-reply -m comment --comment "accept icmpv6 echo-reply" -j ACCEPT
 
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type router-solicitation -m hl --hl-eq 255 -m comment --comment "accept icmp router-solicitation" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type router-advertisement -m hl --hl-eq 255 -m comment --comment "accept icmp router-advertisement" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type neighbour-solicitation -m hl --hl-eq 255 -m comment --comment "accept icmp neighbour-solicitation" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type neighbour-advertisement -m hl --hl-eq 255 -m comment --comment "accept icmp neighbour-advertisement" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 141 -m hl --hl-eq 255 -m comment --comment "accept icmp 141" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 142 -m hl --hl-eq 255 -m comment --comment "accept icmp 142" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 148 -m hl --hl-eq 255 -m comment --comment "accept icmp 148" -j ACCEPT
--A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 149 -m hl --hl-eq 255 -m comment --comment "accept icmp 149" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type router-solicitation -m hl --hl-eq 255 -m comment --comment "accept icmpv6 router-solicitation" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type router-advertisement -m hl --hl-eq 255 -m comment --comment "accept icmpv6 router-advertisement" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type neighbour-solicitation -m hl --hl-eq 255 -m comment --comment "accept icmpv6 neighbour-solicitation" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type neighbour-advertisement -m hl --hl-eq 255 -m comment --comment "accept icmpv6 neighbour-advertisement" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 141 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 141" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 142 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 142" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 148 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 148" -j ACCEPT
+-A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 149 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 149" -j ACCEPT
 
 {% if firewall_ipset_bogons.v6 is defined %}
--A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v6 src,dst -m comment --comment "drop bogons" -j LOG_DROP
+-A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v6 src,dst -m comment --comment "drop bogons inet6" -j LOG_DROP
 {% endif %}
 
 {% if firewall_limit_ssh %}
--A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh" -j LIMIT_SSH
+-A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp6" -j LIMIT_SSH
 {% else %}
--A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp6" -j ACCEPT
 {% endif %}
 
 {% for port in firewall_allowed_tcp_ports.v6 | default([]) %}
--A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "accept {{ port }}/tcp" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "accept {{ port }}/tcp6" -j ACCEPT
 {% endfor %}
 
 {% for port in firewall_allowed_udp_ports.v6 | default([]) %}
--A INPUT -p udp -m udp --dport {{ port }} -m comment --comment "accept {{ port }}/udp" -j ACCEPT
+-A INPUT -p udp -m udp --dport {{ port }} -m comment --comment "accept {{ port }}/udp6" -j ACCEPT
 {% endfor %}
 
--A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established inet6" -j ACCEPT
 
--A INPUT -m comment --comment "log drop" -j LOG_DROP
+-A INPUT -m comment --comment "default drop inet6" -j LOG_DROP
 
 COMMIT
+
+# vim: tw=0
