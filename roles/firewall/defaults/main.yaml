@@ -35,8 +35,9 @@ firewall_allowed_udp_ports: {}
 firewall_log_limit: 3/min
 firewall_log_limit_burst: 10
 
-firewall_limit_seconds: 60
-firewall_limit_hitcount: 10
+firewall_limit_ssh: true
+firewall_limit_ssh_seconds: 60
+firewall_limit_ssh_hitcount: 10
 
 firewall_bogon_interface: "{{ ansible_default_ipv4.interface }}"
 
