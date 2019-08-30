@@ -1,5 +1,5 @@
-{% macro render_ipset(ipset, name, type="hash:net", family="inet6") %}
-create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters -exist
+{% macro render_ipset(ipset, name, type="hash:net", family="inet6", timeout=None) %}
+create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters {% if timeout %}timeout {{ timeout }}{% endif %} -exist
 flush {{ name }}
 {% for ip_or_net in ipset | default([]) %}
 add {{ name }} {{ ip_or_net }}
@@ -11,3 +11,5 @@ add {{ name }} {{ ip_or_net }}
 {{ render_ipset(firewall_ipset_blacklist.v6, 'blacklist_v6') }}
 
 {{ render_ipset(firewall_ipset_bogons.v6, 'bogons_v6') }}
+
+{{ render_ipset([], 'cooloff_v6', type="hash:ip", timeout=firewall_ipset_scanner_timeout) }}
