@@ -76,7 +76,15 @@
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
 
 -A INPUT -m comment --comment "default drop" -j LOG_DROP
+COMMIT
 
+*raw
+:PREROUTING ACCEPT -
+:OUTPUT ACCEPT -
+{% if firewall_loopback_notrack %}
+-A PREROUTING -i lo -j NOTRACK
+-A OUTPUT -o lo -j NOTRACK
+{% endif %}
 COMMIT
 
 # vim: tw=0
