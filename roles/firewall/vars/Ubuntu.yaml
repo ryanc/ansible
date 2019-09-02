@@ -2,6 +2,6 @@
 firewall_iptables_persistent_service_name: netfilter-persistent.service
 
 firewall_ulogd_package_name: ulogd2
-firewall_ulogd_service_name: ulogd2
+firewall_ulogd_service_name: ulogd2.service
 
 firewall_ulogd_config_path: /etc/ulogd.conf

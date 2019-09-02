@@ -30,6 +30,9 @@ firewall_iptables_output_policy_v6: ACCEPT
 firewall_iptables_forward_policy_v6: DROP
 
 firewall_use_ulogd: true
+firewall_ulogd_package_name: ulogd2
+firewall_ulogd_service_name: ulogd2.service
+firewall_ulogd_config_path: /etc/ulogd.conf
 firewall_ulogd_nflog_group: 1
 firewall_ulogd_syslog_facility: LOG_LOCAL0
 firewall_ulogd_syslog_level: LOG_INFO
