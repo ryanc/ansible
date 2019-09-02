@@ -12,4 +12,4 @@ add {{ name }} {{ ip_or_net }}
 
 {{ render_ipset(firewall_ipset_bogons.v4, 'bogons_v4') }}
 
-{{ render_ipset([], 'cooloff_v4', type="hash:ip", timeout=firewall_ipset_scanner_timeout) }}
+{{ render_ipset([], 'cooloff_v4', type="hash:ip", timeout=firewall_ipset_cooloff_timeout) }}

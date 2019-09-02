@@ -25,6 +25,7 @@
 
 {% if firewall_limit_ssh %}
 -N LIMIT_SSH
+-A LIMIT_SSH -p tcp -m tcp -m set --match-set cooloff_v4 src -m comment --comment "rate limit ssh 22/tcp" -j REJECT --reject-with tcp-reset
 -A LIMIT_SSH -m recent --set --name SSH --rsource
 {% if firewall_use_ulogd %}
 -A LIMIT_SSH -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j NFLOG --nflog-prefix "[iptables SSH BRUTE] "
@@ -32,7 +33,6 @@
 -A LIMIT_SSH -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables SSH BRUTE] " --log-level info
 {% endif %}
 -A LIMIT_SSH -p tcp -m tcp -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -j SET --add-set cooloff_v4 src
--A LIMIT_SSH -p tcp -m tcp -m set --match-set cooloff_v4 src -m comment --comment "rate limit ssh 22/tcp" -j REJECT --reject-with tcp-reset
 -A LIMIT_SSH -j ACCEPT
 {% endif %}
 
