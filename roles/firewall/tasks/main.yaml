@@ -22,6 +22,26 @@
     name: "{{ firewall_ipset_package_name }}"
     state: "{{ firewall_ipset_package_state }}"
 
+- name: install ulogd
+  package:
+    name: "{{ firewall_ulogd_package_name }}"
+    state: "{{ firewall_ulogd_package_state }}"
+
+- name: configure ulogd
+  template:
+    src: ulogd.conf.j2
+    dest: "{{ firewall_ulogd_config_path }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart ulogd
+
+- name: manage ulogd service
+  service:
+    name: "{{ firewall_ulogd_service_name }}"
+    state: "{{ firewall_ulogd_service_state }}"
+    enabled: "{{ firewall_ulogd_service_enabled }}"
+
 - name: patch iptables-persistent service for ipset
   template:
     src: 14-ipset.j2

@@ -11,6 +11,10 @@ firewall_iptables_persistent_package_state: present
 firewall_iptables_persistent_service_state: started
 firewall_iptables_persistent_service_enabled: true
 
+firewall_ulogd_package_state: present
+firewall_ulogd_service_state: started
+firewall_ulogd_service_enabled: true
+
 firewall_iptables_persistent_plugin_path: /usr/share/netfilter-persistent/plugins.d
 firewall_ipset_save_path: /etc/iptables/ipset
 
@@ -24,6 +28,11 @@ firewall_iptables_forward_policy: DROP
 firewall_iptables_input_policy_v6: DROP
 firewall_iptables_output_policy_v6: ACCEPT
 firewall_iptables_forward_policy_v6: DROP
+
+firewall_use_ulogd: true
+firewall_ulogd_nflog_group: 1
+firewall_ulogd_syslog_facility: LOG_LOCAL0
+firewall_ulogd_syslog_level: LOG_INFO
 
 firewall_drop_icmp_flood: true
 firewall_limit_icmp_flood_seconds: 1

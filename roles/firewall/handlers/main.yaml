@@ -31,3 +31,8 @@
 
 - name: iptables-persistent
   command: /usr/sbin/netfilter-persistent save
+
+- name: restart ulogd
+  service:
+    name: "{{ firewall_ulogd_service_name }}"
+    state: restarted
