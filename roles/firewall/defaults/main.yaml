@@ -34,6 +34,8 @@ firewall_ulogd_nflog_group: 1
 firewall_ulogd_syslog_facility: LOG_LOCAL0
 firewall_ulogd_syslog_level: LOG_INFO
 
+firewall_iptables_nflog_group: 2
+
 firewall_drop_icmp_flood: true
 firewall_limit_icmp_flood_seconds: 1
 firewall_limit_icmp_flood_hitcount: 6

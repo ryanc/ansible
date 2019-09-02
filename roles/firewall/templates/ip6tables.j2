@@ -4,6 +4,7 @@
 :OUTPUT {{ firewall_iptables_output_policy_v6 }}
 
 -N LOG_ACCEPT
+-A LOG_ACCEPT -j NFLOG --nflog-group {{ firewall_iptables_nflog_group }}
 {% if firewall_use_ulogd %}
 -A LOG_ACCEPT -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j NFLOG --nflog-group {{ firewall_ulogd_nflog_group }} --nflog-prefix "[iptables ACCEPT] "
 {% else %}
@@ -12,6 +13,7 @@
 -A LOG_ACCEPT -j ACCEPT
 
 -N LOG_DROP
+-A LOG_DROP -j NFLOG --nflog-group {{ firewall_iptables_nflog_group }}
 {% if firewall_use_ulogd %}
 -A LOG_DROP -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j NFLOG --nflog-group {{ firewall_ulogd_nflog_group }} --nflog-prefix "[iptables DROP] "
 {% else %}
