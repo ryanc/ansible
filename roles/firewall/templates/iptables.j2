@@ -95,6 +95,10 @@
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
 
 -A INPUT -m comment --comment "default drop" -j LOG_DROP
+
+-A FORWARD -m comment --comment "default forward drop" -j LOG_DROP
+
+-A OUTPUT -m comment --comment "default output accept" -j ACCEPT
 COMMIT
 
 *raw

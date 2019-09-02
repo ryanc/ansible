@@ -111,6 +111,10 @@
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established inet6" -j ACCEPT
 
 -A INPUT -m comment --comment "default drop inet6" -j LOG_DROP
+
+-A FORWARD -m comment --comment "default forward drop inet6" -j LOG_DROP
+
+-A OUTPUT -m comment --comment "default output accept inet6" -j ACCEPT
 COMMIT
 
 *raw
