@@ -1,8 +1,8 @@
 ---
-- name: reload chrony
+- name: restart chrony
   service:
     name: "{{ chrony_service_name }}"
-    state: reloaded
+    state: restarted
   when: chrony_service_enabled
 
 # vim:ft=yaml.ansible:
