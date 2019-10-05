@@ -1,0 +1,7 @@
+---
+- name: enable serial console
+  lineinfile:
+    path: "{{ grub_defaults_path }}"
+    regexp: '^GRUB_CMDLINE_LINUX='
+    line: GRUB_CMDLINE_LINUX="{{ grub_cmdline_linux }}"
+  notify: grub-mkconfig

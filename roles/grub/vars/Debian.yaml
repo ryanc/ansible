@@ -1,0 +1,7 @@
+---
+grub_cfg_path: /boot/grub/grub.cfg
+grub_defaults_path: /etc/default/grub
+
+# Enables serial console.
+# This is helpful for libvirt guests
+grub_cmdline_linux: console=ttyS0
