@@ -1,0 +1,15 @@
+---
+minecraft_java_package_name: openjdk-8-jre-headless
+minecraft_java_package_state: present
+
+minecraft_service_name: minecraft.service
+minecraft_service_state: started
+minecraft_service_enabled: yes
+
+minecraft_user: minecraft
+minecraft_group: minecraft
+
+minecraft_jar_url: https://launcher.mojang.com/v1/objects/3dc3d84a581f14691199cf6831b71ed1296a9fdf/server.jar
+
+minecraft_opt_path: /opt/minecraft
+minecraft_var_path: "{{ minecraft_opt_path }}/var"

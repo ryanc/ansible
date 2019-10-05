@@ -1,0 +1,104 @@
+---
+- name: create minecraft group
+  group:
+    name: "{{ minecraft_group }}"
+    gid: "{{ minecraft_group_gid | default(omit) }}"
+    state: "{{ minecraft_group_state | default('present') }}"
+    system: yes
+
+- name: create minecraft user
+  user:
+    name: "{{ minecraft_user }}"
+    uid: "{{ minecraft_user_uid | default(omit) }}"
+    group: "{{ minecraft_group }}"
+    home: "{{ minecraft_var_path }}"
+    create_home: no
+    shell: "{{ minecraft_shell | default('/usr/sbin/nologin') }}"
+    state: "{{ minecraft_user_state | default('present') }}"
+    system: yes
+  
+- name: install java
+  package:
+    name: "{{ minecraft_java_package_name }}"
+    state: "{{ minecraft_java_package_state }}"
+
+- name: create minecraft installation directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - "{{ minecraft_opt_path }}"
+    - "{{ minecraft_opt_path }}/bin"
+    - "{{ minecraft_opt_path }}/etc"
+
+- name: create minecraft var directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    mode: "0755"
+  with_items:
+    - "{{ minecraft_var_path }}"
+
+- name: download minecraft server
+  get_url:
+    url: "{{ minecraft_jar_url }}"
+    dest: "{{ minecraft_opt_path }}/bin/server.jar"
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    mode: "0644"
+
+- name: agree to the eula
+  copy:
+    content: "eula=true"
+    dest: "{{ minecraft_var_path }}/eula.txt"
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    mode: "0644"
+
+- name: configure minecraft
+  template:
+    src: server.properties.j2
+    dest: "{{ minecraft_var_path }}/server.properties"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart minecraft
+
+- name: configure systemd unit
+  template:
+    src: minecraft.service.j2
+    dest: /etc/systemd/system/minecraft.service
+    owner: root
+    group: root
+    mode: 0644
+    #validate: systemd-analyze verify %s
+  notify: minecraft daemon-reload
+
+- name: manage minecraft service
+  service:
+    name: "{{ minecraft_service_name }}"
+    state: "{{ minecraft_service_state }}"
+    enabled: "{{ minecraft_service_enabled }}"
+
+- name: configure ops
+  copy:
+    content: "{{ (minecraft_ops | default([])) | to_nice_json }}"
+    dest: "{{ minecraft_var_path }}/ops.json"
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    mode: "0644"
+  notify: restart minecraft
+
+- name: configure whitelist
+  copy:
+    content: "{{ (minecraft_whitelist | default([])) | to_nice_json }}"
+    dest: "{{ minecraft_var_path }}/whitelist.json"
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    mode: "0644"
+  notify: restart minecraft

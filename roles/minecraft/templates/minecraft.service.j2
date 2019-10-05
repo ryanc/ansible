@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Minecraft server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/java -Xmx{{ minecraft_java_xmx | default('1024M') }} -Xms{{ minecraft_java_xms | default('1024M') }} -jar {{ minecraft_opt_path }}/bin/server.jar --nogui
+Type=simple
+User={{ minecraft_user }}
+Group={{ minecraft_group }}
+WorkingDirectory={{ minecraft_var_path }}
+Restart=on-failure
+SyslogIdentifier=minecraft
+
+[Install]
+WantedBy=multi-user.target
