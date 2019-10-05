@@ -19,5 +19,15 @@
     dest: "/etc/systemd/network/05-{{ item.name }}.network"
   notify: restart systemd-networkd
   with_items: "{{ network_interfaces }}"
-  when: _network_systemd_networkd_enabled | bool
+  when:
+    - network_interfaces is defined
+    - _network_systemd_networkd_enabled | bool
 
+- name: configure systemd-networkd default interface
+  template:
+    src: systemd-network.j2
+    dest: "/etc/systemd/network/05-{{ ansible_default_ipv4.interface }}.network"
+  notify: restart systemd-networkd
+  when:
+    - network_interfaces is not defined
+    - _network_systemd_networkd_enabled | bool

@@ -8,12 +8,15 @@
 
 - name: systemd-networkd
   include: systemd-networkd.yml
+  when: network_manage_systemd_networkd
 
 - name: ifupdown
   include: ifupdown.yml
+  when: network_manage_ifupdown
 
 - name: netplan.io
   include: netplan.yml
+  when: network_manage_netplan
 
 # resolv.conf
 

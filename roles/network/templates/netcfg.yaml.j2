@@ -1,0 +1,47 @@
+# {{ ansible_managed }}
+
+{% if network_interfaces is defined %}
+network:
+  version: 2
+  ethernets:
+{% for iface in network_interfaces %}
+{% if iface.name is defined %}
+     {{ iface.name }}:
+{% endif %}
+{% if iface.address is defined %}
+       addresses:
+{% for addr in iface.address %}
+         - {{ addr }}
+{% endfor %}
+{% endif %}
+{% if iface.gateway4 is defined %}
+       gateway4: {{ iface.gateway4 }}
+{% endif %}
+{% if iface.gateway6 is defined %}
+       gateway6: {{ iface.gateway6 }}
+{% endif %}
+{% endfor %}
+{% else %}
+{# Default network configuration #}
+network:
+  version: 2
+  ethernets:
+{% if ansible_default_ipv4.interface is defined %}
+    {{ ansible_default_ipv4.interface }}:
+{% if ansible_default_ipv4.address is defined or ansible_default_ipv6.address is defined %}
+      addresses:
+{% if ansible_default_ipv4.address is defined %}
+        - {{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.network + "/" + ansible_default_ipv4.netmask) | ipaddr('prefix') }}
+{% endif %}
+{% if ansible_default_ipv6.address is defined %}
+        - {{ ansible_default_ipv6.address }}/{{ ansible_default_ipv6.prefix }}
+{% endif %}
+{% if ansible_default_ipv4.gateway is defined %}
+      gateway4: {{ ansible_default_ipv4.gateway }}
+{% endif %}
+{% if ansible_default_ipv6.gateway is defined %}
+      gateway6: {{ ansible_default_ipv6.gateway }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}

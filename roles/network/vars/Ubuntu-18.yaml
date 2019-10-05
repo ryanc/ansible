@@ -8,4 +8,8 @@ _network_systemd_networkd_enabled: yes
 _network_systemd_resolved_enabled: no
 _network_resolv_conf_enabled: yes
 
+network_manage_ifupdown: no
+network_manage_systemd_networkd: yes
+network_manage_netplan: no
+
 # vim:ft=yaml.ansible:
