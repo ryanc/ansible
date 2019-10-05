@@ -1,0 +1,61 @@
+---
+- name: ensure groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+    system: false
+  with_items: "{{ users_groups }}"
+  when: users_groups is defined
+
+- name: ensure users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    create_home: "{{ item.create_home | default(true) }}"
+    group: "{{ item.group | default(omit) }}"
+    groups: "{{ item.groups | default(omit) }}"
+    home: "{{ item.home | default(omit) }}"
+    password: "{{ item.password | default(omit) }}"
+    shell: "{{ item.shell | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+    system: false
+  with_items: "{{ users_interactive }}"
+  when: users_interactive is defined
+
+- name: ensure system groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+    system: true
+  with_items: "{{ users_system_groups }}"
+  when: users_system_groups is defined
+
+- name: ensure system users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    create_home: "{{ item.create_home | default(false) }}"
+    group: "{{ item.group | default(omit) }}"
+    groups: "{{ item.groups | default(omit) }}"
+    home: "{{ item.home | default(omit) }}"
+    password: "{{ item.password | default(omit) }}"
+    shell: "{{ item.shell | default('/sbin/nologin') }}"
+    state: "{{ item.state | default('present') }}"
+    system: true
+  with_items: "{{ users_system }}"
+  when: users_system is defined
+
+- name: ensure authorized keys
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: "{{ item.1 }}"
+    state: "{{ item.0.state | default('present') }}"
+  with_subelements:
+    - "{{ users_authorized_keys }}"
+    - keys
+  when: 
+   - users_authorized_keys is defined
