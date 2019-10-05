@@ -17,4 +17,10 @@
     name: "{{ timezone }}"
   notify: restart cron
 
+- name: enable serial console
+  service:
+    name: getty@ttyS0.service
+    state: started
+    enabled: yes
+
 # vim:ft=yaml.ansible:
