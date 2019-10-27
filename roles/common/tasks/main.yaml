@@ -6,6 +6,15 @@
     - "{{ ansible_distribution }}.yaml"
     - "{{ ansible_os_family }}.yaml"
 
+- name: run os specific tasks
+  include: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yaml"
+
+- name: set hostname
+  hostname:
+    name: "{{ hostname | default(inventory_hostname) }}"
+
 - name: install system utilities
   package:
     name: "{{ item }}"
