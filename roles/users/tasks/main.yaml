@@ -18,11 +18,12 @@
     groups: "{{ item.groups | default(omit) }}"
     home: "{{ item.home | default(omit) }}"
     password: "{{ item.password | default(omit) }}"
-    shell: "{{ item.shell | default(omit) }}"
+    shell: "{{ item.shell | default(user_default_shell) }}"
     state: "{{ item.state | default('present') }}"
     system: false
   with_items: "{{ users_interactive }}"
   when: users_interactive is defined
+  no_log: yes
 
 - name: ensure system groups
   group:
@@ -48,6 +49,7 @@
     system: true
   with_items: "{{ users_system }}"
   when: users_system is defined
+  no_log: yes
 
 - name: ensure authorized keys
   authorized_key:
