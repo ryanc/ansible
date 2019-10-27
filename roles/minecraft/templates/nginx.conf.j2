@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {{ ansible_fqdn }};
+
+    root {{ minecraft_opt_path }}/backup;
+
+    location / {
+        autoindex on;
+        auth_basic "Access Restricted";
+        auth_basic_user_file {{ minecraft_opt_path }}/etc/htpasswd;
+    }
+}

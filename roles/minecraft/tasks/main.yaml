@@ -33,6 +33,7 @@
     - "{{ minecraft_opt_path }}"
     - "{{ minecraft_opt_path }}/bin"
     - "{{ minecraft_opt_path }}/etc"
+    - "{{ minecraft_opt_path }}/backup"
 
 - name: create minecraft var directory
   file:
@@ -92,6 +93,7 @@
     owner: "{{ minecraft_user }}"
     group: "{{ minecraft_group }}"
     mode: "0644"
+    force: no
   notify: restart minecraft
 
 - name: configure whitelist
@@ -101,4 +103,51 @@
     owner: "{{ minecraft_user }}"
     group: "{{ minecraft_group }}"
     mode: "0644"
+    force: no
   notify: restart minecraft
+
+- name: install backup script
+  copy:
+    src: minecraft-backup.sh
+    dest: "{{ minecraft_opt_path }}/bin/minecraft-backup"
+    owner: root
+    group: root
+    mode: 0700
+
+- name: backup cron job
+  cron:
+    name: minecraft backup
+    minute: "0"
+    hour: "9"
+    user: root
+    job: "{{ minecraft_opt_path }}/bin/minecraft-backup"
+
+- name: set world download password
+  htpasswd:
+    path: "{{ minecraft_opt_path }}/etc/htpasswd"
+    name: minecraft
+    password: minecraft
+    owner: root
+    group: root
+    mode: 0644
+  when: "'nginx' in ansible_play_role_names"
+
+- name: configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/minecraft
+    owner: root
+    group: root
+    mode: 0644
+  when: "'nginx' in ansible_play_role_names"
+  notify: reload nginx
+
+- name: activate site
+  file:
+    src: /etc/nginx/sites-available/minecraft
+    dest: /etc/nginx/sites-enabled/minecraft
+    owner: root
+    group: root
+    state: link
+  when: "'nginx' in ansible_play_role_names"
+  notify: reload nginx
