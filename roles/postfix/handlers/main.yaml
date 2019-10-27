@@ -1,0 +1,13 @@
+---
+- name: "postmap sasl_passwd"
+  command: "postmap hash:{{ postfix_sasl_passwd_map_path }}"
+
+- name: reload postfix
+  service:
+    name: "{{ postfix_service_name }}"
+    state: reloaded
+
+- name: restart postfix
+  service:
+    name: "{{ postfix_service_name }}"
+    state: restarted

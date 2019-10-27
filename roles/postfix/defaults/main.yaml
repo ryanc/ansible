@@ -1,0 +1,31 @@
+---
+postfix_package_name: postfix
+postfix_package_state: present
+
+postfix_service_name: postfix.service
+postfix_service_state: started
+postfix_service_enabled: true
+
+postfix_etc_path: /etc/postfix
+
+postfix_sasl_passwd_map_path: "{{ postfix_etc_path }}/sasl_passwd"
+postfix_sasl_passwd_map: {}
+
+postfix_compatibility_level: 2
+postfix_alias_maps: hash:/etc/aliases
+postfix_alias_database: hash:/etc/aliases
+postfix_myhostname: "{{ ansible_fqdn }}"
+postfix_inet_interfaces: loopback-only
+postfix_smtp_tls_session_cache_database: btree:${data_directory}/smtp_scache
+postfix_smtp_sasl_auth_enable: 'yes'
+postfix_smtp_tls_security_level: may
+postfix_smtp_sasl_tls_security_options: noanonymous
+postfix_smtp_tls_loglevel: 1
+postfix_smtp_sasl_password_maps:
+  - "hash:{{ postfix_sasl_passwd_map_path }}"
+postfix_smtp_tls_mandatory_protocols:
+  - "!SSLv2"
+  - "!SSLv3"
+postfix_smtp_tls_protocols:
+  - "!SSLv2"
+  - "!SSLv3"

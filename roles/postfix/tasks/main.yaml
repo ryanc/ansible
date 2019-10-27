@@ -1,0 +1,38 @@
+---
+- name: gather OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
+- name: configure postfix
+  template:
+    src: main.cf.j2
+    dest: "{{ postfix_etc_path }}/main.cf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload postfix
+
+- name: install postfix
+  package:
+    name: "{{ postfix_package_name }}"
+    state: "{{ postfix_package_state }}"
+
+- name: sasl_passwd map
+  template:
+    src: sasl_passwd.j2
+    dest: "{{ postfix_sasl_passwd_map_path }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - postmap sasl_passwd
+    - reload postfix
+
+- name: manage postfix service
+  service:
+    name: "{{ postfix_service_name }}"
+    state: "{{ postfix_service_state }}"
+    enabled: "{{ postfix_service_enabled }}"

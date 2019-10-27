@@ -1,0 +1,30 @@
+{% macro postconf_param(param) %}
+{% set term = 'postfix_' + param | lower %}
+{% set var = lookup('vars', term, default='') %}
+{% if var is defined and var %}
+{%- if var is string or var is number %}
+{{ param }} = {{ var }}
+{%- elif var is sequence %}
+{{ param }} = {{ var | join(', ') }}
+{%- endif %}
+{% endif %}
+{% endmacro %}
+# {{ ansible_managed }}
+
+{{ postconf_param('compatibility_level') }}
+{{ postconf_param('smtp_tls_session_cache_database') }}
+{{ postconf_param('alias_maps') }}
+{{ postconf_param('alias_database') }}
+{{ postconf_param('myhostname') }}
+{{ postconf_param('inet_interfaces') }}
+{{ postconf_param('smtp_sasl_auth_enable') }}
+{{ postconf_param('smtp_tls_security_level') }}
+{{ postconf_param('smtp_sasl_tls_security_options') }}
+{{ postconf_param('relayhost') }}
+{{ postconf_param('smtp_tls_loglevel') }}
+{{ postconf_param('smtp_tls_security_level') }}
+{{ postconf_param('smtp_tls_CApath') }}
+{{ postconf_param('smtp_tls_CAfile') }}
+{{ postconf_param('smtp_sasl_password_maps') }}
+{{ postconf_param('smtp_tls_mandatory_protocols') }}
+{{ postconf_param('smtp_tls_protocols') }}

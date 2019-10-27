@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% for k, v in postfix_sasl_passwd_map.items() | default({}) %}
+{{ k }} {{ v }}
+{% endfor %}
