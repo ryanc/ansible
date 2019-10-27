@@ -1,14 +1,4 @@
 ---
-network_interfaces:
-  - name: "{{ ansible_default_ipv4.interface }}"
-    address:
-      - "{{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ipaddr('prefix') }}"
-      - "{{ ansible_default_ipv6.address + '/' + ansible_default_ipv6.prefix }}"
-    gateway:
-      - "{{ ansible_default_ipv4.gateway }}"
-      - "{{ ansible_default_ipv6.gateway }}"
-
-
 network_nameservers: []
 network_resolv_conf_options:
  - edns0
