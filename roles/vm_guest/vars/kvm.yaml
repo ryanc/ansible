@@ -1,10 +1,6 @@
 ---
-vm_guest_agent_package_name: qemu-guest-agent
-vm_guest_agent_service_name: qemu-guest-agent
+vm_guest_qemu_agent_package_name: qemu-guest-agent
+vm_guest_qemu_agent_service_name: qemu-guest-agent
 
 vm_guest_spice_agent_package_name: spice-vdagent
 vm_guest_spice_agent_service_name: spice-vdagent
-
-vm_guest_spice_agent_package_state: present
-vm_guest_spice_agent_service_state: started
-vm_guest_spice_agent_service_enabled: yes

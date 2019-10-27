@@ -1,4 +1,15 @@
 ---
+- name: install guest agent
+  package:
+    name: "{{ vm_guest_qemu_agent_package_name }}"
+    state: "{{ vm_guest_qemu_agent_package_state }}"
+
+- name: start guest agent
+  service:
+    name: "{{ vm_guest_qemu_agent_service_name }}"
+    state: "{{ vm_guest_qemu_agent_service_state }}"
+    enabled: "{{ vm_guest_qemu_agent_service_enabled }}"
+
 - name: install SPICE agent
   package:
     name: "{{ vm_guest_spice_agent_package_name }}"

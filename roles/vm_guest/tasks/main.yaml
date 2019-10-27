@@ -11,17 +11,6 @@
   with_first_found:
     "{{ ansible_virtualization_type }}.yaml"
 
-- name: install guest agent
-  package:
-    name: "{{ vm_guest_agent_package_name }}"
-    state: "{{ vm_guest_agent_package_state }}"
-
-- name: start guest agent
-  service:
-    name: "{{ vm_guest_agent_service_name }}"
-    state: "{{ vm_guest_agent_service_state }}"
-    enabled: "{{ vm_guest_agent_service_enabled }}"
-
 - name: run virtualization specific tasks
   include: "{{ item }}"
   with_first_found:
