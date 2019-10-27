@@ -1,0 +1,19 @@
+---
+- name: install passlib
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python-passlib
+    - python3-passlib
+
+- name: install package
+  package:
+    name: "{{ nginx_package_name }}"
+    state: "{{ nginx_package_state }}"
+
+- name: manage service
+  service:
+    name: "{{ nginx_service_name }}"
+    state: "{{ nginx_service_state }}"
+    enabled: "{{ nginx_service_enabled }}"

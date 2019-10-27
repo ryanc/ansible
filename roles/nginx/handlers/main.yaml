@@ -1,0 +1,14 @@
+---
+- name: reload nginx
+  service:
+    name: "{{ nginx_service_name }}"
+    state: reloaded
+  when: nginx_service_enabled
+
+- name: restart nginx
+  service:
+    name: "{{ nginx_service_name }}"
+    state: restarted
+  when: nginx_service_enabled
+
+# vim:ft=yaml.ansible:
