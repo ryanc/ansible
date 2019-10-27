@@ -1,0 +1,14 @@
+---
+- name: reload telegraf
+  service:
+    name: "{{ telegraf_service_name }}"
+    state: restarted
+  when: telegraf_service_enabled
+
+- name: telegraf daemon-reload
+  systemd:
+    name: "{{ telegraf_service_name }}"
+    daemon_reload: yes
+    state: restarted
+
+# vim:ft=yaml.ansible:

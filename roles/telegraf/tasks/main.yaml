@@ -1,0 +1,52 @@
+---
+#- name: gather OS specific variables
+#  include_vars: "{{ item }}"
+#  with_first_found:
+#    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+#    - "{{ ansible_distribution }}.yaml"
+#    - "{{ ansible_os_family }}.yaml"
+
+- name: run os specific tasks
+  include: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yaml"
+
+- name: manage package
+  package:
+    name: "{{ telegraf_package_name }}"
+    state: "{{ telegraf_package_state }}"
+
+- name: configure
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload telegraf
+
+- name: create systemd override directory
+  file:
+    path: /etc/systemd/system/telegraf.service.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: patch systemd unit
+  copy:
+    dest: /etc/systemd/system/telegraf.service.d/override.conf 
+    owner: root
+    group: root
+    mode: 0644
+    content: |
+      [Service]
+      CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+      AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+  notify: telegraf daemon-reload 
+
+- name: manage service
+  service:
+    name: "{{ telegraf_service_name }}"
+    state: "{{ telegraf_service_state }}"
+    enabled: "{{ telegraf_service_enabled }}"

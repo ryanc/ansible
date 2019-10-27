@@ -1,0 +1,56 @@
+---
+telegraf_package_name: telegraf
+telegraf_package_state: present
+
+telegraf_service_name: telegraf
+telegraf_service_state: started
+telegraf_service_enabled: yes
+
+telegraf_config_global_tags: {}
+telegraf_config_agent:
+  interval: 10s
+  round_interval: true
+  metric_batch_size: 1000
+  metric_buffer_limit: 10000
+  collection_jitter: 0s
+  flush_interval: 10s
+  flush_jitter: 0s
+  precision:
+  hostname:
+  omit_hostname: false
+telegraf_config_outputs:
+  influxdb: {}
+telegraf_config_inputs:
+  cpu:
+    - percpu: true
+      totalcpu: true
+      collect_cpu_time: false
+      report_active: false
+  disk:
+    - ignore_fs:
+      - tmpfs
+      - devtmpfs
+      - devfs
+      - iso9660
+      - overlay
+      - aufs
+      - squashfs
+  diskio: []
+  kernel: []
+  mem: []
+  processes: []
+  swap: []
+  system: []
+  conntrack: []
+  ipset: []
+  iptables:
+    - table: filter
+      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD", "LIMIT_SSH" ]
+    - table: filter
+      name_override: ip6tables
+      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD", "LIMIT_SSH" ]
+  kernel_vmstat: []
+  net: []
+  netstat: []
+  procstat:
+    - systemd_unit: minecraft.service
