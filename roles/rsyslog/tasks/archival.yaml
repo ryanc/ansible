@@ -13,7 +13,7 @@
   file:
     path: "{{ item }}"
     state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
-  when: rsyslog_archival_format_enabled and st.stat.exists and  st.stat.isreg
+  when: rsyslog_archival_format_enabled and st.stat.exists and st.stat.isreg
   with_items:
     - /var/log/syslog
 
