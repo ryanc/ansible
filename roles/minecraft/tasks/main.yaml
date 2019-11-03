@@ -122,6 +122,14 @@
     user: root
     job: "{{ minecraft_opt_path }}/bin/minecraft-backup"
 
+- name: backup clean up cron
+  cron:
+    name: minecraft backup clean up
+    minute: "0"
+    hour: "10"
+    user: root
+    job: "find {{ minecraft_opt_path }}/backup/ -type f -name '*.tar.xz' -ctime +7 -delete"
+
 - name: set world download password
   htpasswd:
     path: "{{ minecraft_opt_path }}/etc/htpasswd"
