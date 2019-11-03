@@ -1,0 +1,30 @@
+---
+rsyslog_package_name: rsyslog
+rsyslog_package_state: present
+
+rsyslog_service_name: rsyslog
+rsyslog_service_state: started
+rsyslog_service_enabled: true
+
+rsyslog_module_imuxsock_enabled: true
+rsyslog_module_immark_enabled: true
+rsyslog_module_imudp_enabled: true
+rsyslog_module_imtcp_enabled: true
+
+rsyslog_load_modules:
+  - name: imuxsock
+  - name: immark
+  - name: imklog
+    params:
+      permitnonkernelfacility: "on"
+
+rsyslog_work_directory: /var/spool/rsyslog
+rsyslog_include_config: /etc/rsyslog.d/*.conf
+
+#rsyslog_action_file_default_template: RSYSLOG_TraditionalFileFormat
+rsyslog_repeated_msg_reduction: "on"
+
+rsyslog_default_rules_state: file
+rsyslog_default_rules: []
+rsyslog_rules: []
+rsyslog_archival_format_enabled: false

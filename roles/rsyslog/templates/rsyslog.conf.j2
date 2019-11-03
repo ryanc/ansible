@@ -1,0 +1,47 @@
+# {{ ansible_managed }}
+
+{% for module in rsyslog_load_modules | default([]) %}
+{% if module.enabled | default(true) %}
+module(
+  load="{{ module.name }}"
+{% if module.params is defined and module.params is mapping %}
+{% for k, v in module.params.items() | default({}) %}
+  {{ k }}="{{ v }}"
+{% endfor %}
+{% endif %}
+)
+{% endif %}
+{% endfor %}
+
+{% if rsyslog_action_file_default_template is defined %}
+$ActionFileDefaultTemplate {{ rsyslog_action_file_default_template }}
+{% endif %}
+
+{% if rsyslog_repeated_msg_reduction is defined %}
+$RepeatedMsgReduction {{ rsyslog_repeated_msg_reduction }}
+{% endif %}
+
+{% if rsyslog_file_owner is defined %}
+$FileOwner {{ rsyslog_file_owner }}
+{% endif %}
+{% if rsyslog_file_group is defined %}
+$FileGroup {{ rsyslog_file_group }}
+{% endif %}
+{% if rsyslog_file_create_mode is defined %}
+$FileCreateMode {{ rsyslog_file_create_mode }}
+{% endif %}
+{% if rsyslog_dir_create_mode is defined %}
+$DirCreateMode {{ rsyslog_dir_create_mode }}
+{% endif %}
+{% if rsyslog_umask is defined %}
+$Umask {{ rsyslog_umask }}
+{% endif %}
+{% if rsyslog_priv_drop_to_user is defined %}
+$PrivDropToUser {{ rsyslog_priv_drop_to_user }}
+{% endif %}
+{% if rsyslog_priv_drop_to_group is defined %}
+$PrivDropToGroup {{ rsyslog_priv_drop_to_group }}
+{% endif %}
+
+$WorkDirectory {{ rsyslog_work_directory }}
+$IncludeConfig {{ rsyslog_include_config }}

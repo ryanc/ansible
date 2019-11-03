@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+template(
+    name="FilePerDay"
+    type="list"
+) {
+    constant(value="/var/log/syslog/")
+    property(name="hostname")
+    constant(value="/")
+    property(name="syslogfacility-text")
+    constant(value="/")
+    property(name="timereported" dateformat="year")
+    property(name="timereported" dateformat="month")
+    constant(value="/")
+    property(name="timereported" dateformat="year")
+    property(name="timereported" dateformat="month")
+    property(name="timereported" dateformat="day")
+    constant(value="-")
+    property(name="syslogfacility-text")
+    constant(value=".log")
+}
+
+*.* action(
+    type="omfile"
+    dynafile="FilePerDay"
+    template="RSYSLOG_FileFormat"
+)

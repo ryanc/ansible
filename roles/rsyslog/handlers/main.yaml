@@ -1,0 +1,8 @@
+---
+- name: restart rsyslog
+  service:
+    name: "{{ rsyslog_service_name }}"
+    state: restarted
+  when: rsyslog_service_enabled
+
+# vim:ft=yaml.ansible:

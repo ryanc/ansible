@@ -1,0 +1,42 @@
+---
+- name: disable default rules
+  set_fact:
+    rsyslog_default_rules_state: absent
+  when: rsyslog_archival_format_enabled
+
+- name: check status of /var/log/syslog
+  stat:
+    path: /var/log/syslog
+  register: st
+
+- name: delete files
+  file:
+    path: "{{ item }}"
+    state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
+  when: rsyslog_archival_format_enabled and st.stat.exists and  st.stat.isreg
+  with_items:
+    - /var/log/syslog
+
+- name: configure archival format
+  template:
+    src: archival.conf.j2
+    dest: /etc/rsyslog.d/10-archival.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+  when: rsyslog_archival_format_enabled
+
+- name: manage archive rules
+  file:
+    path: /etc/rsyslog.d/10-archival.conf
+    state: "{{ rsyslog_archival_format_enabled | ternary('file', 'absent') }}"
+
+- name: compress log cron job
+  cron:
+    name: compress syslog
+    minute: "0"
+    hour: "1"
+    user: root
+    job: find /var/log/syslog/ -type f ! -name "*$(date +%Y%m%d)*.log" -name "*.log" -exec xz {} \;
+    state: "{{ rsyslog_archival_format_enabled | ternary('present', 'absent') }}"

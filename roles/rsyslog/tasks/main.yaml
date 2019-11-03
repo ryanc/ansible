@@ -1,0 +1,44 @@
+- name: gather OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+
+- name: install package
+  package:
+    name: "{{ rsyslog_package_name }}"
+    state: "{{ rsyslog_package_state }}"
+
+- name: configure
+  template:
+    src: rsyslog.conf.j2
+    dest: /etc/rsyslog.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+
+- name: configure archival format
+  include: archival.yaml
+
+- name: configure default rules
+  template:
+    src: default.conf.j2
+    dest: /etc/rsyslog.d/50-default.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+  when: rsyslog_default_rules_state == "file"
+
+- name: manage default rules
+  file:
+    path: /etc/rsyslog.d/50-default.conf
+    state: "{{ rsyslog_default_rules_state }}"
+
+- name: manage service
+  service:
+    name: "{{ rsyslog_service_name }}"
+    state: "{{ rsyslog_service_state }}"
+    enabled: "{{ rsyslog_service_enabled }}"

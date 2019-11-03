@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% for rule in rsyslog_default_rules %}
+{{ rule }}
+{% endfor %}
