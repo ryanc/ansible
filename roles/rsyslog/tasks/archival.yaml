@@ -38,5 +38,5 @@
     minute: "0"
     hour: "1"
     user: root
-    job: find /var/log/syslog/ -type f ! -name "*$(date +%Y%m%d)*.log" -name "*.log" -exec xz {} \;
+    job: find /var/log/syslog/ -type f ! -name "*$(date +\%Y\%m\%d)*.log" -name "*.log" -exec xz {} \;
     state: "{{ rsyslog_archival_format_enabled | ternary('present', 'absent') }}"
