@@ -15,5 +15,6 @@ minecraft_jar_url: https://launcher.mojang.com/v1/objects/3dc3d84a581f14691199cf
 
 minecraft_opt_path: /opt/minecraft
 minecraft_var_path: "{{ minecraft_opt_path }}/var"
+minecraft_backup_path: "{{ minecraft_opt_path }}/backup"
 
 minecraft_syslog_facility: local5
