@@ -1,0 +1,9 @@
+---
+rclone_package_name: rclone
+rclone_package_state: present
+
+rclone_config_path: /etc/rclone
+
+rclone_config: []
+
+rclone_cron: []

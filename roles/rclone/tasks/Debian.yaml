@@ -1,0 +1,5 @@
+---
+- name: install package
+  apt:
+    deb: "{{ rclone_package_url }}"
+
