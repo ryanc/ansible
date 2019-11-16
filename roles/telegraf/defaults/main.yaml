@@ -52,5 +52,12 @@ telegraf_config_inputs:
   kernel_vmstat: []
   net: []
   netstat: []
+  ping:
+    - urls:
+      - gateway
+      - gateway6
+      - dns.google
+      interface: "{{ ansible_default_ipv4.interface }}"
+      count: 10
   procstat:
     - systemd_unit: minecraft.service
