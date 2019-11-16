@@ -26,7 +26,3 @@ hostsfile_routers:
     - ip6-allrouters
 
 hostsfile_hosts: {}
-
-hostsfile_combined: "{{ hostsfile_loopback
-                        | combine(hostsfile_hosts)
-                        | combine(hostsfile_self) }}"
