@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+
+{% macro render(hosts, comment=None) %}
+{% if hosts is defined and hosts | length %}
+{% if comment is not none %}
+# {{ comment }}
+{% endif %}
+{% for ip, names in hosts.items() | default({}) %}
+{{ ip }} {{ names | join(' ') }}
+{% endfor %}
+{% endif %}
+{% endmacro %}
+
+{{ render(hostsfile_loopback, comment="Loopback") }}
+{{ render(hostsfile_routers, comment="Routers") }}
+
+# Self
+{% if 'address' in ansible_default_ipv4 %}
+{{ ansible_default_ipv4.address }} {{ inventory_hostname }} {{ inventory_hostname_short }}
+{% endif %}
+{% if 'address' in ansible_default_ipv6 %}
+{{ ansible_default_ipv6.address }} {{ inventory_hostname }} {{ inventory_hostname_short }}
+{% endif %}
+
+# Gateways
+{% if 'gateway' in ansible_default_ipv4 %}
+{{ ansible_default_ipv4.gateway }} gateway
+{% endif %}
+{% if 'gateway' in ansible_default_ipv6 %}
+{{ ansible_default_ipv6.gateway }} gateway6
+{% endif %}
+
+{{ render(hostsfile_hosts, comment="Hosts") }}
