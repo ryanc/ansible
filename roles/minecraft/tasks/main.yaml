@@ -126,7 +126,7 @@
   cron:
     name: minecraft backup clean up
     minute: "0"
-    hour: "10"
+    hour: "11"
     user: root
     job: "find {{ minecraft_opt_path }}/backup/ -type f -name '*.tar.xz' -ctime +7 -delete"
 
