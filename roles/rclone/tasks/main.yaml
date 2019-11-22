@@ -26,6 +26,7 @@
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0600') }}"
   with_items: "{{ rclone_config }}"
+  no_log: true
 
 - name: cron jobs
   cron:
