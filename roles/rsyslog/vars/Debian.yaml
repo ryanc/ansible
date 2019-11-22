@@ -14,3 +14,18 @@ rsyslog_default_rules:
   - "mail.*                   -/var/log/mail.log"
   - "mail.err                 /var/log/mail.err"
   - "*.emerg                  :omusrmsg:*"
+
+rsyslog_default_log_patterns:
+  - auth.log*
+  - cron.log*
+  - daemon.log*
+  - debug*
+  - kern.log*
+  - lpr.log*
+  - mail.err*
+  - mail.info*
+  - mail.log*
+  - mail.warn*
+  - messages*
+  - syslog*
+  - user.log*

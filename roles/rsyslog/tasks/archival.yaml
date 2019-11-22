@@ -4,18 +4,26 @@
     rsyslog_default_rules_state: absent
   when: rsyslog_archival_format_enabled
 
-- name: check status of /var/log/syslog
-  stat:
-    path: /var/log/syslog
-  register: st
+- name: find default log files
+  find:
+    path: /var/log
+    file_type: file
+    pattern: "{{ rsyslog_default_log_patterns }}"
+  when: rsyslog_archival_format_enabled
+  register: default_log_files
 
-- name: delete files
+-  name: delete files
+   file:
+     path: "{{ item.path }}"
+     state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
+   when: rsyslog_archival_format_enabled
+   with_items: "{{ default_log_files.files }}"
+
+- name: delete logrotate configuration
   file:
-    path: "{{ item }}"
-    state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
-  when: rsyslog_archival_format_enabled and st.stat.exists and st.stat.isreg
-  with_items:
-    - /var/log/syslog
+    path: /etc/logrotate.d/rsyslog
+    state: absent
+  when: rsyslog_archival_format_enabled
 
 - name: configure archival format
   template:
