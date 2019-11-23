@@ -25,6 +25,14 @@
     state: absent
   when: rsyslog_archival_format_enabled
 
+- name: create /var/log/syslog
+  file:
+    path: /var/log/syslog
+    owner: syslog
+    group: adm
+    mode: 0750
+    state: directory
+
 - name: configure archival format
   template:
     src: archival.conf.j2
