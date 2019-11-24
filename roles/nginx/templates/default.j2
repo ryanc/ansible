@@ -1,0 +1,21 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root {{ nginx_root }};
+
+    index {{ nginx_index | join(' ') }};
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+{% if nginx_acme_challenge_enabled %}
+    location /.well-known/acme-challenge/ {
+        alias {{ nginx_acme_challenge_path }};
+        try_files $uri $uri/ =404;
+    }
+{% endif %}
+}

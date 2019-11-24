@@ -12,6 +12,15 @@
     name: "{{ nginx_package_name }}"
     state: "{{ nginx_package_state }}"
 
+- name: configure default virtual host
+  template:
+    src: default.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
+
 - name: manage service
   service:
     name: "{{ nginx_service_name }}"

@@ -5,3 +5,12 @@ nginx_package_state: present
 nginx_service_name: nginx
 nginx_service_state: started
 nginx_service_enabled: yes
+
+nginx_root: /var/www/html
+nginx_index:
+  - index.html
+  - index.htm
+  #- index.nginx-debian.html;
+
+nginx_acme_challenge_enabled: yes
+nginx_acme_challenge_path: /var/www/.acme-challenge
