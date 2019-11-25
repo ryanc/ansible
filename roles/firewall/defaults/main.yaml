@@ -26,13 +26,13 @@ firewall_ipset_save_path: /etc/iptables/ipset
 firewall_ipset_package_name: ipset
 firewall_ipset_package_state: present
 
-firewall_iptables_input_policy: DROP
+firewall_iptables_input_policy: ACCEPT
 firewall_iptables_output_policy: ACCEPT
-firewall_iptables_forward_policy: DROP
+firewall_iptables_forward_policy: ACCEPT
 
-firewall_iptables_input_policy_v6: DROP
+firewall_iptables_input_policy_v6: ACCEPT
 firewall_iptables_output_policy_v6: ACCEPT
-firewall_iptables_forward_policy_v6: DROP
+firewall_iptables_forward_policy_v6: ACCEPT
 
 firewall_use_ulogd: true
 firewall_ulogd_package_name: ulogd2
