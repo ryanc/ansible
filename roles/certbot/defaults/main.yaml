@@ -1,0 +1,3 @@
+---
+certbot_package_name: certbot
+certbot_package_state: present

@@ -1,0 +1,41 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: install certbot modules
+  package:
+    name: "{{ certbot_package_name }}"
+    state: "{{ certbot_package_state }}"
+
+- name: configure challenge webroot
+  file:
+    path: "{{ certbot_challenge_webroot_path }}"
+    state: "directory"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: request certificates
+  include_tasks: "issue.yaml"
+  loop: "{{ certbot_certificates }}"

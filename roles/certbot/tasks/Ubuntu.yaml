@@ -1,0 +1,4 @@
+---
+- name: configure ppa
+  apt_repository:
+    repo: "ppa:certbot/certbot"
