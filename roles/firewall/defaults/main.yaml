@@ -5,6 +5,11 @@ firewall_iptables_rules_v6: /etc/iptables/rules.v6-tmp
 firewall_ipset_v4: /etc/iptables/ipset.v4-tmp
 firewall_ipset_v6: /etc/iptables/ipset.v6-tmp
 
+firewall_iptables_package_state: present
+firewall_iptables_package_name: iptables
+#firewall_iptables_service_state: started
+#firewall_iptables_service_enabled: true
+
 firewall_iptables_persistent_package_name: iptables-persistent
 firewall_iptables_persistent_package_state: present
 

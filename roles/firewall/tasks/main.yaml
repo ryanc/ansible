@@ -6,6 +6,11 @@
     - "{{ ansible_distribution }}.yaml"
     - "{{ ansible_os_family }}.yaml"
 
+- name: install iptables
+  package:
+    name: "{{ firewall_iptables_package_name }}"
+    state: "{{ firewall_iptables_package_state }}"
+
 - name: install iptables-persistent
   package:
     name: "{{ firewall_iptables_persistent_package_name }}"
