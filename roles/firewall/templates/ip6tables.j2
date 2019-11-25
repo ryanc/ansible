@@ -50,11 +50,17 @@
 
 -A INPUT -i lo -m comment --comment "lo accept all inet6" -j ACCEPT
 
--A INPUT -m state --state INVALID -m comment --comment "drop invalid inet6" -j DROP
+{% if firewall_ssh_whitelist.v6 %}
+{% for ip in firewall_ssh_whitelist.v6 %}
+-A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp6" -j ACCEPT
+{% endfor %}
+{% endif %}
 
 {% if firewall_ipset_mgmt.v6 is defined %}
 -A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v6 src -m comment --comment "accept mgmt ssh 22/tcp6" -j ACCEPT
 {% endif %}
+
+-A INPUT -m state --state INVALID -m comment --comment "drop invalid inet6" -j DROP
 
 {% if firewall_ipset_blacklist.v6 is defined %}
 -A INPUT -m set --match-set mgmt_v6 src -m comment --comment "drop blacklist inet6" -j LOG_DROP

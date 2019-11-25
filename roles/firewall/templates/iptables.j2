@@ -50,11 +50,17 @@
 
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
--A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
+{% if firewall_ssh_whitelist.v4 %}
+{% for ip in firewall_ssh_whitelist.v4 %}
+-A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp" -j ACCEPT
+{% endfor %}
+{% endif %}
 
 {% if firewall_ipset_mgmt.v4 is defined %}
 -A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v4 src -m comment --comment "accept mgmt ssh 22/tcp" -j ACCEPT
 {% endif %}
+
+-A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
 
 {% if firewall_ipset_blacklist.v4 is defined %}
 -A INPUT -m set --match-set mgmt_v4 src -m comment --comment "drop blacklist" -j LOG_DROP

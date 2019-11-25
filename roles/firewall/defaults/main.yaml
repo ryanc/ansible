@@ -64,6 +64,8 @@ firewall_limit_ssh_hitcount: 10
 
 firewall_bogon_interface: "{{ ansible_default_ipv4.interface }}"
 
+firewall_ssh_whitelist: {}
+
 # ipset's
 firewall_ipset_cooloff_timeout: 600
 
