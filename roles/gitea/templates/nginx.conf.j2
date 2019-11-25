@@ -1,0 +1,42 @@
+server {
+    listen 80;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:80;
+{% endif %}
+    server_name {{ gitea_domain }};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/.acme-challenge;
+        try_files $uri =404;
+    }
+
+{% if gitea_ssl_enabled %}
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+{% endif %}
+}
+
+{% if gitea_ssl_enabled %}
+server {
+    listen 443 ssl;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:443 ssl;
+{% endif %}
+    server_name {{ gitea_domain }};
+
+{% if gitea_ssl_certificate is defined %}
+    ssl_certificate {{ gitea_ssl_certificate }};
+{% endif %}
+{% if gitea_ssl_certificate_key is defined %}
+    ssl_certificate_key {{ gitea_ssl_certificate_key }};
+{% endif %}
+{% if gitea_ssl_dhparam is defined %}
+    ssl_dhparam {{ gitea_ssl_dhparam }};
+{% endif %}
+
+    location / {
+        proxy_pass http://localhost:{{ gitea_port }};
+    }
+}
+{% endif %}

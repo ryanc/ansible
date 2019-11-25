@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+{% for section, body in gitea_config | dictsort %}
+[{{ section }}]
+{% for k, v in body | dictsort %}
+{% if v is sameas true %}
+{{ k | upper }} = true
+{% elif v is sameas false %}
+{{ k | upper }} = false
+{% else %}
+{{ k | upper }} = {{ v }}
+{% endif %}
+{% endfor %}
+{% endfor %}

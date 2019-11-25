@@ -1,0 +1,57 @@
+---
+gitea_service_name: gitea.service
+gitea_service_state: started
+gitea_service_enabled: yes
+
+gitea_arch: amd64
+gitea_version: 1.10.0
+gitea_url: "https://dl.gitea.io/gitea/{{ gitea_version }}/gitea-{{ gitea_version }}-linux-{{ gitea_arch }}"
+gitea_checksum: sha256:cc781f33472966926d4336991926de13172e48c1962e25bfccbb3219537c3eb4
+gitea_bin_path: /usr/local/bin
+gitea_var_path: /var/lib/gitea
+gitea_log_path: /var/log/gitea
+gitea_etc_path: /etc/gitea
+gitea_path: "{{ gitea_bin_path }}/gitea"
+gitea_config_path: "{{ gitea_etc_path }}/app.ini"
+gitea_systemd_unit_path: /etc/systemd/system/gitea.service
+gitea_user: git
+gitea_group: git
+gitea_shell: /bin/bash
+gitea_gecos: Git Version Control
+gitea_password: !
+gitea_home_path: /home/git
+gitea_port: 3000
+
+gitea_config:
+  server:
+    domain: "{{ gitea_domain }}"
+    root_url: "{{ gitea_ssl_enabled | ternary('https', 'http') }}://{{ gitea_domain }}/"
+  oauth2:
+    jwt_secret: "{{ vault_gitea_jwt_secret }}"
+  security:
+    install_lock: true
+    internal_token: "{{ vault_gitea_internal_token }}"
+  database:
+    db_type: sqlite3
+  log:
+    root_path: /var/log/gitea
+    mode: file
+    access: file
+    macaron: file
+    router: file
+    redirect_macaron_log: true
+  log.console:
+    colorize: no
+  service:
+    disable_registration: yes
+
+gitea_var_tree:
+  - "{{ gitea_var_path }}"
+  - "{{ gitea_var_path }}/custom"
+  - "{{ gitea_var_path }}/data"
+  - "{{ gitea_var_path }}/log"
+
+gitea_ssl_enabled: yes
+gitea_ssl_certificate: "/etc/letsencrypt/live/{{ gitea_domain }}/fullchain.pem"
+gitea_ssl_certificate_key: "/etc/letsencrypt/live/{{ gitea_domain }}/privkey.pem"
+#gitea_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"

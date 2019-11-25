@@ -1,0 +1,11 @@
+---
+- name: gitea daemon-reload
+  systemd:
+    name: "{{ gitea_service_name }}"
+    daemon_reload: yes
+    state: restarted
+
+- name: restart gitea
+  service:
+    name: "{{ gitea_service_name }}"
+    state: restarted
