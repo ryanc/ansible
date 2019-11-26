@@ -29,7 +29,6 @@ group={{ firewall_ulogd_nflog_group | default(1) }}
 
 {% if firewall_ulogd_flow_mode_enabled %}
 [flow]
-#group={{ firewall_ulogd_nflog_group | default(1) }}
 {% endif %}
 
 {% if firewall_ulogd_packet_mode_enabled %}
