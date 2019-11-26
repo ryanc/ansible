@@ -1,4 +1,10 @@
 ---
+- name: create the users group
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ user_default_groups }}"
+
 - name: ensure groups
   group:
     name: "{{ item.name }}"
@@ -24,6 +30,14 @@
   with_items: "{{ users_interactive }}"
   when: users_interactive is defined
   no_log: yes
+
+- name: add users to default groups
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ user_interactive_user_mandatory_groups | default(omit) }}"
+    append: yes
+  with_items: "{{ users_interactive }}"
+  when: users_interactive is defined and user_interactive_user_mandatory_groups is defined
 
 - name: ensure system groups
   group:
