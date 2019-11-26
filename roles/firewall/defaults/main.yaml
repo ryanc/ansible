@@ -39,10 +39,19 @@ firewall_ulogd_package_name: ulogd2
 firewall_ulogd_service_name: ulogd2.service
 firewall_ulogd_config_path: /etc/ulogd.conf
 firewall_ulogd_nflog_group: 1
-firewall_ulogd_syslog_facility: LOG_LOCAL0
-firewall_ulogd_syslog_level: LOG_INFO
 
-firewall_iptables_nflog_group: 2
+# debug(1), info(3), notice(5), error(7) or fatal(8) (default 5)
+firewall_ulogd_log_level: 3
+
+firewall_ulogd_packet_mode_enabled: yes
+firewall_ulogd_packet_mode_syslog_facility: LOG_LOCAL0
+firewall_ulogd_packet_mode_syslog_level: LOG_INFO
+
+firewall_ulogd_flow_mode_enabled: yes
+firewall_ulogd_flow_mode_syslog_facility: LOG_LOCAL1
+firewall_ulogd_flow_mode_syslog_level: LOG_INFO
+
+firewall_iptables_nflog_group: 1
 
 firewall_drop_icmp_flood: true
 firewall_limit_icmp_flood_seconds: 1
