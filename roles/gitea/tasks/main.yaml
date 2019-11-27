@@ -63,7 +63,7 @@
     path: "{{ gitea_log_path }}"
     owner: "{{ gitea_user }}"
     group: "{{ gitea_group }}"
-    mode: 755
+    mode: 0755
     state: directory
 
 - name: configure systemd unit
