@@ -24,4 +24,12 @@ template(
     type="omfile"
     dynafile="FilePerDay"
     template="RSYSLOG_FileFormat"
+    fileCreateMode="{{ rsyslog_file_create_mode }}"
+    dirCreateMode="{{ rsyslog_dir_create_mode }}"
+    createDirs="{{ rsyslog_create_dirs | ternary('on', 'off') }}"
+    fileOwner="{{ rsyslog_file_owner }}"
+    fileGroup="{{ rsyslog_file_group }}"
+    dirOwner="{{ rsyslog_file_owner }}"
+    dirGroup="{{ rsyslog_file_group }}"
+    umask="{{ rsyslog_umask }}"
 )

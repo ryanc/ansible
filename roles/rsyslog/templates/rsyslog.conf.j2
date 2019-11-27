@@ -27,8 +27,17 @@ $FileOwner {{ rsyslog_file_owner }}
 {% if rsyslog_file_group is defined %}
 $FileGroup {{ rsyslog_file_group }}
 {% endif %}
+{% if rsyslog_dir_owner is defined %}
+$FileOwner {{ rsyslog_dir_owner }}
+{% endif %}
+{% if rsyslog_dir_group is defined %}
+$FileGroup {{ rsyslog_dir_group }}
+{% endif %}
 {% if rsyslog_file_create_mode is defined %}
 $FileCreateMode {{ rsyslog_file_create_mode }}
+{% endif %}
+{% if rsyslog_create_dirs is defined %}
+CreateDirs {{ rsyslog_create_dirs | ternary('on', 'off') }}
 {% endif %}
 {% if rsyslog_dir_create_mode is defined %}
 $DirCreateMode {{ rsyslog_dir_create_mode }}
