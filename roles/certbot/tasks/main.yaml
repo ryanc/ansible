@@ -39,3 +39,47 @@
 - name: request certificates
   include_tasks: "issue.yaml"
   loop: "{{ certbot_certificates }}"
+
+- name: configure systemd timer
+  block:
+    - name: create systemd timer override directory
+      file:
+        path: "/etc/systemd/system/{{ certbot_timer_name }}.d"
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: configure systemd timer options
+      template:
+        src: certbot.timer.j2
+        dest: "/etc/systemd/system/{{ certbot_timer_name }}.d/override.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: systemd daemon-reload
+    - name: enable the timer
+      systemd:
+        name: "{{ certbot_timer_name }}"
+        state: "{{ certbot_timer_state }}"
+        enabled: "{{ certbot_timer_enabled }}"
+  when: ansible_service_mgr == "systemd"
+
+- name: configure cron job
+  block:
+    - name: configure env
+      cron:
+        name: "{{ item.key | upper }}"
+        env: yes
+        job: "{{ item.value }}"
+        user: "{{ certbot_cron_user }}"
+        cron_file: "{{ certbot_cron_file_path }}"
+      loop: "{{ certbot_cron_env | dict2items }}"
+    - name: create job
+      cron:
+        name: certbot
+        user: "{{ certbot_cron_user }}"
+        hour: "{{ certbot_cron_hour }}"
+        minute: "{{ certbot_cron_minute }}"
+        cron_file: "{{ certbot_cron_file_path }}"
+        job: "{{ certbot_cron_command }}"
