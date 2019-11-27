@@ -74,6 +74,7 @@
         job: "{{ item.value }}"
         user: "{{ certbot_cron_user }}"
         cron_file: "{{ certbot_cron_file_path }}"
+        state: "{{ certbot_cron_state }}"
       loop: "{{ certbot_cron_env | dict2items }}"
     - name: create job
       cron:
@@ -83,3 +84,4 @@
         minute: "{{ certbot_cron_minute }}"
         cron_file: "{{ certbot_cron_file_path }}"
         job: "{{ certbot_cron_command }}"
+        state: "{{ certbot_cron_state }}"
