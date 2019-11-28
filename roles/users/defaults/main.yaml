@@ -2,4 +2,3 @@
 user_default_shell: /bin/bash
 user_default_groups:
   - users
-user_interactive_user_mandatory_groups: users
