@@ -50,19 +50,19 @@
 
 -A INPUT -i lo -m comment --comment "lo accept all inet6" -j ACCEPT
 
-{% if firewall_ssh_whitelist.v6 %}
-{% for ip in firewall_ssh_whitelist.v6 %}
+{% if firewall_ssh_whitelist | length %}
+{% for ip in firewall_ssh_whitelist | ipv6 %}
 -A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp6" -j ACCEPT
 {% endfor %}
 {% endif %}
 
-{% if firewall_ipset_mgmt.v6 is defined %}
+{% if firewall_ipset_mgmt | length %}
 -A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v6 src -m comment --comment "accept mgmt ssh 22/tcp6" -j ACCEPT
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid inet6" -j DROP
 
-{% if firewall_ipset_blacklist.v6 is defined %}
+{% if firewall_ipset_blacklist | length %}
 -A INPUT -m set --match-set mgmt_v6 src -m comment --comment "drop blacklist inet6" -j LOG_DROP
 {% endif %}
 
@@ -96,7 +96,7 @@
 -A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 148 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 148" -j ACCEPT
 -A INPUT -p icmpv6 -m icmpv6 --icmpv6-type 149 -m hl --hl-eq 255 -m comment --comment "accept icmpv6 149" -j ACCEPT
 
-{% if firewall_ipset_bogons.v6 is defined %}
+{% if firewall_ipset_bogons | length %}
 -A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v6 src,dst -m comment --comment "drop bogons inet6" -j LOG_DROP
 {% endif %}
 
@@ -106,13 +106,17 @@
 -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp6" -j ACCEPT
 {% endif %}
 
-{% for port in firewall_allowed_tcp_ports.v6 | default([]) %}
+{% if firewall_allowed_tcp_ports | length %}
+{% for port in firewall_allowed_tcp_ports %}
 -A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "accept {{ port }}/tcp6" -j ACCEPT
 {% endfor %}
+{% endif %}
 
-{% for port in firewall_allowed_udp_ports.v6 | default([]) %}
+{% if firewall_allowed_udp_ports | length %}
+{% for port in firewall_allowed_udp_ports %}
 -A INPUT -p udp -m udp --dport {{ port }} -m comment --comment "accept {{ port }}/udp6" -j ACCEPT
 {% endfor %}
+{% endif %}
 
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established inet6" -j ACCEPT
 

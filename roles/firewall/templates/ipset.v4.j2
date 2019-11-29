@@ -1,15 +1,17 @@
 {% macro render_ipset(ipset, name, type="hash:net", family="inet", timeout=None) %}
 create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters {% if timeout %}timeout {{ timeout }}{% endif %} -exist
 flush {{ name }}
-{% for ip_or_net in ipset | default([]) %}
+{% if ipset | length %}
+{% for ip_or_net in ipset | ipv4 %}
 add {{ name }} {{ ip_or_net }}
 {% endfor %}
+{% endif %}
 {% endmacro %}
 
-{{ render_ipset(firewall_ipset_mgmt.v4, 'mgmt_v4') }}
+{{ render_ipset(firewall_ipset_mgmt, 'mgmt_v4') }}
 
-{{ render_ipset(firewall_ipset_blacklist.v4, 'blacklist_v4') }}
+{{ render_ipset(firewall_ipset_blacklist, 'blacklist_v4') }}
 
-{{ render_ipset(firewall_ipset_bogons.v4, 'bogons_v4') }}
+{{ render_ipset(firewall_ipset_bogons, 'bogons_v4') }}
 
 {{ render_ipset([], 'cooloff_v4', type="hash:ip", timeout=firewall_ipset_cooloff_timeout) }}

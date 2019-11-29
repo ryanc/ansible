@@ -50,23 +50,23 @@
 
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
-{% if firewall_ssh_whitelist.v4 %}
-{% for ip in firewall_ssh_whitelist.v4 %}
+{% if firewall_ssh_whitelist | length %}
+{% for ip in firewall_ssh_whitelist | ipv4 %}
 -A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp" -j ACCEPT
 {% endfor %}
 {% endif %}
 
-{% if firewall_ipset_mgmt.v4 is defined %}
+{% if firewall_ipset_mgmt | length %}
 -A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v4 src -m comment --comment "accept mgmt ssh 22/tcp" -j ACCEPT
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
 
-{% if firewall_ipset_blacklist.v4 is defined %}
+{% if firewall_ipset_blacklist | length %}
 -A INPUT -m set --match-set mgmt_v4 src -m comment --comment "drop blacklist" -j LOG_DROP
 {% endif %}
 
-{% if firewall_ipset_bogons.v4 is defined %}
+{% if firewall_ipset_bogons | length %}
 -A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v4 src,dst -m comment --comment "drop bogons" -j LOG_DROP
 {% endif %}
 
@@ -80,9 +80,11 @@
 {% endif %}
 -A INPUT -p icmp -m icmp --icmp-type echo-reply -m comment --comment "accept icmp echo-reply" -j ACCEPT
 
-{% for type in firewall_allowed_icmp_types.v4 | default([]) %}
+{% if firewall_allowed_icmp_types | length %}
+{% for type in firewall_allowed_icmp_types | ipv4 %}
 -A INPUT -p icmp -m icmp --icmp-type {{ type }} -m comment --comment "accept icmp {{ type }}" -j ACCEPT
 {% endfor %}
+{% endif %}
 
 {% if firewall_limit_ssh %}
 -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp" -j LIMIT_SSH
@@ -90,13 +92,17 @@
 -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp" -j ACCEPT
 {% endif %}
 
-{% for port in firewall_allowed_tcp_ports.v4 | default([]) %}
+{% if firewall_allowed_tcp_ports | length %}
+{% for port in firewall_allowed_tcp_ports %}
 -A INPUT -p tcp -m tcp --dport {{ port }} -m comment --comment "accept {{ port }}/tcp" -j ACCEPT
 {% endfor %}
+{% endif %}
 
-{% for port in firewall_allowed_udp_ports.v4 | default([]) %}
+{% if firewall_allowed_udp_ports | length %}
+{% for port in firewall_allowed_udp_ports %}
 -A INPUT -p udp -m udp --dport {{ port }} -m comment --comment "accept {{ port }}/udp" -j ACCEPT
 {% endfor %}
+{% endif %}
 
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
 

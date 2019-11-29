@@ -59,10 +59,10 @@ firewall_limit_icmp_flood_hitcount: 6
 
 firewall_loopback_notrack: true
 
-firewall_limited_tcp_ports: {}
+firewall_limited_tcp_ports: []
 
-firewall_allowed_tcp_ports: {}
-firewall_allowed_udp_ports: {}
+firewall_allowed_tcp_ports: []
+firewall_allowed_udp_ports: []
 
 firewall_log_limit: 3/min
 firewall_log_limit_burst: 10
@@ -73,52 +73,53 @@ firewall_limit_ssh_hitcount: 10
 
 firewall_bogon_interface: "{{ ansible_default_ipv4.interface }}"
 
-firewall_ssh_whitelist: {}
+firewall_ssh_whitelist: []
 
 # ipset's
 firewall_ipset_cooloff_timeout: 600
 
-firewall_ipset_blacklist: {}
+firewall_ipset_blacklist: []
 
-firewall_ipset_mgmt: {}
+firewall_ipset_mgmt: []
 
 firewall_ipset_bogons:
-  v4:
-    - 0.0.0.0/8
-    - 10.0.0.0/8
-    - 100.64.0.0/10
-    - 127.0.0.0/8
-    - 169.254.0.0/16
-    - 172.16.0.0/12
-    - 192.0.0.0/24
-    - 192.0.2.0/24
-    - 192.168.0.0/16
-    - 198.18.0.0/15
-    - 198.51.100.0/24
-    - 203.0.113.0/24
-    - 224.0.0.0/4
-    - 240.0.0.0/4
-  v6:
-    - ::/96
-    - ::/128
-    - ::1/128
-    - ::ffff:0.0.0.0/96
-    - ::224.0.0.0/100
-    - ::127.0.0.0/104
-    - ::0.0.0.0/104
-    - ::255.0.0.0/104
-    - 0000::/8
-    - 0200::/7
-    - 3ffe::/16
-    - 2001:db8::/32
-    - 2002:e000::/20
-    - 2002:7f00::/24
-    - 2002:0000::/24
-    - 2002:ff00::/24
-    - 2002:0a00::/24
-    - 2002:ac10::/28
-    - 2002:c0a8::/32
-    - fc00::/7
-    - fe80::/10
-    - fec0::/10
-    - ff00::/8
+  - 0.0.0.0/8
+  - 10.0.0.0/8
+  - 100.64.0.0/10
+  - 127.0.0.0/8
+  - 169.254.0.0/16
+  - 172.16.0.0/12
+  - 192.0.0.0/24
+  - 192.0.2.0/24
+  - 192.168.0.0/16
+  - 198.18.0.0/15
+  - 198.51.100.0/24
+  - 203.0.113.0/24
+  - 224.0.0.0/4
+  - 240.0.0.0/4
+  - ::/96
+  - ::/128
+  - ::1/128
+  - ::ffff:0.0.0.0/96
+  - ::224.0.0.0/100
+  - ::127.0.0.0/104
+  - ::0.0.0.0/104
+  - ::255.0.0.0/104
+  - 0000::/8
+  - 0200::/7
+  - 3ffe::/16
+  - 2001:db8::/32
+  - 2002:e000::/20
+  - 2002:7f00::/24
+  - 2002:0000::/24
+  - 2002:ff00::/24
+  - 2002:0a00::/24
+  - 2002:ac10::/28
+  - 2002:c0a8::/32
+  - fc00::/7
+  - fe80::/10
+  - fec0::/10
+  - ff00::/8
+
+firewall_allowed_icmp_types: []
+firewall_allowed_icmpv6_types: []
