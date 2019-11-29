@@ -23,6 +23,8 @@ gitea_home_path: /home/git
 gitea_port: 3000
 
 gitea_config:
+  DEFAULT:
+    run_mode: prod
   server:
     domain: "{{ gitea_domain }}"
     root_url: "{{ gitea_ssl_enabled | ternary('https', 'http') }}://{{ gitea_domain }}/"
