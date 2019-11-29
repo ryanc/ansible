@@ -147,6 +147,8 @@ main() {
         log info "Symlinking current archive"
         ln -nfs "$BACKUP_DIR/$TAR.xz" "$BACKUP_DIR/minecraft-latest.tar.xz"
     fi
+
+    log info "Backup complete"
 }
 
 main
