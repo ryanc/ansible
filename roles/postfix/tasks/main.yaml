@@ -31,6 +31,16 @@
     - postmap sasl_passwd
     - reload postfix
 
+- name: manage /etc/aliases
+  template:
+    src: aliases.j2
+    dest: "{{ postfix_aliases_map_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - postmap aliases
+
 - name: manage postfix service
   service:
     name: "{{ postfix_service_name }}"

@@ -6,14 +6,23 @@ postfix_service_name: postfix.service
 postfix_service_state: started
 postfix_service_enabled: true
 
+postfix_aliases:
+  postmaster: root
+  hostmaster: root
+  webmaster: root
+  abuse: root
+  administrator: root
+  admin: root
+
 postfix_etc_path: /etc/postfix
 
 postfix_sasl_passwd_map_path: "{{ postfix_etc_path }}/sasl_passwd"
 postfix_sasl_passwd_map: {}
 
 postfix_compatibility_level: 2
-postfix_alias_maps: hash:/etc/aliases
-postfix_alias_database: hash:/etc/aliases
+postfix_aliases_map_path: /etc/aliases
+postfix_alias_maps: "hash:{{ postfix_aliases_map_path }}"
+postfix_alias_database: "hash:{{ postfix_aliases_map_path }}"
 postfix_myhostname: "{{ ansible_fqdn }}"
 postfix_inet_interfaces: loopback-only
 postfix_smtp_tls_session_cache_database: btree:${data_directory}/smtp_scache

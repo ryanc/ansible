@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+{% if postfix_aliases is defined and
+      postfix_aliases is mapping and
+      postfix_aliases | length %}
+{% for k, v in postfix_aliases.items() %}
+{% if v is string %}
+{{ k }} {{ v }}
+{% else %}
+{{ k }} {{ v | join(', ') }}
+{% endif %}
+{% endfor %}
+{% endif %}

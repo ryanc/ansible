@@ -2,6 +2,9 @@
 - name: "postmap sasl_passwd"
   command: "postmap hash:{{ postfix_sasl_passwd_map_path }}"
 
+- name: "postmap aliases"
+  command: "postmap hash:{{ postfix_aliases_map_path }}"
+
 - name: reload postfix
   service:
     name: "{{ postfix_service_name }}"
