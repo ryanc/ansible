@@ -119,7 +119,7 @@ open_files() {
 
 
 main() {
-    log info "Stopping %s service" $SERVICE
+    log info "Stopping %s" $SERVICE
     if ! stop_server $SERVICE; then
         error_exit "Failed to stop $SERVICE"
     fi
@@ -134,7 +134,7 @@ main() {
         error_exit "Archive failed"
     fi
 
-    log info "Starting %s service" $SERVICE
+    log info "Starting %s" $SERVICE
     if ! start_server $SERVICE; then
         error_exit "Failed to start $SERVICE"
     fi
