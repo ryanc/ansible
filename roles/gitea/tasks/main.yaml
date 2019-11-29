@@ -36,7 +36,7 @@
     path: "{{ gitea_etc_path }}"
     owner: root
     group: "{{ gitea_group }}"
-    mode: 750
+    mode: 0750
     state: directory
 
 - name: configure
@@ -54,7 +54,7 @@
     path: "{{ item }}"
     owner: "{{ gitea_user }}"
     group: "{{ gitea_group }}"
-    mode: 750
+    mode: 0750
     state: directory
   with_items: "{{ gitea_var_tree }}"
 
