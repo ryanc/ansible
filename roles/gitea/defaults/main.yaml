@@ -11,6 +11,7 @@ gitea_bin_path: /usr/local/bin
 gitea_var_path: /var/lib/gitea
 gitea_log_path: /var/log/gitea
 gitea_etc_path: /etc/gitea
+gitea_run_path: /run/gitea
 gitea_path: "{{ gitea_bin_path }}/gitea"
 gitea_config_path: "{{ gitea_etc_path }}/app.ini"
 gitea_systemd_unit_path: /etc/systemd/system/gitea.service
@@ -20,12 +21,14 @@ gitea_shell: /bin/bash
 gitea_gecos: Git Version Control
 gitea_password: !
 gitea_home_path: /home/git
-gitea_port: 3000
+gitea_port: 3001
 
 gitea_config:
   DEFAULT:
     run_mode: prod
   server:
+    http_port: "{{ gitea_port }}"
+    http_addr: localhost
     domain: "{{ gitea_domain }}"
     root_url: "{{ gitea_ssl_enabled | ternary('https', 'http') }}://{{ gitea_domain }}/"
   oauth2:

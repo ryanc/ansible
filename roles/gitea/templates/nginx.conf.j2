@@ -10,14 +10,16 @@ server {
         try_files $uri =404;
     }
 
-{% if gitea_ssl_enabled %}
+{% if gitea_ssl_enabled is defined and
+      gitea_ssl_enabled %}
     location / {
         return 301 https://$server_name$request_uri;
     }
 {% endif %}
 }
 
-{% if gitea_ssl_enabled %}
+{% if gitea_ssl_enabled is defined and
+      gitea_ssl_enabled %}
 server {
     listen 443 ssl;
 {% if ansible_all_ipv6_addresses | length %}
@@ -36,7 +38,12 @@ server {
 {% endif %}
 
     location / {
+{% if gitea_config.server.protocol is defined and
+      gitea_config.server.protocol == 'unix' %}
+        proxy_pass http://unix:{{ gitea_config.server.http_addr }};
+{% else %}
         proxy_pass http://localhost:{{ gitea_port }};
+{% endif %}
     }
 }
 {% endif %}

@@ -58,6 +58,14 @@
     state: directory
   with_items: "{{ gitea_var_tree }}"
 
+- name: "create {{ gitea_run_path }} path"
+  file:
+    path: "{{ gitea_run_path }}"
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_group }}"
+    mode: 0755
+    state: directory
+
 - name: "create {{ gitea_log_path }} path"
   file:
     path: "{{ gitea_log_path }}"
