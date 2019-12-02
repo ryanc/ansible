@@ -1,0 +1,17 @@
+---
+autossh_package_name: autossh
+autossh_package_state: present
+
+autossh_service_name: autossh@.service
+autossh_systemd_unit_path: /etc/systemd/system/autossh@.service
+
+autossh_etc_path: /etc/autossh
+autossh_run_path: /run/autossh
+
+autossh_user: autossh
+autossh_group: autossh
+autossh_user_state: present
+autossh_user_comment: AutoSSH
+autossh_user_home: "/home/{{ autossh_user }}"
+autossh_user_password: "!"
+autossh_user_shell: /usr/sbin/nologin

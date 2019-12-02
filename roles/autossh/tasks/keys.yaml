@@ -1,0 +1,28 @@
+---
+- set_fact:
+    key_path: "{{ autossh_user_home }}/.ssh/{{ item }}"
+    
+- name: "install private key ({{ item }})"
+  copy:
+    dest: "{{ autossh_user_home }}/.ssh/{{ item }}"
+    content: "{{ lookup('vars', 'autossh_private_key_' + item) }}"
+    owner: "{{ autossh_user }}"
+    group: "{{ autossh_group }}"
+    mode: 0600
+  when: lookup('vars', 'autossh_private_key_' + item, default='') | length
+
+- name: "determine if private key exists ({{ item }})"
+  stat:
+    path: "{{ key_path }}"
+  register: priv_key
+
+- name: "determine if public key exists ({{ item }}.pub)"
+  stat:
+    path: "{{ key_path }}.pub"
+  register: pub_key
+
+- name: "derive public key ({{ item }})"
+  shell: "ssh-keygen -y -f {{ key_path }} > {{ key_path }}.pub"
+  when:
+    - not pub_key.stat.exists
+    - priv_key.stat.exists

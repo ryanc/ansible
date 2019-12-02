@@ -1,0 +1,80 @@
+---
+- name: "create {{ autossh_user }} user"
+  user:
+    name: "{{ autossh_user }}"
+    comment: "{{ autossh_user_comment }}"
+    password: "{{ autossh_user_password }}"
+    #password_lock: yes
+    shell: "{{ autossh_user_shell }}"
+    generate_ssh_key: yes
+    state: "{{ autossh_user_state }}"
+    system: yes
+    skeleton: /dev/null
+
+- name: "manage keys {{ item }}"
+  include: keys.yaml
+  loop:
+    - id_dsa
+    - id_ecdsa
+    - id_ed25519
+    - id_rsa
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  loop:
+    - "{{ autossh_etc_path }}"
+    - "{{ autossh_run_path }}"
+
+- name: install package
+  package:
+    name: "{{ autossh_package_name }}"
+    state: "{{ autossh_package_state }}"
+- name: manage keys "{{ item }}"
+  include: keys.yaml
+  loop:
+    - id_dsa
+    - id_ecdsa
+    - id_ed25519
+    - id_rsa
+
+- name: manage authorized keys
+  authorized_key:
+    user: "{{ autossh_user }}"
+    key: "{{ item.key }}"
+    comment: "{{ item.comment | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ autossh_authorized_keys | default([]) }}"
+
+- name: configure systemd unit
+  template:
+    src: autossh.service.j2
+    dest: "{{ autossh_systemd_unit_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload autossh instances
+    - autossh daemon-reload
+  when: ansible_service_mgr == 'systemd'
+
+- name: configure autossh tunnels
+  template:
+    src: autossh.j2
+    dest: "{{ autossh_etc_path }}/{{ item.name }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ autossh_config | default([]) }}"
+  notify: reload autossh instances
+
+- name: manage services
+  service:
+    name: "autossh@{{ item.name }}.service"
+    state: "{{ item.state | default('started') }}"
+    enabled: "{{ item.enabled | default(true) }}"
+  loop: "{{ autossh_config | default([]) }}"

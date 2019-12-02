@@ -1,0 +1,20 @@
+---
+- name: autossh daemon-reload
+  systemd:
+    daemon_reload: yes
+
+- name: reload autossh
+  service:
+    name: "{{ autossh_service_name }}"
+    state: reloaded
+
+- name: restart autossh
+  service:
+    name: "{{ autossh_service_name }}"
+    state: restarted
+
+- name: reload autossh instances
+  service:
+    name: "autossh@{{ item.name }}.service"
+    state: restarted
+  loop: "{{ autossh_config | default([]) }}"
