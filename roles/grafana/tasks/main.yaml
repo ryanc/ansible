@@ -1,0 +1,55 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: install package
+  package:
+    name: "{{ grafana_package_name }}"
+    state: "{{ grafana_package_state }}"
+
+- name: "create {{ grafana_etc_path }}"
+  file:
+    path: "{{ grafana_etc_path }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: configure
+  template:
+    src: grafana.ini.j2
+    dest: "{{ grafana_config_path }}"
+    owner: root
+    group: "{{ grafana_group }}"
+    mode: 0640
+  notify: restart grafana
+
+- name: manage service
+  service:
+    name: "{{ grafana_service_name }}"
+    state: "{{ grafana_service_state }}"
+    enabled: "{{ grafana_service_enabled }}"
+
+- name: configure nginx
+  include: nginx.yaml
+  when: "'nginx' in ansible_play_role_names"

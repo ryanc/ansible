@@ -1,0 +1,22 @@
+{%- macro ini_scalar(v) -%}
+{% if v is sameas True or v is sameas False %}
+{{ v | bool | lower }}{% if seq %},{% endif %}
+{% elif v is sameas None %}
+{{ "" }}
+{% else %}
+{{ v }}
+{%- endif %}
+{%- endmacro -%}
+
+{%- macro render_config(config = {}) -%}
+{% for s, sc in config.items() | default({}) %}
+[{{ s }}]
+{% for k, v in sc.items() | default({}) %}
+{{ k }} = {{ ini_scalar(v) }}
+{% endfor %}
+{% endfor %}
+{%- endmacro -%}
+
+# {{ ansible_managed }}
+
+{{ render_config(grafana_config) }}

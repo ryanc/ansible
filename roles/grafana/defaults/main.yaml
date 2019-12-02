@@ -1,0 +1,23 @@
+---
+grafana_package_version:
+grafana_package_name: "grafana{{grafana_package_version}}"
+grafana_package_state: present
+
+grafana_service_name: grafana-server.service
+grafana_service_state: started
+grafana_service_enabled: yes
+
+grafana_etc_path: /etc/grafana
+grafana_config_path: "{{ grafana_etc_path }}/grafana.ini"
+
+grafana_domain: "stats.{{ ansible_domain }}"
+grafana_port: "stats.{{ ansible_domain }}"
+grafana_user: grafana
+grafana_group: grafana
+
+grafana_config:
+  server:
+    domain: "{{ grafana_domain }}"
+    root_url: "https://{{ grafana_domain }}"
+    http_addr: localhost
+    http_port: "{{ grafana_port }}"

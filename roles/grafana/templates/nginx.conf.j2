@@ -1,0 +1,44 @@
+server {
+    listen 80;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:80;
+{% endif %}
+    server_name {{ grafana_domain }};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/.acme-challenge;
+        try_files $uri =404;
+    }
+
+{% if grafana_ssl_enabled is defined and
+      grafana_ssl_enabled %}
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+{% endif %}
+}
+
+{% if grafana_ssl_enabled is defined and
+      grafana_ssl_enabled %}
+server {
+    listen 443 ssl;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:443 ssl;
+{% endif %}
+    server_name {{ grafana_domain }};
+
+{% if grafana_ssl_certificate is defined %}
+    ssl_certificate {{ grafana_ssl_certificate }};
+{% endif %}
+{% if grafana_ssl_certificate_key is defined %}
+    ssl_certificate_key {{ grafana_ssl_certificate_key }};
+{% endif %}
+{% if grafana_ssl_dhparam is defined %}
+    ssl_dhparam {{ grafana_ssl_dhparam }};
+{% endif %}
+
+    location / {
+        proxy_pass http://localhost:{{ grafana_port }};
+    }
+}
+{% endif %}
