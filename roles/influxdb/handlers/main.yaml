@@ -1,0 +1,14 @@
+---
+- name: reload influxdb
+  service:
+    name: "{{ influxdb_service_name }}"
+    state: restarted
+  when: influxdb_service_enabled
+
+- name: influxdb daemon-reload
+  systemd:
+    name: "{{ influxdb_service_name }}"
+    daemon_reload: yes
+    state: restarted
+
+# vim:ft=yaml.ansible:

@@ -1,0 +1,20 @@
+---
+influxdb_package_name: influxdb
+influxdb_package_state: present
+
+influxdb_service_name: influxdb.service
+influxdb_service_state: started
+influxdb_service_enabled: yes
+
+influxdb_config:
+  reporting-disabled: yes
+  meta:
+    dir: /var/lib/influxdb/meta
+  data:
+    dir: /var/lib/influxdb/data
+    wal-dir: /var/lib/influxdb/wal
+    series-id-set-cache-size: 100
+    index-version: tsi1
+    query-log-enabled: no
+  http:
+    log-enabled: no

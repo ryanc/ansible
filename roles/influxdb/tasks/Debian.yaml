@@ -1,0 +1,12 @@
+---
+- name: add influx apt key
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: configure apt repository
+  apt_repository:
+    repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    filename: influxdb
+    update_cache: yes
+    state: present
