@@ -77,6 +77,8 @@ unattended_upgrades_mail: "{{ unattended_upgrades_mailto }}"
 #  Default: "now"
 # unattended_upgrades_automatic_reboot_time: '02:00'
 
+# unattended_upgrades_reboot_with_users: false
+
 # Use apt bandwidth limit feature, this example limits the download
 # speed to 70kb/sec
 # unattended_upgrades_download_limit: 70

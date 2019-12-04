@@ -44,6 +44,9 @@ Unattended-Upgrade::Automatic-Reboot "{{ unattended_upgrades_automatic_reboot | 
 {% if unattended_upgrades_automatic_reboot_time is defined %}
 Unattended-Upgrade::Automatic-Reboot-Time "{{ unattended_upgrades_automatic_reboot_time }}";
 {% endif %}
+{% if unattended_upgrades_reboot_with_users is defined %}
+Unattended-Upgrade::Automatic-Reboot-WithUsers "{{ unattended_upgrades_reboot_with_users | lower }}";
+{% endif %}
 {% if unattended_upgrades_download_limit is defined %}
 Acquire::http::Dl-Limit "{{ unattended_upgrades_download_limit }}";
 {% endif %}
