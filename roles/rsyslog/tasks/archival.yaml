@@ -42,9 +42,9 @@
 - name: create /var/log/syslog
   file:
     path: /var/log/syslog
-    owner: syslog
-    group: adm
-    mode: 0750
+    owner: "{{ rsyslog_dir_owner }}"
+    group: "{{ rsyslog_dir_group }}"
+    mode: "{{ rsyslog_dir_create_mode }}"
     state: directory
 
 - name: configure archival format
