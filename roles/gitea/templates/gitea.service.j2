@@ -55,7 +55,7 @@ Group={{ gitea_group }}
 WorkingDirectory={{ gitea_var_path }}
 # If using Unix socket: tells systemd to create the /run/gitea folder, which will contain the gitea.sock file
 # (manually creating /run/gitea doesn't work, because it would not persist across reboots)
-#RuntimeDirectory=gitea
+RuntimeDirectory=gitea
 ExecStart={{ gitea_path }} web --config {{ gitea_config_path }}
 Restart=always
 Environment=USER={{ gitea_user }} HOME={{ gitea_home_path }} GITEA_WORK_DIR={{ gitea_var_path }}
