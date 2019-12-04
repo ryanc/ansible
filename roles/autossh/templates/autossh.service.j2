@@ -10,7 +10,7 @@ Type=simple
 User={{ autossh_user }}
 EnvironmentFile={{ autossh_etc_path }}/%i
 ExecStart=
-ExecStart=/usr/bin/autossh -C -q -l {{ autossh_user }} -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=no $SSH_OPTIONS $SSH_HOST
+ExecStart=/usr/bin/autossh -M 0 -C -q -l {{ autossh_user }} -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=no $SSH_OPTIONS $SSH_HOST
 Restart=always
 RestartSec=60
 RuntimeDirectory=autossh
