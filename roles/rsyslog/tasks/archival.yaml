@@ -4,6 +4,20 @@
     rsyslog_default_rules_state: absent
   when: rsyslog_archival_format_enabled
 
+- name: configure systemd tmpfiles.d
+  template:
+    src: tmpfiles_d-rsyslog.conf
+    dest: /etc/tmpfiles.d/00rsyslog.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: rsyslog_archival_format_enabled
+
+- name: manage systemd tmpfiles.d override
+  file:
+    path: /etc/tmpfiles.d/00rsyslog.conf
+    state: "{{ rsyslog_archival_format_enabled | ternary('file', 'absent') }}"
+
 - name: find default log files
   find:
     path: /var/log
