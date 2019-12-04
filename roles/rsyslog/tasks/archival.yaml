@@ -12,12 +12,12 @@
   when: rsyslog_archival_format_enabled
   register: default_log_files
 
--  name: delete files
-   file:
-     path: "{{ item.path }}"
-     state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
-   when: rsyslog_archival_format_enabled
-   with_items: "{{ default_log_files.files }}"
+- name: delete files
+  file:
+    path: "{{ item.path }}"
+    state: "{{ rsyslog_archival_format_enabled | ternary('absent', 'file') }}"
+  when: rsyslog_archival_format_enabled
+  with_items: "{{ default_log_files.files }}"
 
 - name: delete logrotate configuration
   file:
