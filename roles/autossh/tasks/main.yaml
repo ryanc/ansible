@@ -19,16 +19,13 @@
     - id_ed25519
     - id_rsa
 
-- name: create directories
+- name: "create {{ autossh_etc_path }}"
   file:
-    path: "{{ item }}"
+    path: "{{ autossh_etc_path }}"
     owner: root
     group: root
     mode: 0755
     state: directory
-  loop:
-    - "{{ autossh_etc_path }}"
-    - "{{ autossh_run_path }}"
 
 - name: install package
   package:

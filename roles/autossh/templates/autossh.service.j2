@@ -13,6 +13,7 @@ ExecStart=
 ExecStart=/usr/bin/autossh -C -q -l {{ autossh_user }} -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=no $SSH_OPTIONS $SSH_HOST
 Restart=always
 RestartSec=60
+RuntimeDirectory=autossh
 PIDFile={{ autossh_run_path }}/%i.pid
 
 [Install]
