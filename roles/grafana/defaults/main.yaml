@@ -11,7 +11,7 @@ grafana_etc_path: /etc/grafana
 grafana_config_path: "{{ grafana_etc_path }}/grafana.ini"
 
 grafana_domain: "stats.{{ ansible_domain }}"
-grafana_port: "stats.{{ ansible_domain }}"
+grafana_port: 3002
 grafana_user: grafana
 grafana_group: grafana
 
