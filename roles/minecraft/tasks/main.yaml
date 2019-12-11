@@ -52,6 +52,8 @@
     owner: "{{ minecraft_user }}"
     group: "{{ minecraft_group }}"
     mode: "0644"
+    checksum: "{{ minecraft_jar_checksum }}"
+  notify: restart minecraft
 
 - name: agree to the eula
   copy:
