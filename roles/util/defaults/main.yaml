@@ -1,0 +1,31 @@
+---
+util_vim_ppa_state: present
+util_git_ppa_state: present
+
+util_package_state: latest
+
+util_packages:
+  editors:
+    - vim
+  devel:
+    - git
+    - mercurial
+    - fossil
+  network:
+    - nmap
+    - tcpdump
+    - curl
+    - wget
+    - lftp
+    - rsync
+    - dnsutils
+    - ldnsutils
+    - sipcalc
+  math:
+    - bc
+  misc:
+    - tmux
+    - moreutils
+  security:
+    - gnupg
+    - pass

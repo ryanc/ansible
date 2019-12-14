@@ -1,0 +1,10 @@
+---
+- name: add vim ppa
+  apt_repository:
+    repo: ppa:jonathonf/vim
+    state: "{{ util_vim_ppa_state }}"
+
+- name: add git ppa
+  apt_repository:
+    repo: ppa:git-core/ppa
+    state: "{{ util_git_ppa_state }}"

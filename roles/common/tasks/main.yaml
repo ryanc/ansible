@@ -15,12 +15,6 @@
   hostname:
     name: "{{ hostname | default(inventory_hostname) }}"
 
-- name: install system utilities
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ sys_utils }}"
-
 - name: configure system timezone
   timezone:
     name: "{{ timezone }}"
