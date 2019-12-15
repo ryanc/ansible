@@ -1,0 +1,15 @@
+---
+restic_service_name: restic.service
+restic_service_state: started
+restic_service_enabled: yes
+
+restic_arch: amd64
+restic_version: 0.9.6
+restic_url: "https://github.com/restic/restic/releases/download/v{{ restic_version }}/restic_{{ restic_version }}_linux_{{ restic_arch }}.bz2"
+restic_checksum: sha256:a88ca09d1dd051d470965667a224a2b81930c6628a0566b7b17868be40207dc8
+restic_bin_path: /usr/local/bin
+restic_etc_path: /etc/restic
+restic_path: "{{ restic_bin_path }}/restic"
+
+restic_repos: []
+restic_jobs: []

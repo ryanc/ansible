@@ -1,0 +1,28 @@
+---
+- name: create job config directory
+  file:
+    path: "{{ restic_etc_path }}/jobs/{{ item.name }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: create job exclude file
+  template:
+    src: exclude.txt.j2
+    dest: "{{ restic_etc_path }}/jobs/{{ item.name }}/exclude.txt"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create cron
+  cron:
+    name: "restic {{ item.name }} job"
+    hour: "{{ item.cron.hour | default(omit) }}"
+    minute: "{{ item.cron.minute | default(omit) }}"
+    day: "{{ item.cron.day | default(omit) }}"
+    month: "{{ item.cron.month | default(omit) }}"
+    weekday: "{{ item.cron.weekday | default(omit) }}"
+    user: "{{ item.cron.user | default('root') }}"
+    state: "{{ item.cron.state | default('present') }}"
+    job: ". {{ restic_etc_path }}/repos/{{ item.repo }}/env.sh && restic backup -q --exclude-file {{ restic_etc_path }}/jobs/{{ item.name }}/exclude.txt {{ item.paths | join(' ') }}"

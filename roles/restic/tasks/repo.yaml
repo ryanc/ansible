@@ -1,0 +1,37 @@
+---
+- name: get repo status
+  shell:
+    cmd: restic -q -r {{ item.repo }} snapshots 2> /dev/null 
+  ignore_errors: yes
+  environment: "{{ item.environment | default({}) }}"
+  register: restic_init
+
+- name: init repos
+  shell:
+    cmd: restic -q -r {{ item.repo }} init
+  environment: "{{ item.environment | default({}) }}"
+  when: restic_init.rc != 0
+
+- name: create repo config directory
+  file:
+    path: "{{ restic_etc_path }}/repos/{{ item.name }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: create repo env directory
+  file:
+    path: "{{ restic_etc_path }}/repos/{{ item.name }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: create repo environment helper
+  template:
+    src: env.sh.j2
+    dest: "{{ restic_etc_path }}/repos/{{ item.name }}/env.sh"
+    owner: root
+    group: root
+    mode: 0400

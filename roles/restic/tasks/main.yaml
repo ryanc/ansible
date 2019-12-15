@@ -1,0 +1,74 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: "download restic {{ restic_version }}"
+  get_url:
+    url: "{{ restic_url }}"
+    checksum: "{{ restic_checksum }}"
+    dest: "{{ restic_path }}.bz2"
+    owner: root
+    group: root
+    mode: 0400
+  register: dl
+
+- name: determine if restic exists
+  stat:
+    path: "{{ restic_path }}"
+  register: st
+
+- name: decompress restic
+  command:
+    cmd: "bunzip2 -k {{ restic_path }}.bz2"
+    creates: "{{ restic_path }}"
+  when: dl.changed or not st.stat.exists
+  #notify:
+  #  - restart restic
+
+- name: manage restic attributes
+  file:
+    path: "{{ restic_path }}"
+    owner: root
+    group: root
+    mode:  0755
+
+- name: create etc tree
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ restic_etc_path }}"
+    - "{{ restic_etc_path }}/repos"
+    - "{{ restic_etc_path }}/jobs"
+
+- name: manage repos
+  include: repo.yaml
+  loop: "{{ restic_repos | default([]) }}"
+
+- name: manage jobs
+  include: job.yaml
+  loop: "{{ restic_jobs | default([]) }}"
