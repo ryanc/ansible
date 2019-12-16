@@ -11,5 +11,16 @@ restic_bin_path: /usr/local/bin
 restic_etc_path: /etc/restic
 restic_path: "{{ restic_bin_path }}/restic"
 
+restic_global_exclude:
+  - /dev
+  - /media
+  - /mnt
+  - /proc
+  - /run
+  - /sys
+  - /tmp
+  - /var/tmp
+  - /var/lib/lxcfs/cgroup
+
 restic_repos: []
 restic_jobs: []

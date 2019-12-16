@@ -65,6 +65,22 @@
     - "{{ restic_etc_path }}/repos"
     - "{{ restic_etc_path }}/jobs"
 
+- name: create restic job wrapper script
+  template:
+    src: restic-job.sh.j2
+    dest: "{{ restic_bin_path }}/restic-job"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create restic tidy wrapper
+  template:
+    src: restic-tidy.sh.j2
+    dest: "{{ restic_bin_path }}/restic-tidy"
+    owner: root
+    group: root
+    mode: 0755
+
 - name: manage repos
   include: repo.yaml
   loop: "{{ restic_repos | default([]) }}"

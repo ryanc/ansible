@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# {{ ansible_managed }}
+
+error_exit() {
+    printf "%s\n" "$1"
+    exit 1
+}
+
+NICE="ionice -c2 nice -n19"
+JOB=$1
+
+if [ -z "$JOB" ]; then
+    error_exit "job is missing"
+fi
+
+RESTIC_ETC_PATH="{{ restic_etc_path }}"
+JOB_PATH="${RESTIC_ETC_PATH}/jobs/${JOB}"
+JOB_ENV="${JOB_PATH}/env.sh"
+
+if [ ! -r "$JOB_ENV" ]; then
+    error_exit "${JOB_ENV} does not exist"
+fi
+
+. "$JOB_ENV"
+
+if [ -z "${REPO+x}" ]; then
+    error_exit "\$REPO is not set"
+fi
+
+REPO_PATH="${RESTIC_ETC_PATH}/repos/${REPO}"
+REPO_ENV="${REPO_PATH}/env.sh"
+
+if [ ! -r "$REPO_ENV" ]; then
+    error_exit "${REPO_ENV} does not exist"
+fi
+
+. "$REPO_ENV"
+
+EXCLUDE_PATH="${JOB_PATH}/exclude.txt"
+
+if [ -z "${PATHS+x}" ]; then
+    error_exit "\$PATHS is not set"
+fi
+
+if [ -r "$EXCLUDE_PATH" ]; then
+    $NICE {{ restic_path }} backup -q --exclude-file="${EXCLUDE_PATH}" "${PATHS}"
+else
+    $NICE {{ restic_path }} backup -q "${PATHS}"
+fi

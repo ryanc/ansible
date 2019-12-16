@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# {{ ansible_managed }}
+
+export RESTIC_REPOSITORY="{{ item.repo }}"
+{% if "environment" in item %}
+{% for k, v in item.environment.items() %}
+export {{ k | upper }}="{{ v }}"
+{% endfor %}
+{% endif %}
+
+{% if "forget" in item %}
+{% for k, v in item.forget.items() %}
+{{ k | upper }}="{{ v }}"
+{% endfor %}
+{% endif %}

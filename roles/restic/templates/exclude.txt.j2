@@ -1,3 +1,15 @@
+# {{ ansible_managed }}
+
+{% if restic_global_exclude is defined %}
+# global exclusions
+{% for exclude in restic_global_exclude | default([]) %}
+{{ exclude }}
+{% endfor %}
+{% endif %}
+
+{% if item.exclude is defined %}
+# job exclusions
 {% for exclude in item.exclude %}
 {{ exclude }}
 {% endfor %}
+{%- endif -%}
