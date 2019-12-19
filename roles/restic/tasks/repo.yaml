@@ -36,6 +36,23 @@
     group: root
     mode: 0400
 
+- name: symlink default repo
+  block:
+    - name: explicit default
+      file:
+        src: "{{ restic_etc_path }}/repos/{{ item.name }}"
+        dest: "{{ restic_etc_path }}/repos/default"
+        state: link
+        force: yes
+      when: item.default is defined and item.default == True
+    - name: implicit default
+      file:
+        src: "{{ restic_etc_path }}/repos/{{ item.name }}"
+        dest: "{{ restic_etc_path }}/repos/default"
+        state: link
+        force: yes
+      when: restic_repos | count == 1
+
 - name: create cron
   cron:
     name: "restic {{ item.name }} tidy"

@@ -65,21 +65,17 @@
     - "{{ restic_etc_path }}/repos"
     - "{{ restic_etc_path }}/jobs"
 
-- name: create restic job wrapper script
-  template:
-    src: restic-job.sh.j2
-    dest: "{{ restic_bin_path }}/restic-job"
+- name: copy restic helper scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ restic_bin_path }}/{{ item | basename | splitext | first }}"
     owner: root
     group: root
     mode: 0755
-
-- name: create restic tidy wrapper
-  template:
-    src: restic-tidy.sh.j2
-    dest: "{{ restic_bin_path }}/restic-tidy"
-    owner: root
-    group: root
-    mode: 0755
+  loop:
+    - restic-tidy.sh
+    - restic-repo.sh
+    - restic-job.sh
 
 - name: manage repos
   include: repo.yaml
