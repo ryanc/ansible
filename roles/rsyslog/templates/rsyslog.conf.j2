@@ -13,6 +13,32 @@ module(
 {% endif %}
 {% endfor %}
 
+{% for input in rsyslog_inputs | default([]) %}
+{% if input.enabled | default(true) %}
+input(
+  type="{{ input.name }}"
+{% if input.params is defined and input.params is mapping %}
+{% for k, v in input.params.items() | default({}) %}
+  {{ k }}="{{ v }}"
+{% endfor %}
+{% endif %}
+)
+{% endif %}
+{% endfor %}
+
+{% for output in rsyslog_outputs | default([]) %}
+{% if output.enabled | default(true) %}
+action(
+  type="{{ output.name }}"
+{% if output.params is defined and output.params is mapping %}
+{% for k, v in output.params.items() | default({}) %}
+  {{ k }}="{{ v }}"
+{% endfor %}
+{% endif %}
+)
+{% endif %}
+{% endfor %}
+
 {% if rsyslog_action_file_default_template is defined %}
 $ActionFileDefaultTemplate {{ rsyslog_action_file_default_template }}
 {% endif %}

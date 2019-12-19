@@ -17,6 +17,8 @@ rsyslog_load_modules:
   - name: imklog
     params:
       permitnonkernelfacility: "on"
+  - name: imtcp
+  - name: imudp
 
 rsyslog_work_directory: /var/spool/rsyslog
 rsyslog_include_config: /etc/rsyslog.d/*.conf
