@@ -29,3 +29,7 @@ util_packages:
   security:
     - gnupg
     - pass
+    - pwgen
+  text:
+    - jq
+    - crudini
