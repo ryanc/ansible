@@ -1,2 +1,4 @@
 ---
-rclone_package_url: https://downloads.rclone.org/v1.50.1/rclone-v1.50.1-linux-amd64.deb
+rclone_arch: amd64
+rclone_version: 1.50.2
+rclone_package_url: "https://downloads.rclone.org/v{{ rclone_version }}/rclone-v{{ rclone_version }}-linux-{{ rclone_arch }}.deb"
