@@ -10,8 +10,10 @@ error_exit() {
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
 RESTIC_PATH=${RESTIC_PATH:-/usr/local/bin/restic}
 
+# initial sleep
 MAX_ATTEMPTS=60
 MAX_SLEEP=43200  # 12 hours
+SLEEP="$(((RANDOM % MAX_SLEEP) + 1))s"
 REPO=$1
 
 if [ -z "$REPO" ]; then
@@ -34,8 +36,16 @@ KEEP_WEEKLY=${KEEP_WEEKLY:-5}
 KEEP_MONTHLY=${KEEP_MONTHLY:-12}
 KEEP_YEARLY=${KEEP_YEARLY:-10}
 
-# initial sleep
-sleep "$(((RANDOM % MAX_SLEEP) + 1))s"
+printf "started, keep hourly:%d daily:%d weekly:%d monthly:%d year:%d\n" \
+    "$KEEP_HOURLY" \
+    "$KEEP_DAILY" \
+    "$KEEP_WEEKLY" \
+    "$KEEP_MONTHLY" \
+    "$KEEP_YEARLY"
+
+printf "sleeping for %s (initial)\n" $SLEEP
+
+sleep $SLEEP
 
 counter=0
 sleep=1
@@ -65,4 +75,6 @@ done
 
 if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
     printf "tidy timed out, exiting\n"
+else
+    printf "complete\n"
 fi

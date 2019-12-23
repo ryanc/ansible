@@ -48,6 +48,8 @@ if [ -z "${PATHS+x}" ]; then
     error_exit "\$PATHS is not set"
 fi
 
+printf "job '%s' started\n" "$JOB"
+
 counter=0
 sleep=1
 rc=1
@@ -72,4 +74,7 @@ done
 
 if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
   printf "restic job timed out, exiting\n"
+else
+    printf "job '%s' complete\n" "$JOB"
+fi
 fi
