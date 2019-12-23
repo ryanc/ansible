@@ -7,13 +7,34 @@
     mode: 0755
     state: directory
 
-- name: create repo environment helper
+- name: create job hooks
+  copy:
+    src: "hooks/{{ hook_item }}"
+    dest: "{{ restic_etc_path }}/jobs/{{ item.name }}/hooks.d/{{ hook_item | basename | splitext | first }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop: "{{ item.hooks | default([]) }}"
+  loop_control:
+    loop_var: hook_item
+  when: item.hooks is defined
+
+- name: create job environment helper
   template:
     src: job-env.sh.j2
     dest: "{{ restic_etc_path }}/jobs/{{ item.name }}/env.sh"
     owner: root
     group: root
     mode: 0400
+
+- name: install hooks
+  file:
+    path: "{{ restic_etc_path }}/jobs/{{ item.name }}/hooks.d"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  when: item.hooks is defined and item.hooks | length
 
 - name: create job exclude file
   template:

@@ -20,6 +20,7 @@ fi
 
 JOB_PATH="${RESTIC_ETC_PATH}/jobs/${JOB}"
 JOB_ENV="${JOB_PATH}/env.sh"
+HOOKS_PATH="${JOB_PATH}/hooks.d"
 
 if [ ! -r "$JOB_ENV" ]; then
     error_exit "${JOB_ENV} does not exist"
@@ -50,6 +51,11 @@ fi
 
 printf "job '%s' started\n" "$JOB"
 
+if [ -d "${HOOKS_PATH}" ]; then
+    printf "running '%s' job pre-hooks\n" "$JOB"
+    run-parts -v -a pre "${HOOKS_PATH}"
+fi
+
 counter=0
 sleep=1
 rc=1
@@ -77,4 +83,8 @@ if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
 else
     printf "job '%s' complete\n" "$JOB"
 fi
+
+if [ -d "${HOOKS_PATH}" ]; then
+    printf "running '%s' job post-hooks\n" "$JOB"
+    run-parts -v -a post "${HOOKS_PATH}"
 fi
