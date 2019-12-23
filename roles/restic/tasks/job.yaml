@@ -54,4 +54,4 @@
     weekday: "{{ item.cron.weekday | default(omit) }}"
     user: "{{ item.cron.user | default('root') }}"
     state: "{{ item.cron.state | default('present') }}"
-    job: "{{ restic_bin_path }}/restic-job {{ item.name }}"
+    job: "( {{ restic_bin_path }}/restic-job {{ item.name }} | logger --id=$$ -t restic-job -p user.info ) 2>&1 | logger --id=$$ -t restic-job -p user.err"
