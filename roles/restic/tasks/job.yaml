@@ -7,18 +7,6 @@
     mode: 0755
     state: directory
 
-- name: create job hooks
-  copy:
-    src: "hooks/{{ hook_item }}"
-    dest: "{{ restic_etc_path }}/jobs/{{ item.name }}/hooks.d/{{ hook_item | basename | splitext | first }}"
-    owner: root
-    group: root
-    mode: 0755
-  loop: "{{ item.hooks | default([]) }}"
-  loop_control:
-    loop_var: hook_item
-  when: item.hooks is defined
-
 - name: create job environment helper
   template:
     src: job-env.sh.j2
@@ -27,7 +15,7 @@
     group: root
     mode: 0400
 
-- name: install hooks
+- name: create hooks directory
   file:
     path: "{{ restic_etc_path }}/jobs/{{ item.name }}/hooks.d"
     owner: root
@@ -35,6 +23,19 @@
     mode: 0755
     state: directory
   when: item.hooks is defined and item.hooks | length
+
+- name: create job hooks
+  copy:
+    src: "hooks/{{ hook_item }}"
+    dest: "{{ restic_etc_path }}/jobs/{{ item.name }}/hooks.d/{{ '%02d' | format(idx) }}-{{ hook_item | basename | splitext | first }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop: "{{ item.hooks | default([]) }}"
+  loop_control:
+    loop_var: hook_item
+    index_var: idx
+  when: item.hooks is defined
 
 - name: create job exclude file
   template:

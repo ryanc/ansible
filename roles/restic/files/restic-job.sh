@@ -53,7 +53,11 @@ printf "job '%s' started\n" "$JOB"
 
 if [ -d "${HOOKS_PATH}" ]; then
     printf "running '%s' job pre-hooks\n" "$JOB"
-    run-parts -v -a pre "${HOOKS_PATH}"
+    if ! run-parts --exit-on-error -v -a pre "${HOOKS_PATH}"; then
+        printf "'%s' pre-hooks failed, running post-hooks and exiting\n" "$JOB"
+        run-parts --exit-on-error -v -a post "${HOOKS_PATH}"
+        exit 1
+    fi
 fi
 
 counter=0
@@ -86,5 +90,5 @@ fi
 
 if [ -d "${HOOKS_PATH}" ]; then
     printf "running '%s' job post-hooks\n" "$JOB"
-    run-parts -v -a post "${HOOKS_PATH}"
+    run-parts --exit-on-error -v -a post "${HOOKS_PATH}"
 fi
