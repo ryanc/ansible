@@ -26,6 +26,10 @@ util_packages:
   misc:
     - tmux
     - moreutils
+  utils:
+    - unzip
+    - p7zip
+    - p7zip-full
   security:
     - gnupg
     - pass
