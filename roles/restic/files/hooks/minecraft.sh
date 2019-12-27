@@ -1,9 +1,19 @@
 #!/bin/bash
 
+set -e
+
 SERVICE=minecraft.service
 VAR_DIR=/opt/minecraft/var
 WAIT=30
 VERBOSE=${VERBOSE:-4}
+
+prereq() {
+    local service=$1
+    if ! systemctl list-units --full --all | grep -Fq "$service"; then
+        printf "%s unit does not exit\n" "$service"
+        exit 1
+    fi
+}
 
 error_exit() {
     printf "%s\n" "$1" >&2
@@ -75,6 +85,8 @@ open_files() {
 
 
 main() {
+    prereq "$SERVICE"
+
     if [ "$1" == "pre" ]; then
         printf "stopping %s\n" $SERVICE
         if ! stop_server $SERVICE; then

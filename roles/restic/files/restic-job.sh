@@ -64,6 +64,7 @@ counter=0
 sleep=1
 rc=1
 
+printf "restic started\n"
 until [ $counter -eq "$MAX_ATTEMPTS" ] || [ $rc -eq 0 ]; do
     if [ -r "$EXCLUDE_PATH" ]; then
         $NICE "$RESTIC_PATH" backup -q --exclude-file="${EXCLUDE_PATH}" "${PATHS}"
@@ -81,6 +82,7 @@ until [ $counter -eq "$MAX_ATTEMPTS" ] || [ $rc -eq 0 ]; do
 
     (( counter++ ))
 done
+printf "restic complete\n"
 
 if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
   printf "restic job timed out, exiting\n"
