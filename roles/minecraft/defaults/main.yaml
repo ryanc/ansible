@@ -19,3 +19,5 @@ minecraft_var_path: "{{ minecraft_opt_path }}/var"
 minecraft_backup_path: "{{ minecraft_opt_path }}/backup"
 
 minecraft_syslog_facility: local5
+
+minecraft_notifier_state: present

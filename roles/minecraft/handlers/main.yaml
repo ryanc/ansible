@@ -9,3 +9,8 @@
   service:
     name: "{{ minecraft_service_name }}"
     state: restarted
+
+- name: restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted

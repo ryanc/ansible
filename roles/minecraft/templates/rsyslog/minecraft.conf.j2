@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+module(load="omprog")
+
+if ( $programname == "minecraft" ) then {
+  action(
+    type="omprog"
+    binary="{{ minecraft_opt_path }}/bin/minecraft-discord --config {{ minecraft_opt_path }}/etc/discord.cfg"
+    confirmmessages="on"
+  )
+}

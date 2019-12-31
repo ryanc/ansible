@@ -161,3 +161,40 @@
     state: link
   when: "'nginx' in ansible_play_role_names"
   notify: reload nginx
+
+- name: install discord notifier
+  copy:
+    src: minecraft-discord.py
+    dest: "{{ minecraft_opt_path }}/bin/minecraft-discord"
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart rsyslog
+
+- name: configure discord notifier
+  copy:
+    dest: "{{ minecraft_opt_path }}/etc/discord.cfg"
+    owner: syslog
+    group: syslog
+    mode: 0600
+    content: "{% for k, v in minecraft_discord_config.items() %}{{ k }}={{ v }}{{ \"\n\" }}{% endfor %}"
+  notify: restart rsyslog
+
+- name: configure rsyslog program
+  template:
+    src: rsyslog/minecraft.conf.j2
+    dest: /etc/rsyslog.d/05-minecraft.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+
+- name: manage rsyslog configuration
+  file:
+    path: "{{ item }}"
+    state: "{{ (minecraft_notifier_state == 'present') | ternary('file', 'absent') }}"
+  loop:
+    - /etc/rsyslog.d/05-minecraft.conf
+    - "{{ minecraft_opt_path }}/etc/discord.cfg"
+    - "{{ minecraft_opt_path }}/bin/minecraft-discord"
+  notify: restart rsyslog
