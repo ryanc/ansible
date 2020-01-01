@@ -48,6 +48,13 @@
 -A ICMP_FLOOD -j ACCEPT
 {% endif %}
 
+{% if firewall_dns_whitelist is defined %}
+-N ACCEPT_DNS
+-A ACCEPT_DNS -m tcp -p tcp --dport 53 -m comment --comment "accept dns 53/tcp" -j LOG_ACCEPT
+-A ACCEPT_DNS -m udp -p udp --dport 53 -m comment --comment "accept dns 53/udp" -j LOG_ACCEPT
+-A ACCEPT_DNS -m comment --comment "ACCEPT_DNS default drop" -j LOG_DROP
+{% endif %}
+
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
@@ -58,6 +65,14 @@
 
 {% if firewall_ipset_mgmt | length %}
 -A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v4 src -m comment --comment "accept mgmt ssh 22/tcp" -j ACCEPT
+{% endif %}
+
+{% if firewall_dns_whitelist is defined and
+      firewall_dns_whitelist | length %}
+{% for ip in firewall_dns_whitelist | ipv4 %}
+-A INPUT -m tcp -p tcp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/tcp" -j ACCEPT_DNS
+-A INPUT -m udp -p udp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/udp" -j ACCEPT_DNS
+{% endfor %}
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
