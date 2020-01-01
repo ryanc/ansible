@@ -37,3 +37,10 @@ util_packages:
   text:
     - jq
     - crudini
+  interpreters:
+    - lua5.3
+  python:
+    - python-pip
+    - python3-pip
+    - python-requests
+    - python3-requests
