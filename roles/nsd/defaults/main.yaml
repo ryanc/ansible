@@ -1,0 +1,17 @@
+---
+nsd_package_name: nsd
+nsd_package_state: present
+
+nsd_service_name: nsd
+nsd_service_state: started
+nsd_service_enabled: yes
+
+nsd_etc_path: /etc/nsd
+nsd_zone_path: "{{ nsd_etc_path }}/zones"
+
+nsd_server_config:
+  verbosity: 2
+  zonesdir: "{{ nsd_zone_path }}"
+  ip-address:
+    - "{{ ansible_default_ipv4.address }}"
+    - "{{ ansible_default_ipv6.address }}"

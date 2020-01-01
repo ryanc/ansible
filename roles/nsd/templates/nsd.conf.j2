@@ -1,0 +1,34 @@
+# {{ ansible_managed }}
+
+{% if nsd_server_config is defined and
+      nsd_server_config is mapping %}
+server:
+{% for k, v in nsd_server_config.items() %}
+{% if v is string or v is number %}
+    {{ k }}: {{ v }}
+{% elif v is sequence %}
+{% for vv in v %}
+    {{ k }}: {{ vv }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if nsd_zones is defined and
+      nsd_zones is sequence %}
+{% for zone in nsd_zones %}
+{% if zone is defined and
+      zone is mapping %}
+zone:
+{% for k, v in zone.items() %}
+{% if v is string %}
+    {{ k }}: {{ v }}
+{% elif v is sequence %}
+{% for vv in v %}
+    {{ k }}: {{ vv }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}

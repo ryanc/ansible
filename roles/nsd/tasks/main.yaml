@@ -1,0 +1,36 @@
+---
+- name: install package
+  package:
+    name: "{{ nsd_package_name }}"
+    state: "{{ nsd_package_state }}"
+
+- name: create zone directory
+  file:
+    path: "{{ nsd_zone_path }}"
+    state: directory
+
+- name: configure
+  template:
+    src: nsd.conf.j2
+    dest: "{{ nsd_etc_path }}/nsd.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nsd
+
+- name: configure zones
+  copy:
+    src: "files/nsd/zones/{{ item.filename | default(item.name + '.zone') }}"
+    dest: "{{ nsd_zone_path }}/{{ item.name }}.zone"
+    owner: root
+    group: nsd
+    mode: 0640
+    validate: "nsd-checkzone {{ item.name }} %s"
+  loop: "{{ nsd_zones | default([]) }}"
+  notify: reload nsd
+
+- name: manage service
+  service:
+    name: "{{ nsd_service_name }}"
+    state: "{{ nsd_service_state }}"
+    enabled: "{{ nsd_service_enabled }}"

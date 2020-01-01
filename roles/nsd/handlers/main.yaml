@@ -1,0 +1,10 @@
+---
+- name: reload nsd
+  service:
+    name: "{{ nsd_service_name }}"
+    state: reloaded
+
+- name: restart nsd
+  service:
+    name: "{{ nsd_service_name }}"
+    state: restarted
