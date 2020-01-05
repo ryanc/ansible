@@ -1,0 +1,40 @@
+# {{ ansible_managed }}
+
+{% macro toml_scalar(v, seq=False) %}
+{% if v is string %}
+  "{{ v | quote }}"{% if seq %},{% endif %}
+{% elif v is sameas True or v is sameas False %}
+  {{ v | bool | lower }}{% if seq %},{% endif %}
+{% elif v is sameas None %}
+  ""{% if seq %},{% endif %}
+{% elif v is number %}
+  {{ v }}{% if seq %},{% endif %}
+{% endif %}
+{% endmacro %}
+
+{% if item.config %}
+{% for name, config in item.config.items() | default({}) %}
+{% for c in config %}
+[[{{ name }}]]
+{% for k, v in c.items() | default({}) %}
+{% if v is string %}
+  {{ k }} = "{{ v | quote }}"
+{% elif v is sameas True or v is sameas False %}
+  {{ k }} = {{ v | bool | lower }}
+{% elif v is sameas None %}
+  {{ k }} = ""
+{% elif v is number %}
+  {{ k }} = {{ v }}
+{% elif v is sequence %}
+  {{ k }} = [
+{% for i in v | default([]) %}
+    {{ toml_scalar(i, seq=True) }}
+{% endfor %}
+  ]
+{% endif %}
+{% endfor %}
+{% else %}
+[[{{ name }}]]
+{% endfor %}
+{% endfor %}
+{% endif %}

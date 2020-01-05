@@ -25,6 +25,18 @@
     mode: 0644
   notify: reload telegraf
 
+- name: configure telegraf.d files
+  template:
+    src: telegraf_d.conf.j2
+    dest: "/etc/telegraf/telegraf.d/{{ '%02d' | format(idx) }}-{{ item.name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload telegraf
+  loop: "{{ telegraf_config_d | default([]) }}"
+  loop_control:
+    index_var: idx
+
 - name: create systemd override directory
   file:
     path: /etc/systemd/system/telegraf.service.d
