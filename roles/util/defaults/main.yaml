@@ -21,6 +21,9 @@ util_packages:
     - dnsutils
     - ldnsutils
     - sipcalc
+    - mbuffer
+    - socat
+    - spiped
   math:
     - bc
   misc:
@@ -30,6 +33,7 @@ util_packages:
     - unzip
     - p7zip
     - p7zip-full
+    - pv
   security:
     - gnupg
     - pass
