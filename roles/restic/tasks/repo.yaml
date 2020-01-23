@@ -5,6 +5,7 @@
   ignore_errors: yes
   environment: "{{ item.environment | default({}) }}"
   register: restic_init
+  changed_when: false
 
 - name: init repos
   shell:
