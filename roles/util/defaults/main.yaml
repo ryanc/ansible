@@ -28,12 +28,21 @@ util_packages:
     - bc
   misc:
     - tmux
+    - screen
     - moreutils
   utils:
     - unzip
     - p7zip
     - p7zip-full
+    - pigz
+    - pxz
+    - pbzip2
     - pv
+    - htop
+    - iotop
+    - iftop
+    - lsof
+    - sysdig
   security:
     - gnupg
     - pass
@@ -41,6 +50,7 @@ util_packages:
   text:
     - jq
     - crudini
+    - xmlstarlet
   interpreters:
     - lua5.3
   python:
