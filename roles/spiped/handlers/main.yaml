@@ -1,0 +1,10 @@
+---
+- name: spiped daemon-reload
+  systemd:
+    daemon_reload: yes
+
+- name: restart spiped tunnels
+  service:
+    name: "spiped-{{ item.name }}"
+    state: restarted
+  loop: "{{ spiped_tunnels | default([]) }}"

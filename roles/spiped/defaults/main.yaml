@@ -1,0 +1,14 @@
+---
+spiped_package_name: spiped
+spiped_package_state: present
+
+spiped_etc_path: /etc/spiped
+spiped_run_path: /run/spiped
+
+spiped_user: spiped
+spiped_group: spiped
+spiped_user_state: present
+spiped_user_comment: spiped
+spiped_user_home: "{{ spiped_run_path }}"
+spiped_user_password: "!"
+spiped_user_shell: /usr/sbin/nologin

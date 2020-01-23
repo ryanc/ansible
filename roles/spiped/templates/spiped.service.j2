@@ -1,0 +1,22 @@
+{% set keyfile = "{0}/{1}.key".format(spiped_etc_path, item.name) %}
+# {{ ansible_managed }}
+
+[Unit]
+Description=spiped tunnel {{ item.name }}
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ spiped_user }}
+{% if item.type == 'client' %}
+ExecStart=/usr/bin/spiped -F -g -k {{ keyfile }} -D -e -s '{{ item.source_socket }}' -t '{{ item.target_socket }}'
+{% else %}
+ExecStart=/usr/bin/spiped -F -g -k {{ keyfile }} -d -s '{{ item.source_socket }}' -t '{{ item.target_socket }}'
+{% endif %}
+Restart=always
+RestartSec=60
+RuntimeDirectory=spiped
+PIDFile={{ spiped_run_path }}/{{ item.name }}.pid
+
+[Install]
+WantedBy=multi-user.target

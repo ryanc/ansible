@@ -1,0 +1,60 @@
+---
+- name: install package
+  package:
+    name: "{{ spiped_package_name }}"
+    state: "{{ spiped_package_state }}"
+
+- name: "create {{ spiped_user }} user"
+  user:
+    name: "{{ spiped_user }}"
+    comment: "{{ spiped_user_comment }}"
+    password: "{{ spiped_user_password }}"
+    home: "{{ spiped_user_home }}"
+    shell: "{{ spiped_user_shell }}"
+    state: "{{ spiped_user_state }}"
+    system: yes
+    create_home: no
+
+- name: create paths
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ spiped_etc_path }}"
+
+- name: configure systemd unit
+  template:
+    src: spiped.service.j2
+    dest: "/etc/systemd/system/spiped-{{ item.name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ spiped_tunnels | default([]) }}"
+  notify:
+    - restart spiped tunnels
+    - spiped daemon-reload
+  when: ansible_service_mgr == 'systemd'
+  no_log: true
+
+- name: configure keys
+  copy:
+    dest: "{{ spiped_etc_path }}/{{ item.name }}.key"
+    content: "{{ item.key | b64decode }}"
+    owner: "{{ spiped_user }}"
+    group: "{{ spiped_group }}"
+    mode: 0400
+  loop: "{{ spiped_tunnels | default([]) }}"
+  notify:
+    - restart spiped tunnels
+  no_log: true
+
+- name: manage services
+  service:
+    name: "spiped-{{ item.name }}.service"
+    state: "{{ item.state | default('started') }}"
+    enabled: "{{ item.enabled | default(true) }}"
+  loop: "{{ spiped_tunnels | default([]) }}"
+  no_log: true
