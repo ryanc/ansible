@@ -1,0 +1,65 @@
+---
+- name: gather architecture specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_userspace_architecture }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: determine if go exists
+  stat:
+    path: /usr/local/go/bin/go
+  register: st
+
+- name: determine go version
+  command: /usr/local/go/bin/go version
+  register: gv
+  changed_when: false
+  when: st.stat.exists is defined and st.stat.exists
+
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: download go
+  get_url:
+    url: "{{ go_url }}"
+    checksum: "{{ go_checksum }}"
+    dest: "/usr/local/src/go{{ go_version }}.{{ ansible_system | lower }}-{{ go_arch }}.tar.gz"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: remove old version of go
+  file:
+    path: /usr/local/go
+    state: absent
+  when: st.stat.exists and gv.stdout != go_version_str
+
+- name: unpack go
+  unarchive:
+    src: "/usr/local/src/go{{ go_version }}.{{ ansible_system | lower }}-{{ go_arch }}.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  when: st.stat.exists is defined and not st.stat.exists
+
+- name: environment
+  copy:
+    dest: /etc/profile.d/go.sh
+    owner: root
+    group: root
+    mode: 0755
+    content: | 
+      PATH=$HOME/go/bin:$PATH:/usr/local/go/bin
+      GOPATH=$HOME/go

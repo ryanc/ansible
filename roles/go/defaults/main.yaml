@@ -1,0 +1,4 @@
+---
+go_version: 1.13.6
+go_url: "https://dl.google.com/go/go{{ go_version }}.{{ ansible_system | lower }}-{{ go_arch }}.tar.gz"
+go_version_str: "go version go{{ go_version }} {{ ansible_system | lower}}/{{ go_arch }}"
