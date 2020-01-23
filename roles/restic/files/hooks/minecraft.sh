@@ -85,23 +85,30 @@ open_files() {
 
 
 main() {
-    prereq "$SERVICE"
 
     if [ "$1" == "pre" ]; then
-        printf "stopping %s\n" $SERVICE
-        if ! stop_server $SERVICE; then
-            error_exit "Failed to stop $SERVICE"
-        fi
+        for path in "$VAR_DIR"/*; do
+            instance="minecraft@$(basename "$path").service"
+            prereq "$instance"
+            printf "stopping %s\n" "$instance"
+            if ! stop_server "$instance"; then
+                error_exit "Failed to stop $instance"
+            fi
+        done
 
         printf "checking for open files\n"
         if ! open_files $VAR_DIR; then
             error_exit "Open files exist in $VAR_DIR"
         fi
     elif [ "$1" == "post" ]; then
-        printf "starting %s\n" $SERVICE
-        if ! start_server $SERVICE; then
-            error_exit "Failed to start $SERVICE"
-        fi
+        for path in "$VAR_DIR"/*; do
+            instance="minecraft@$(basename "$path").service"
+            prereq "$instance"
+            printf "starting %s\n" "$instance"
+            if ! start_server "$instance"; then
+                error_exit "Failed to start $instance"
+            fi
+        done
     fi
 }
 
