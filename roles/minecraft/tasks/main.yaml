@@ -37,13 +37,12 @@
 
 - name: create minecraft var directory
   file:
-    path: "{{ item }}"
+    path: "{{ minecraft_var_path }}/{{ item.name }}"
     state: directory
     owner: "{{ minecraft_user }}"
     group: "{{ minecraft_group }}"
     mode: "0755"
-  with_items:
-    - "{{ minecraft_var_path }}"
+  loop: "{{ minecraft_worlds }}"
 
 - name: download minecraft server
   get_url:
@@ -53,29 +52,31 @@
     group: "{{ minecraft_group }}"
     mode: "0644"
     checksum: "{{ minecraft_jar_checksum }}"
-  notify: restart minecraft
+  notify: restart minecraft instances
 
 - name: agree to the eula
   copy:
     content: "eula=true"
-    dest: "{{ minecraft_var_path }}/eula.txt"
+    dest: "{{ minecraft_var_path }}/{{ item.name }}/eula.txt"
     owner: "{{ minecraft_user }}"
     group: "{{ minecraft_group }}"
     mode: "0644"
+  loop: "{{ minecraft_worlds }}"
 
 - name: configure minecraft
   template:
     src: server.properties.j2
-    dest: "{{ minecraft_var_path }}/server.properties"
+    dest: "{{ minecraft_var_path }}/{{ item.name }}/server.properties"
     owner: root
     group: root
     mode: 0644
-  notify: restart minecraft
+  notify: restart minecraft instances
+  loop: "{{ minecraft_worlds }}"
 
 - name: configure systemd unit
   template:
     src: minecraft.service.j2
-    dest: /etc/systemd/system/minecraft.service
+    dest: /etc/systemd/system/minecraft@.service
     owner: root
     group: root
     mode: 0644
@@ -84,83 +85,30 @@
 
 - name: manage minecraft service
   service:
-    name: "{{ minecraft_service_name }}"
+    name: "minecraft@{{ item.name }}"
     state: "{{ minecraft_service_state }}"
     enabled: "{{ minecraft_service_enabled }}"
+  loop: "{{ minecraft_worlds }}"
 
-- name: configure ops
-  copy:
-    content: "{{ (minecraft_ops | default([])) | to_nice_json }}"
-    dest: "{{ minecraft_var_path }}/ops.json"
-    owner: "{{ minecraft_user }}"
-    group: "{{ minecraft_group }}"
-    mode: "0644"
-    force: no
-  notify: restart minecraft
-
-- name: configure whitelist
-  copy:
-    content: "{{ (minecraft_whitelist | default([])) | to_nice_json }}"
-    dest: "{{ minecraft_var_path }}/whitelist.json"
-    owner: "{{ minecraft_user }}"
-    group: "{{ minecraft_group }}"
-    mode: "0644"
-    force: no
-  notify: restart minecraft
-
-- name: install backup script
-  copy:
-    src: minecraft-backup.sh
-    dest: "{{ minecraft_opt_path }}/bin/minecraft-backup"
-    owner: root
-    group: root
-    mode: 0700
-
-- name: backup cron job
-  cron:
-    name: minecraft backup
-    minute: "0"
-    hour: "9"
-    user: root
-    job: "{{ minecraft_opt_path }}/bin/minecraft-backup"
-
-- name: backup clean up cron
-  cron:
-    name: minecraft backup clean up
-    minute: "0"
-    hour: "11"
-    user: root
-    job: "find {{ minecraft_opt_path }}/backup/ -type f -name '*.tar.xz' -ctime +7 -delete"
-
-- name: set world download password
-  htpasswd:
-    path: "{{ minecraft_opt_path }}/etc/htpasswd"
-    name: minecraft
-    password: minecraft
-    owner: root
-    group: root
-    mode: 0644
-  when: "'nginx' in ansible_play_role_names"
-
-- name: configure nginx
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/minecraft
-    owner: root
-    group: root
-    mode: 0644
-  when: "'nginx' in ansible_play_role_names"
-  notify: reload nginx
-
-- name: activate site
-  file:
-    src: /etc/nginx/sites-available/minecraft
-    dest: /etc/nginx/sites-enabled/minecraft
-    owner: root
-    group: root
-    state: link
-  when: "'nginx' in ansible_play_role_names"
-  notify: reload nginx
+    #- name: configure ops
+    #  copy:
+    #    content: "{{ (minecraft_ops | default([])) | to_nice_json }}"
+    #    dest: "{{ minecraft_var_path }}/ops.json"
+    #    owner: "{{ minecraft_user }}"
+    #    group: "{{ minecraft_group }}"
+    #    mode: "0644"
+    #    force: no
+    #  notify: restart minecraft instances
+    #
+    #- name: configure whitelist
+    #  copy:
+    #    content: "{{ (minecraft_whitelist | default([])) | to_nice_json }}"
+    #    dest: "{{ minecraft_var_path }}/whitelist.json"
+    #    owner: "{{ minecraft_user }}"
+    #    group: "{{ minecraft_group }}"
+    #    mode: "0644"
+    #    force: no
+    #  notify: restart minecraft instances
 
 - name: install discord notifier
   copy:

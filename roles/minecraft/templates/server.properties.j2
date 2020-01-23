@@ -1,2 +1,3 @@
 white-list: {{ (minecraft_config.whitelist | default(true)) | ternary('true', 'false') }}
 enforce-whitelist: {{ (minecaft_config.enfoce_whitelist | default(true)) | ternary('true', 'false') }}
+server-port: {{ item.port | default(25565) }}

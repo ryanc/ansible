@@ -14,3 +14,9 @@
   service:
     name: rsyslog
     state: restarted
+
+- name: restart minecraft instances
+  service:
+    name: "minecraft@{{ item.name }}.service"
+    state: restarted
+  loop: "{{ minecraft_worlds | default([]) }}"
