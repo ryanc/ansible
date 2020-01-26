@@ -4,9 +4,9 @@ gitea_service_state: started
 gitea_service_enabled: yes
 
 gitea_arch: amd64
-gitea_version: 1.10.1
+gitea_version: 1.10.2
 gitea_url: "https://dl.gitea.io/gitea/{{ gitea_version }}/gitea-{{ gitea_version }}-linux-{{ gitea_arch }}"
-gitea_checksum: sha256:4e6bcb8fe9f4f5cc6f0e0c15a0dd67e9448a7ebd1592169862f0d4424a8f23ad
+gitea_checksum: sha256:e0479c0be2852357a84ac6b45b5de41ca5552c889cff385e6d57aa50a8f5a14c
 gitea_bin_path: /usr/local/bin
 gitea_var_path: /var/lib/gitea
 gitea_log_path: /var/log/gitea
