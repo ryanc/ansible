@@ -47,6 +47,11 @@ start_server() {
     local unit="${1:-$SERVICE}"
     local attempts="${2:-$WAIT}"
 
+    if ! systemctl -q is-enabled "$unit"; then
+        printf "%s is not enabled, skipping.\n" "$unit"
+        return 0
+    fi
+
     if systemctl -q is-active "$unit"; then
         printf "%s is already started\n" "$unit"
         return 0

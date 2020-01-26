@@ -86,8 +86,8 @@
 - name: manage minecraft service
   service:
     name: "minecraft@{{ item.name }}"
-    state: "{{ minecraft_service_state }}"
-    enabled: "{{ minecraft_service_enabled }}"
+    state: "{{ item.state | default(minecraft_service_state) }}"
+    enabled: "{{ item.enabled | default(minecraft_service_enabled) }}"
   loop: "{{ minecraft_worlds }}"
 
     #- name: configure ops
