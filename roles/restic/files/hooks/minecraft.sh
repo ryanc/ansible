@@ -24,11 +24,17 @@ stop_server() {
     local unit="${1:-$SERVICE}"
     local attempts="${2:-$WAIT}"
 
+    if ! systemctl -q is-enabled "$unit"; then
+        printf "%s is not enabled, skipping.\n" "$unit"
+        return 0
+    fi
+
     if ! systemctl -q is-active "$unit"; then
         printf "%s is already stopped\n" "$unit"
         return 0
     fi
 
+    printf "stopping %s\n" "$instance"
     systemctl -q stop "$unit"
 
     while systemctl -q is-active "$unit"; do
@@ -57,6 +63,7 @@ start_server() {
         return 0
     fi
 
+    printf "starting %s\n" "$instance"
     systemctl -q start "$unit"
 
     while ! systemctl -q is-active "$unit"; do
@@ -94,8 +101,6 @@ main() {
     if [ "$1" == "pre" ]; then
         for path in "$VAR_DIR"/*; do
             instance="minecraft@$(basename "$path").service"
-            prereq "$instance"
-            printf "stopping %s\n" "$instance"
             if ! stop_server "$instance"; then
                 error_exit "Failed to stop $instance"
             fi
@@ -108,8 +113,6 @@ main() {
     elif [ "$1" == "post" ]; then
         for path in "$VAR_DIR"/*; do
             instance="minecraft@$(basename "$path").service"
-            prereq "$instance"
-            printf "starting %s\n" "$instance"
             if ! start_server "$instance"; then
                 error_exit "Failed to start $instance"
             fi
