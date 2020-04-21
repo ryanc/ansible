@@ -10,6 +10,11 @@ error_exit() {
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
 RESTIC_PATH=${RESTIC_PATH:-/usr/local/bin/restic}
 
+if [ "$RESTIC_SELF_UPDATE" -eq 1 ]; then
+  printf "running restic self-update\n"
+  $RESTIC_PATH self-update
+fi
+
 # initial sleep
 MAX_ATTEMPTS=60
 MAX_SLEEP=43200  # 12 hours
