@@ -65,6 +65,14 @@
     - "{{ restic_etc_path }}/repos"
     - "{{ restic_etc_path }}/jobs"
 
+- name: create environment helper
+  template:
+    src: env.sh.j2
+    dest: "{{ restic_etc_path }}/env.sh"
+    owner: root
+    group: root
+    mode: 0400
+
 - name: copy restic helper scripts
   copy:
     src: "{{ item }}"

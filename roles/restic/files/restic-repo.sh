@@ -8,7 +8,9 @@ error_exit() {
 }
 
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
-RESTIC_PATH=${RESTIC_PATH:-/usr/local/bin/restic}
+
+# shellcheck source=/dev/null
+source "${RESTIC_ETC_PATH}/env.sh"
 
 if [ $# -lt 2 ]; then
     error_exit "missing arguments"

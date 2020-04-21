@@ -8,7 +8,9 @@ error_exit() {
 }
 
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
-RESTIC_PATH=${RESTIC_PATH:-/usr/local/bin/restic}
+
+# shellcheck source=/dev/null
+source "${RESTIC_ETC_PATH}/env.sh"
 
 if [ "$RESTIC_SELF_UPDATE" -eq 1 ]; then
   printf "running restic self-update\n"
