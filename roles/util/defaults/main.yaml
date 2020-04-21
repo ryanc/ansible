@@ -24,6 +24,8 @@ util_packages:
     - mbuffer
     - socat
     - spiped
+    - mtr-tiny
+    - traceroute
   math:
     - bc
   misc:
@@ -43,6 +45,7 @@ util_packages:
     - iftop
     - lsof
     - sysdig
+    - dstat
   security:
     - gnupg
     - pass
