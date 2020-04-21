@@ -1,0 +1,119 @@
+---
+- name: create craftbukkit group
+  group:
+    name: "{{ craftbukkit_group }}"
+    gid: "{{ craftbukkit_group_gid | default(omit) }}"
+    state: "{{ craftbukkit_group_state | default('present') }}"
+    system: yes
+
+- name: create craftbukkit user
+  user:
+    name: "{{ craftbukkit_user }}"
+    uid: "{{ craftbukkit_user_uid | default(omit) }}"
+    group: "{{ craftbukkit_group }}"
+    home: "{{ craftbukkit_var_path }}"
+    create_home: no
+    shell: "{{ craftbukkit_shell | default('/usr/sbin/nologin') }}"
+    state: "{{ craftbukkit_user_state | default('present') }}"
+    system: yes
+  
+- name: install java
+  package:
+    name: "{{ craftbukkit_java_package_name }}"
+    state: "{{ craftbukkit_java_package_state }}"
+
+- name: create craftbukkit installation directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - "{{ craftbukkit_opt_path }}"
+    - "{{ craftbukkit_opt_path }}/bin"
+    - "{{ craftbukkit_opt_path }}/etc"
+
+- name: create craftbukkit var directory
+  file:
+    path: "{{ craftbukkit_var_path }}"
+    state: directory
+    owner: "{{ craftbukkit_user }}"
+    group: "{{ craftbukkit_group }}"
+    mode: "0755"
+
+- name: "upload {{ craftbukkit_jar }}"
+  copy:
+    src: "files/craftbukkit/{{ craftbukkit_jar }}"
+    dest: "{{ craftbukkit_opt_path }}/bin/{{ craftbukkit_jar }}"
+    owner: "{{ craftbukkit_user }}"
+    group: "{{ craftbukkit_group }}"
+    mode: "0644"
+
+- name: agree to the eula
+  copy:
+    content: "eula=true"
+    dest: "{{ craftbukkit_var_path }}/eula.txt"
+    owner: "{{ craftbukkit_user }}"
+    group: "{{ craftbukkit_group }}"
+    mode: "0644"
+
+- name: configure server.properties
+  template:
+    src: server.properties.j2
+    dest: "{{ craftbukkit_var_path }}/server.properties"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: configure systemd unit
+  template:
+    src: craftbukkit.service.j2
+    dest: /etc/systemd/system/craftbukkit.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: craftbukkit daemon-reload
+
+- name: manage craftbukkit service
+  service:
+    name: "{{ craftbukkit_service_name }}"
+    state: "{{ craftbukkit_service_state }}"
+    enabled: "{{ craftbukkit_service_enabled }}"
+
+- name: install discord notifier
+  copy:
+    src: discord.py
+    dest: "{{ craftbukkit_opt_path }}/bin/craftbukkit-discord"
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart rsyslog
+
+- name: configure discord notifier
+  copy:
+    dest: "{{ craftbukkit_opt_path }}/etc/discord.cfg"
+    owner: syslog
+    group: syslog
+    mode: 0600
+    content: "{% for k, v in craftbukkit_discord_config.items() %}{{ k }}={{ v }}{{ \"\n\" }}{% endfor %}"
+  notify: restart rsyslog
+
+- name: configure rsyslog program
+  template:
+    src: rsyslog/craftbukkit.conf.j2
+    dest: /etc/rsyslog.d/05-craftbukkit.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+
+- name: manage rsyslog configuration
+  file:
+    path: "{{ item }}"
+    state: "{{ (craftbukkit_notifier_state == 'present') | ternary('file', 'absent') }}"
+  loop:
+    - /etc/rsyslog.d/05-craftbukkit.conf
+    - "{{ craftbukkit_opt_path }}/etc/discord.cfg"
+    - "{{ craftbukkit_opt_path }}/bin/craftbukkit-discord"
+  notify: restart rsyslog

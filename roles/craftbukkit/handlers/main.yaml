@@ -1,0 +1,11 @@
+---
+- name: craftbukkit daemon-reload
+  systemd:
+    name: "{{ craftbukkit_service_name }}"
+    daemon_reload: yes
+    state: restarted
+
+- name: restart craftbukkit
+  service:
+    name: "{{ craftbukkit_service_name }}"
+    state: restarted

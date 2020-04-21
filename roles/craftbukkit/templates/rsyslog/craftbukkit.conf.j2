@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+module(load="omprog")
+
+if ( $programname == "craftbukkit" ) then {
+  action(
+    type="omprog"
+    binary="{{ craftbukkit_opt_path }}/bin/craftbukkit-discord --config {{ craftbukkit_opt_path }}/etc/discord.cfg"
+    confirmmessages="on"
+  )
+}

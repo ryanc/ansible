@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Craftbukkit server %i
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/java -Xmx{{ craftbukkit_java_xmx | default('1024M') }} -Xms{{ craftbukkit_java_xms | default('1024M') }} -jar {{ craftbukkit_opt_path }}/bin/{{ craftbukkit_jar }} nogui
+SuccessExitStatus=143
+Type=simple
+User={{ craftbukkit_user }}
+Group={{ craftbukkit_group }}
+WorkingDirectory={{ craftbukkit_var_path }}/%i
+Restart=on-failure
+SyslogIdentifier=craftbukkit
+SyslogFacility={{ craftbukkit_syslog_facility }}
+
+[Install]
+WantedBy=multi-user.target
