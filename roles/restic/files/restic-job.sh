@@ -8,13 +8,27 @@ error_exit() {
 }
 
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
+LOCK_PATH=/run/restic
 
 # shellcheck source=/dev/null
 source "${RESTIC_ETC_PATH}/env.sh"
 
+KEEP_LOCK=
 MAX_ATTEMPTS=60
 NICE="ionice -c2 nice -n19"
 JOB=$1
+LOCK="/run/restic/${JOB}.lock"
+
+function finish {
+    if [ -z $KEEP_LOCK ]; then
+        rm -f "$LOCK"
+    fi
+}
+trap finish EXIT
+
+if [ ! -d $LOCK_PATH ]; then
+    mkdir $LOCK_PATH
+fi
 
 if [ -z "$JOB" ]; then
     error_exit "job is missing"
@@ -50,6 +64,24 @@ EXCLUDE_PATH="${JOB_PATH}/exclude.txt"
 if [ -z "${PATHS+x}" ]; then
     error_exit "\$PATHS is not set"
 fi
+
+if [ -f "$LOCK" ]; then
+    pid=$(cat "$LOCK")
+    if ! kill -0 "$pid" 2> /dev/null; then
+        printf "removing orphaned lock, pid %d does not exist\n" "$pid"
+        rm -f "$LOCK"
+    else
+        if [[ -f "/proc/${pid}/cmdline" ]] && ! [[ $(cat "/proc/${pid}/cmdline") =~ $(basename "$0") ]]; then
+            printf "removing orphaned lock, pid %d belongs to another process\n" "$pid"
+            rm -f "$LOCK"
+        else
+            KEEP_LOCK=1
+            error_exit "another job is running, pid=${pid}"
+        fi
+    fi
+fi
+
+echo $$ > "$LOCK"
 
 printf "job '%s' started\n" "$JOB"
 
