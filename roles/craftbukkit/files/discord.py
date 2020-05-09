@@ -16,6 +16,7 @@ PATTERNS = (
     (re.compile(r"(\S+) (joined|left) the game"), "{0} {1} the game"),
     (re.compile(r"\[(\S+): Gave (\d+) \[(.+)\] to (\S+)\]"), "{0} gave {1} \"{2}\" to {3}"), 
     (re.compile(r"(\S+) was (\S+) by (\S+)"), ":skull: {0} was {1} by {2}"),
+    (re.compile(r"(\S+) tried to swim in lava"), "{0} tried to swim in lava"),
 )
 
 
