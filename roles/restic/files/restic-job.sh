@@ -71,9 +71,12 @@ if [ -f "$LOCK" ]; then
         printf "removing orphaned lock, pid %d does not exist\n" "$pid"
         rm -f "$LOCK"
     else
-        if [[ -f "/proc/${pid}/cmdline" ]] && ! [[ $(cat "/proc/${pid}/cmdline") =~ $(basename "$0") ]]; then
-            printf "removing orphaned lock, pid %d belongs to another process\n" "$pid"
-            rm -f "$LOCK"
+        if [[ -f "/proc/${pid}/cmdline" ]]; then
+            cmdline=$(tr "\0" " " <"/proc/${pid}/cmdline")
+            if ! [[ $cmdline =~ $(basename "$0") ]]; then
+                printf "removing orphaned lock, pid %d belongs to another process\n" "$pid"
+                rm -f "$LOCK"
+            fi
         else
             KEEP_LOCK=1
             error_exit "another job is running, pid=${pid}"
