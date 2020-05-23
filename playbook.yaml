@@ -1,0 +1,48 @@
+---
+- hosts: all
+  roles:
+    - common
+    - util
+    - sudo
+    - hostsfile
+    - { role:  vm_guest, when: "ansible_virtualization_type is defined" }
+    - grub
+    - certs
+    - rsyslog
+    - users
+    - network
+    - dns
+    - firewall
+    - openssh
+    - openvpn
+    - autossh
+    - spiped
+    - chrony
+    - unattended-upgrades
+    - postfix
+    - aide
+    - telegraf
+    - restic
+- hosts: minecraft_servers
+  roles:
+    - minecraft
+    - craftbukkit
+- hosts: jump_servers
+  roles:
+    - go
+- hosts: git_servers
+  roles:
+    - nginx
+    - certbot
+    - gitea
+- hosts: stats_servers
+  roles:
+    - nginx
+    - certbot
+    - influxdb
+    - grafana
+- hosts: name_servers
+  roles:
+    - nsd
+
+# vim:ft=yaml.ansible:
