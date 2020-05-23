@@ -1,0 +1,10 @@
+---
+- name: add trusted ca certificates
+  copy:
+    dest: "{{ certs_trusted_ca_path }}/{{ item.key }}.crt"
+    content: "{{ item.value }}" 
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ certs_trusted_ca | dict2items }}"
+  notify: update-ca-certificates

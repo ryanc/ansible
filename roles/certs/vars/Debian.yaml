@@ -1,0 +1,2 @@
+---
+certs_trusted_ca_path: /usr/local/share/ca-certificates
