@@ -31,6 +31,7 @@
   package:
     name: "{{ autossh_package_name }}"
     state: "{{ autossh_package_state }}"
+
 - name: manage keys "{{ item }}"
   include: keys.yaml
   loop:
