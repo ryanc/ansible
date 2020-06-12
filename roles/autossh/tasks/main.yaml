@@ -71,8 +71,30 @@
   notify: reload autossh instances
 
 - name: manage services
-  service:
+  systemd:
     name: "autossh@{{ item.name }}.service"
-    state: "{{ item.state | default('started') }}"
-    enabled: "{{ item.enabled | default(true) }}"
+    state: "{{ (item.state | default('present') == 'absent') | ternary('stopped', 'started') }}"
+    enabled: "{{ item.state | default('present') != 'absent' }}"
+    daemon_reload: true
   loop: "{{ autossh_config | default([]) }}"
+
+- name: remove systemd unit
+  file:
+    path: "{{ autossh_systemd_unit_path }}"
+    state: absent
+  notify:
+    - autossh daemon-reload
+  when:
+    - ansible_service_mgr == 'systemd'
+    - autossh_systemd_unit_state == "absent"
+  no_log: true
+
+- name: configure autossh tunnels
+  file:
+    path: "{{ autossh_etc_path }}/{{ item.name }}"
+    state: absent
+  loop: "{{ autossh_config | default([]) }}"
+  when:
+    - ansible_service_mgr == 'systemd'
+    - item.state is defined
+    - item.state == "absent"
