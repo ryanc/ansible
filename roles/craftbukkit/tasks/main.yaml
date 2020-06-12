@@ -49,6 +49,7 @@
     owner: "{{ craftbukkit_user }}"
     group: "{{ craftbukkit_group }}"
     mode: "0644"
+  notify: restart craftbukkit
 
 - name: agree to the eula
   copy:
