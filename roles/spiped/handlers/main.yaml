@@ -8,3 +8,4 @@
     name: "spiped-{{ item.name }}"
     state: restarted
   loop: "{{ spiped_tunnels | default([]) }}"
+  no_log: true

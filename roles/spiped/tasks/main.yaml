@@ -33,10 +33,12 @@
     group: root
     mode: 0644
   loop: "{{ spiped_tunnels | default([]) }}"
+  when:
+    - ansible_service_mgr == 'systemd'
+    - item.state | default('present') == 'present'
   notify:
-    - restart spiped tunnels
     - spiped daemon-reload
-  when: ansible_service_mgr == 'systemd'
+    - restart spiped tunnels
   no_log: true
 
 - name: configure keys
@@ -47,14 +49,41 @@
     group: "{{ spiped_group }}"
     mode: 0400
   loop: "{{ spiped_tunnels | default([]) }}"
+  when:
+    - ansible_service_mgr == 'systemd'
+    - item.state | default('present') == 'present'
   notify:
     - restart spiped tunnels
   no_log: true
 
 - name: manage services
-  service:
+  systemd:
     name: "spiped-{{ item.name }}.service"
-    state: "{{ item.state | default('started') }}"
-    enabled: "{{ item.enabled | default(true) }}"
+    state: "{{ (item.state | default('present') == 'absent') | ternary('stopped', 'started') }}"
+    enabled: "{{ item.state | default('present') != 'absent' }}"
+    daemon_reload: true
   loop: "{{ spiped_tunnels | default([]) }}"
+  no_log: true
+
+- name: remove keys
+  file:
+    path: "{{ spiped_etc_path }}/{{ item.name }}.key"
+    state: "absent"
+  loop: "{{ spiped_tunnels | default([]) }}"
+  when:
+    - item.state is defined
+    - item.state == "absent"
+  no_log: true
+
+- name: remove systemd unit
+  file:
+    path: "/etc/systemd/system/spiped-{{ item.name }}.service"
+    state: "absent"
+  loop: "{{ spiped_tunnels | default([]) }}"
+  notify:
+    - spiped daemon-reload
+  when:
+    - ansible_service_mgr == 'systemd'
+    - item.state is defined
+    - item.state == "absent"
   no_log: true
