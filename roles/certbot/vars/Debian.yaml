@@ -1,2 +1,2 @@
 ---
-certbot_challenge_webroot_path: /var/www/.acme-challenge
+certbot_challenge_webroot_path: /var/www/html

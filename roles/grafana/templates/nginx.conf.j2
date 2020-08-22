@@ -6,7 +6,7 @@ server {
     server_name {{ grafana_domain }};
 
     location /.well-known/acme-challenge/ {
-        root /var/www/.acme-challenge;
+        root /var/www/html;
         try_files $uri =404;
     }
 
