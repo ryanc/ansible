@@ -1,0 +1,63 @@
+---
+- name: gather architecture specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_userspace_architecture }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: configure teleport
+  copy:
+    dest: "{{ teleport_config_path }}"
+    owner: "{{ teleport_config_owner }}"
+    group: "{{ teleport_config_group }}"
+    mode: "{{ teleport_config_mode }}"
+    content: "{{ teleport_config | to_yaml }}"
+  notify:
+    - reload teleport
+  no_log: true
+
+- name: systemd unit
+  template:
+    src: teleport.service.j2
+    dest: "{{ teleport_systemd_unit_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart teleport
+    - autossh daemon-reload
+  when: ansible_service_mgr == 'systemd'
+
+- name: manage service
+  service:
+    name: "{{ teleport_service_name }}"
+    state: "{{ teleport_service_state }}"
+    enabled: "{{ teleport_service_enabled }}"

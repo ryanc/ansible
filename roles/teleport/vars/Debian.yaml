@@ -1,0 +1,2 @@
+---
+teleport_package_url: "{{ teleport_baseurl }}/teleport_{{ teleport_version }}_{{ teleport_arch }}.deb"

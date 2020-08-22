@@ -1,0 +1,14 @@
+---
+- name: autossh daemon-reload
+  systemd:
+    daemon_reload: yes
+
+- name: reload teleport
+  service:
+    name: "{{ teleport_service_name }}"
+    state: reloaded
+
+- name: restart teleport
+  service:
+    name: "{{ teleport_service_name }}"
+    state: restarted

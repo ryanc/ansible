@@ -1,0 +1,21 @@
+---
+teleport_service_name: teleport
+teleport_service_state: started
+teleport_service_enabled: yes
+
+teleport_systemd_unit_path: /etc/systemd/system/teleport.service
+
+teleport_version: 4.3.5
+teleport_baseurl: https://get.gravitational.com 
+
+teleport_roles:
+  - auth
+  - proxy
+  - node
+
+teleport_config_path: /etc/teleport.yaml
+teleport_config_owner: root
+teleport_config_group: root
+teleport_config_mode: 0400
+
+teleport_config: {}
