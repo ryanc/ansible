@@ -3,7 +3,7 @@
 set -e
 
 SERVICE=minecraft.service
-VAR_DIR=/opt/minecraft/var
+VAR_DIR=/var/opt/minecraft
 WAIT=30
 VERBOSE=${VERBOSE:-4}
 
@@ -34,7 +34,6 @@ stop_server() {
         return 0
     fi
 
-    printf "stopping %s\n" "$instance"
     systemctl -q stop "$unit"
 
     while systemctl -q is-active "$unit"; do
@@ -63,7 +62,6 @@ start_server() {
         return 0
     fi
 
-    printf "starting %s\n" "$instance"
     systemctl -q start "$unit"
 
     while ! systemctl -q is-active "$unit"; do
@@ -77,7 +75,6 @@ start_server() {
 
     return 0
 }
-
 
 open_files() {
     local dir=${1-$VAR_DIR}
@@ -95,28 +92,22 @@ open_files() {
     return 0
 }
 
-
 main() {
 
     if [ "$1" == "pre" ]; then
-        for path in "$VAR_DIR"/*; do
-            instance="minecraft@$(basename "$path").service"
-            if ! stop_server "$instance"; then
-                error_exit "Failed to stop $instance"
-            fi
-        done
+        if ! stop_server $SERVICE; then
+            error_exit "Failed to stop $SERVICE"
+        fi
 
         printf "checking for open files\n"
+
         if ! open_files $VAR_DIR; then
             error_exit "Open files exist in $VAR_DIR"
         fi
     elif [ "$1" == "post" ]; then
-        for path in "$VAR_DIR"/*; do
-            instance="minecraft@$(basename "$path").service"
-            if ! start_server "$instance"; then
-                error_exit "Failed to start $instance"
-            fi
-        done
+        if ! start_server $SERVICE; then
+            error_exit "Failed to start $SERVICE"
+        fi
     fi
 }
 
