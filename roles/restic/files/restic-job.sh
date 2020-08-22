@@ -76,10 +76,10 @@ if [ -f "$LOCK" ]; then
             if ! [[ $cmdline =~ $(basename "$0") ]]; then
                 printf "removing orphaned lock, pid %d belongs to another process\n" "$pid"
                 rm -f "$LOCK"
+            else
+                KEEP_LOCK=1
+                error_exit "another job is running, pid=${pid}"
             fi
-        else
-            KEEP_LOCK=1
-            error_exit "another job is running, pid=${pid}"
         fi
     fi
 fi

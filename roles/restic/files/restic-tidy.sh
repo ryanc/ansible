@@ -8,6 +8,16 @@ error_exit() {
 }
 
 RESTIC_ETC_PATH=${RESTIC_ETC_PATH:-/etc/restic}
+LOCK_PATH=/run/restic
+LOCK="${LOCK_PATH}/tidy.lock"
+KEEP_LOCK=
+
+function finish {
+    if [ -z $KEEP_LOCK ]; then
+        rm -f "$LOCK"
+    fi
+}
+trap finish EXIT
 
 # shellcheck source=/dev/null
 source "${RESTIC_ETC_PATH}/env.sh"
@@ -42,6 +52,25 @@ KEEP_DAILY=${KEEP_DAILY:-7}
 KEEP_WEEKLY=${KEEP_WEEKLY:-5}
 KEEP_MONTHLY=${KEEP_MONTHLY:-12}
 KEEP_YEARLY=${KEEP_YEARLY:-10}
+
+if [ -f "$LOCK" ]; then
+    pid=$(cat "$LOCK")
+    if ! kill -0 "$pid" 2> /dev/null; then
+        printf "removing orphaned lock, pid %d does not exist\n" "$pid"
+        rm -f "$LOCK"
+    else
+        if [[ -f "/proc/${pid}/cmdline" ]]; then
+            cmdline=$(tr "\0" " " <"/proc/${pid}/cmdline")
+            if ! [[ $cmdline =~ $(basename "$0") ]]; then
+                printf "removing orphaned lock, pid %d belongs to another process\n" "$pid"
+                rm -f "$LOCK"
+            else
+                KEEP_LOCK=1
+                error_exit "another job is running, pid=${pid}"
+            fi
+        fi
+    fi
+fi
 
 printf "started, keep hourly:%d daily:%d weekly:%d monthly:%d year:%d\n" \
     "$KEEP_HOURLY" \
