@@ -18,3 +18,4 @@ influxdb_config:
     query-log-enabled: no
   http:
     log-enabled: no
+    flux-enabled: yes
