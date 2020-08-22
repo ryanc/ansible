@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 [Unit]
-Description=Minecraft server %i
+Description=Minecraft server
 After=network.target
 
 [Service]
@@ -10,7 +10,7 @@ SuccessExitStatus=143
 Type=simple
 User={{ minecraft_user }}
 Group={{ minecraft_group }}
-WorkingDirectory={{ minecraft_var_path }}/%i
+WorkingDirectory={{ minecraft_var_path }}
 Restart=on-failure
 SyslogIdentifier=minecraft
 SyslogFacility={{ minecraft_syslog_facility }}
