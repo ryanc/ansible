@@ -2,7 +2,7 @@
 craftbukkit_java_package_name: openjdk-8-jre-headless
 craftbukkit_java_package_state: present
 
-craftbukkit_version: 1.15.2
+craftbukkit_version: 1.16.1
 craftbukkit_jar: "craftbukkit-{{ craftbukkit_version }}.jar"
 
 craftbukkit_service_name: craftbukkit.service
