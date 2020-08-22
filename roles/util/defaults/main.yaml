@@ -61,3 +61,6 @@ util_packages:
     - python3-pip
     - python-requests
     - python3-requests
+  fun:
+    - cmatrix
+    - cowsay
