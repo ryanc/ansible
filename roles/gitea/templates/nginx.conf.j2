@@ -1,9 +1,25 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone=req_gitea_login:10m rate=10r/m;
+
+upstream gitea_backend {
+{% if gitea_config.server.protocol is defined and
+      gitea_config.server.protocol == 'unix' %}
+    server unix:{{ gitea_config.server.http_addr }};
+{% else %}
+    server 127.0.0.1:{{ gitea_port }};
+{% endif %}
+}
+
 server {
     listen 80;
 {% if ansible_all_ipv6_addresses | length %}
     listen [::]:80;
 {% endif %}
     server_name {{ gitea_domain }};
+
+    access_log /var/log/nginx/gitea.access.log main;
+    error_log /var/log/nginx/gitea.error.log warn;
 
     location /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -27,6 +43,9 @@ server {
 {% endif %}
     server_name {{ gitea_domain }};
 
+    access_log /var/log/nginx/gitea.access.log main;
+    error_log /var/log/nginx/gitea.error.log warn;
+
 {% if gitea_ssl_certificate is defined %}
     ssl_certificate {{ gitea_ssl_certificate }};
 {% endif %}
@@ -37,13 +56,14 @@ server {
     ssl_dhparam {{ gitea_ssl_dhparam }};
 {% endif %}
 
+    location ~ /user\/login {
+        limit_req zone=req_gitea_login burst=10;
+        proxy_pass http://gitea_backend;
+    }
+
     location / {
-{% if gitea_config.server.protocol is defined and
-      gitea_config.server.protocol == 'unix' %}
-        proxy_pass http://unix:{{ gitea_config.server.http_addr }};
-{% else %}
-        proxy_pass http://localhost:{{ gitea_port }};
-{% endif %}
+        limit_req zone=req_bad_actors burst=10 nodelay;
+        proxy_pass http://gitea_backend;
     }
 }
 {% endif %}

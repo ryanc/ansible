@@ -1,9 +1,20 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone=req_grafana_login:10m rate=10r/m;
+
+upstream grafana_backend {
+    server 127.0.0.1:{{ grafana_port }};
+}
+
 server {
     listen 80;
 {% if ansible_all_ipv6_addresses | length %}
     listen [::]:80;
 {% endif %}
     server_name {{ grafana_domain }};
+
+    access_log /var/log/nginx/grafana.access.log main;
+    error_log /var/log/nginx/grafana.error.log warn;
 
     location /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -27,6 +38,9 @@ server {
 {% endif %}
     server_name {{ grafana_domain }};
 
+    access_log /var/log/nginx/grafana.access.log main;
+    error_log /var/log/nginx/grafana.error.log warn;
+
 {% if grafana_ssl_certificate is defined %}
     ssl_certificate {{ grafana_ssl_certificate }};
 {% endif %}
@@ -37,8 +51,14 @@ server {
     ssl_dhparam {{ grafana_ssl_dhparam }};
 {% endif %}
 
+    location /login {
+        limit_req zone=req_grafana_login burst=10;
+        proxy_pass http://grafana_backend;
+    }
+
     location / {
-        proxy_pass http://localhost:{{ grafana_port }};
+        limit_req zone=req_bad_actors burst=10 nodelay;
+        proxy_pass http://grafana_backend;
     }
 }
 {% endif %}
