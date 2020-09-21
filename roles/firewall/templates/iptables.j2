@@ -119,6 +119,20 @@
 {% endfor %}
 {% endif %}
 
+{% if firewall_teleport_node_enabled | default(false) %}
+-A INPUT -p tcp -m tcp --dport 3022 -m state --state NEW -m comment --comment "accept 3022/tcp" -j ACCEPT
+{% endif %}
+
+{% if firewall_teleport_proxy_enabled | default(false) %}
+-A INPUT -p tcp -m tcp --dport 3023 -m state --state NEW -m comment --comment "accept 3023/tcp" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 3024 -m state --state NEW -m comment --comment "accept 3024/tcp" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 3080 -m state --state NEW -m comment --comment "accept 3080/tcp" -j ACCEPT
+{% endif %}
+
+{% if firewall_teleport_auth_enabled | default(false) %}
+-A INPUT -p tcp -m tcp --dport 3025 -m state --state NEW -m comment --comment "accept 3025/tcp" -j ACCEPT
+{% endif %}
+
 -A INPUT -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
 
 -A INPUT -m comment --comment "default drop" -j LOG_DROP
