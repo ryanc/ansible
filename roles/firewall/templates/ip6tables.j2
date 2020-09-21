@@ -48,11 +48,14 @@
 -A ICMP_FLOOD -j ACCEPT
 {% endif %}
 
-{% if firewall_dns_whitelist is defined %}
+{% if firewall_dns_whitelist is defined and
+      firewall_dns_whitelist | length %}
 -N ACCEPT_DNS
--A ACCEPT_DNS -m tcp -p tcp --dport 53 -m comment --comment "accept dns 53/tcp6" -j LOG_ACCEPT
--A ACCEPT_DNS -m udp -p udp --dport 53 -m comment --comment "accept dns 53/udp6" -j LOG_ACCEPT
--A ACCEPT_DNS -m comment --comment "ACCEPT_DNS default drop inet6" -j LOG_DROP
+{% for ip in firewall_dns_whitelist | ipv6 %}
+-A ACCEPT_DNS -m tcp -p tcp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/tcp" -j LOG_ACCEPT
+-A ACCEPT_DNS -m udp -p udp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/udp" -j LOG_ACCEPT
+{% endfor %}
+-A ACCEPT_DNS -m comment --comment "ACCEPT_DNS default drop" -j LOG_DROP
 {% endif %}
 
 -A INPUT -i lo -m comment --comment "lo accept all inet6" -j ACCEPT
@@ -69,10 +72,8 @@
 
 {% if firewall_dns_whitelist is defined and
       firewall_dns_whitelist | length %}
-{% for ip in firewall_dns_whitelist | ipv6 %}
--A INPUT -m tcp -p tcp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/tcp6" -j ACCEPT_DNS
--A INPUT -m udp -p udp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/udp6" -j ACCEPT_DNS
-{% endfor %}
+-A INPUT -m tcp -p tcp --dport 53 -m comment --comment "accept dns 53/tcp" -j ACCEPT_DNS
+-A INPUT -m udp -p udp --dport 53 -m comment --comment "accept dns 53/udp" -j ACCEPT_DNS
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid inet6" -j DROP
