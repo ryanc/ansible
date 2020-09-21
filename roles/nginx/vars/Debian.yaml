@@ -1,0 +1,4 @@
+---
+nginx_repo_url: "http://nginx.org/packages/mainline/{{ ansible_distribution }} {{ ansible_distribution_release }} nginx"
+nginx_repo_state: present
+nginx_repo_key_id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62

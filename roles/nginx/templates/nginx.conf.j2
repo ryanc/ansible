@@ -1,0 +1,43 @@
+# {{ ansible_managed }}
+
+user {{ nginx_user }};
+worker_processes {{ nginx_worker_processes }};
+
+error_log {{ nginx_error_log }};
+pid {{ nginx_pid }};
+
+
+events {
+    worker_connections {{ nginx_worker_connections }};
+}
+
+
+http {
+    include {{ nginx_mime_types_path }};
+    default_type {{ nginx_default_type }};
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log {{ nginx_access_log }};
+
+    sendfile {{ nginx_sendfile }};
+    #tcp_nopush on;
+
+    keepalive_timeout {{ nginx_keepalive_timeout }};
+    gzip {{ nginx_gzip }};
+
+    geo $bad_actors {
+        default 0;
+    }
+    
+    map $bad_actors $limit_key {
+        0 "";
+        1 $binary_remote_addr;
+    }
+    
+    limit_req_zone $limit_key zone=req_bad_actors:10m rate=5r/s;
+
+    include {{ nginx_conf_d_path }}/*.conf;
+}

@@ -1,0 +1,12 @@
+---
+- name: install nginx apt key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: "{{ nginx_repo_key_id }}"
+
+- name: install nginx apt repo
+  apt_repository:
+    repo: "deb http://nginx.org/packages/mainline/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} nginx"
+    update_cache: yes
+    filename: nginx
+    state: "{{ nginx_repo_state }}"

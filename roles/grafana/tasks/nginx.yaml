@@ -1,17 +1,8 @@
 - name: configure nginx
   template:
     src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/grafana
+    dest: "{{ nginx_conf_d_path }}/grafana.conf"
     owner: root
     group: root
     mode: 0644
-  notify: reload nginx
-
-- name: activate site
-  file:
-    src: /etc/nginx/sites-available/grafana
-    dest: /etc/nginx/sites-enabled/grafana
-    owner: root
-    group: root
-    state: link
   notify: reload nginx
