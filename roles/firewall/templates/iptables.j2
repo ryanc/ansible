@@ -58,6 +58,15 @@
 -A ACCEPT_DNS -m comment --comment "ACCEPT_DNS default drop" -j LOG_DROP
 {% endif %}
 
+{% if firewall_influx_whitelist is defined and
+      firewall_influx_whitelist | length %}
+-N ACCEPT_INFLUX
+{% for ip in firewall_influx_whitelist | ipv4 %}
+-A ACCEPT_INFLUX -m tcp -p tcp --dport 8086 --source {{ ip }} -m comment --comment "accept {{ ip }} influxdb 8086/tcp" -j LOG_ACCEPT
+{% endfor %}
+-A ACCEPT_INFLUX -m comment --comment "ACCEPT_INFLUX default drop" -j LOG_DROP
+{% endif %}
+
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
@@ -74,6 +83,11 @@
       firewall_dns_whitelist | length %}
 -A INPUT -m tcp -p tcp --dport 53 -m comment --comment "accept dns 53/tcp" -j ACCEPT_DNS
 -A INPUT -m udp -p udp --dport 53 -m comment --comment "accept dns 53/udp" -j ACCEPT_DNS
+{% endif %}
+
+{% if firewall_influx_whitelist is defined and
+      firewall_influx_whitelist | length %}
+-A INPUT -m tcp -p tcp --dport 8086 -m comment --comment "accept influx 8086/tcp" -j ACCEPT_INFLUX
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
