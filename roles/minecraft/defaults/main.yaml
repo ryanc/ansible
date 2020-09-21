@@ -11,8 +11,8 @@ minecraft_port: 25565
 minecraft_user: minecraft
 minecraft_group: minecraft
 
-minecraft_jar_url: https://launcher.mojang.com/v1/objects/c5f6fb23c3876461d46ec380421e42b289789530/server.jar
-minecraft_jar_checksum: sha256:2902ed3ff84e4f810a2c0620c6b6df9c3ef8488b272c61274d5eac2433876f39
+minecraft_jar_url: https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar
+minecraft_jar_checksum: sha256:32e450e74c081aec06dcfbadfa5ba9aa1c7f370bd869e658caec0c3004f7ad5b
 
 minecraft_opt_path: /opt/minecraft
 minecraft_var_path: /var/opt/minecraft
