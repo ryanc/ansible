@@ -26,6 +26,8 @@ util_packages:
     - spiped
     - mtr-tiny
     - traceroute
+    - iperf
+    - iperf3
   math:
     - bc
   misc:
