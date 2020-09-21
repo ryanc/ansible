@@ -67,6 +67,15 @@
 -A ACCEPT_INFLUX -m comment --comment "ACCEPT_INFLUX default drop" -j LOG_DROP
 {% endif %}
 
+{% if firewall_syslog_whitelist is defined and
+      firewall_syslog_whitelist | length %}
+-N ACCEPT_SYSLOG
+{% for ip in firewall_syslog_whitelist | ipv4 %}
+-A ACCEPT_SYSLOG -m tcp -p tcp --dport 514 --source {{ ip }} -m comment --comment "accept {{ ip }} syslog 514/tcp" -j LOG_ACCEPT
+{% endfor %}
+-A ACCEPT_SYSLOG -m comment --comment "ACCEPT_SYSLOG default drop" -j LOG_DROP
+{% endif %}
+
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
@@ -88,6 +97,11 @@
 {% if firewall_influx_whitelist is defined and
       firewall_influx_whitelist | length %}
 -A INPUT -m tcp -p tcp --dport 8086 -m comment --comment "accept influx 8086/tcp" -j ACCEPT_INFLUX
+{% endif %}
+
+{% if firewall_syslog_whitelist is defined and
+      firewall_syslog_whitelist | length %}
+-A INPUT -m tcp -p tcp --dport 514 -m comment --comment "accept syslog 514/tcp" -j ACCEPT_SYSLOG
 {% endif %}
 
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
