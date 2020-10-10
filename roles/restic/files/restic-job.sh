@@ -111,10 +111,12 @@ until [ $counter -eq "$MAX_ATTEMPTS" ] || [ $rc -eq 0 ]; do
 
     rc=$?
 
-    if [ $rc -ne 0 ]; then
-      sleep=$((counter * 5))
-      printf "sleeping for %d seconds (%d)\n" $sleep $counter
-      sleep $sleep
+    if [ $rc -eq 0 ]; then
+        break
+    else
+        sleep=$((counter * 5))
+        printf "sleeping for %d seconds (%d)\n" $sleep $counter
+        sleep $sleep
     fi
 
     (( counter++ ))
