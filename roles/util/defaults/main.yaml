@@ -28,6 +28,7 @@ util_packages:
     - traceroute
     - iperf
     - iperf3
+    - smem
   math:
     - bc
   misc:
@@ -45,6 +46,8 @@ util_packages:
     - htop
     - iotop
     - iftop
+    - atop
+    - glances
     - lsof
     - sysdig
     - dstat
@@ -52,6 +55,7 @@ util_packages:
     - gnupg
     - pass
     - pwgen
+    - apache2-utils
   text:
     - jq
     - crudini
