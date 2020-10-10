@@ -65,6 +65,8 @@ if [ -z "${PATHS+x}" ]; then
     error_exit "\$PATHS is not set"
 fi
 
+START="$(date +%s)"
+
 if [ -f "$LOCK" ]; then
     pid=$(cat "$LOCK")
     if ! kill -0 "$pid" 2> /dev/null; then
@@ -85,6 +87,8 @@ if [ -f "$LOCK" ]; then
 fi
 
 echo $$ > "$LOCK"
+
+LOCKED=$(($(date +%s) - START))
 
 printf "job '%s' started\n" "$JOB"
 
@@ -132,4 +136,26 @@ fi
 if [ -d "${HOOKS_PATH}" ]; then
     printf "running '%s' job post-hooks\n" "$JOB"
     run-parts --exit-on-error -v -a post "${HOOKS_PATH}"
+fi
+
+END=$(date +%s)
+
+if [ -d /var/spool/node_exporter/textfile_collector ]; then
+    cat << EOF > "/var/spool/node_exporter/textfile_collector/restic.prom.$$"
+node_restic_duration_seconds{restic_job="${JOB}"} $((END - START))
+node_restic_lock_duration_seconds{restic_job="${JOB}"} $LOCKED
+node_restic_last_run_time{restic_job="${JOB}"} $END
+node_restic_retries{restic_job="${JOB}"} $counter
+EOF
+
+    if [ -f /var/spool/node_exporter/textfile_collector/restic.prom ]; then
+        cat /var/spool/node_exporter/textfile_collector/restic.prom "/var/spool/node_exporter/textfile_collector/restic.prom.$$" |
+        tac |
+        awk '!seen[$1]++' |
+        tac |
+        sponge "/var/spool/node_exporter/textfile_collector/restic.prom.$$"
+    fi
+
+    mv "/var/spool/node_exporter/textfile_collector/restic.prom.$$" \
+      /var/spool/node_exporter/textfile_collector/restic.prom
 fi
