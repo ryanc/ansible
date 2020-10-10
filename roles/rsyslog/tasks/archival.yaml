@@ -77,5 +77,7 @@
     minute: "0"
     hour: "2"
     user: root
-    job: find /var/log/syslog/ -mindepth 4 -type f -name "*.log" -mtime +90 -delete
+    job: >
+      find /var/log/syslog/ -mindepth 4 -type f -name "*.log.xz" -mtime +90 -delete &&
+      find /var/log/syslog/ -mindepth 3 -type d -empty -delete
     state: "{{ rsyslog_archival_format_enabled | ternary('present', 'absent') }}"
