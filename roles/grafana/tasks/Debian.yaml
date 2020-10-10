@@ -7,6 +7,6 @@
 - name: configure apt repository
   apt_repository:
     repo: "deb https://packages.grafana.com/oss/deb stable main"
-    filename: influxdb
+    filename: grafana
     update_cache: yes
     state: present
