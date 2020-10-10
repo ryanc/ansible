@@ -20,3 +20,8 @@ minecraft_var_path: /var/opt/minecraft
 minecraft_syslog_facility: local5
 
 minecraft_notifier_state: present
+
+minecraft_config:
+  white-list: true
+  enforce-whitelist: true
+  server-port: 25565
