@@ -1,10 +1,14 @@
 ---
-- block:
-  - name: determine if installed
-    stat:
-      path: "{{ gitea_bin_path }}/gitea"
-    register: st
+- name: determine if installed
+  stat:
+    path: "{{ gitea_bin_path }}/gitea"
+  register: st
 
+- name: set gitea_installed
+  set_fact:
+    gitea_installed: st.stat.exists
+
+- block:
   - name: determine latest version
     uri:
       url: https://api.github.com/repos/go-gitea/gitea/releases/latest
@@ -14,30 +18,31 @@
     until: _latest_version.status == 200
     retries: 3
 
+  - name: get checksums
+    set_fact:
+      checksum_string: "{{ lookup('url', gitea_url + '.sha256') }}"
+
+  - name: set gitea_checksum
+    set_fact:
+      gitea_checksum: "sha256:{{ checksum_string.split(' ') | first }}"
+
+- block:
   - name: determine installed version
     command: "{{ gitea_bin_path }}/gitea --version"
     register: _installed_version_string
     changed_when: false
-    when: st.stat.exists
 
-  - name: set gitea facts
+  - name: set gitea_local_version
     set_fact:
       gitea_local_version: "{{ _installed_version_string.stdout | regex_search('^Gitea version ([\\d.]+)', '\\1') | first }}"
-    when: st.stat.exists
 
-  - name: set gitea facts
-    set_fact:
-      gitea_local_version: "0"
-    when: not st.stat.exists
-
-  - name: set gitea facts
+  - name: set gitea_local_version
     set_fact:
       gitea_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+  when: gitea_installed | bool
 
-  - name: download checksums
+- block:
+  - name: set gitea_local_version to 0
     set_fact:
-      checksum_string: "{{ lookup('url', gitea_url + '.sha256') }}"
-
-  - name: set gitea checksum
-    set_fact:
-      gitea_checksum: "sha256:{{ checksum_string.split(' ') | first }}"
+      gitea_local_version: "0"
+  when: not gitea_installed | bool
