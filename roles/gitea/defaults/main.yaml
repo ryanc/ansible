@@ -13,7 +13,6 @@ gitea_service_name: gitea.service
 gitea_service_state: started
 gitea_service_enabled: yes
 
-gitea_version: 1.12.2
 gitea_url: "https://github.com/go-gitea/gitea/releases/download/v{{ gitea_version }}/gitea-{{ gitea_version }}-{{ ansible_system | lower }}-{{ gitea_go_arch }}"
 gitea_bin_path: /usr/local/bin
 gitea_var_path: /var/lib/gitea

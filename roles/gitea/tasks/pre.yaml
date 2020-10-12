@@ -18,13 +18,9 @@
     until: _latest_version.status == 200
     retries: 3
 
-  - name: get checksums
+  - name: set gitea_version
     set_fact:
-      checksum_string: "{{ lookup('url', gitea_url + '.sha256') }}"
-
-  - name: set gitea_checksum
-    set_fact:
-      gitea_checksum: "sha256:{{ checksum_string.split(' ') | first }}"
+      gitea_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
 
 - block:
   - name: determine installed version
@@ -35,14 +31,18 @@
   - name: set gitea_local_version
     set_fact:
       gitea_local_version: "{{ _installed_version_string.stdout | regex_search('^Gitea version ([\\d.]+)', '\\1') | first }}"
-
-  - name: set gitea_local_version
-    set_fact:
-      gitea_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
   when: gitea_installed | bool
 
-- block:
-  - name: set gitea_local_version to 0
-    set_fact:
-      gitea_local_version: "0"
+- name: set gitea_local_version to 0
+  set_fact:
+    gitea_local_version: "0"
   when: not gitea_installed | bool
+
+- block:
+  - name: get checksums
+    set_fact:
+      checksum_string: "{{ lookup('url', gitea_url + '.sha256') }}"
+
+  - name: set gitea_checksum
+    set_fact:
+      gitea_checksum: "sha256:{{ checksum_string.split(' ') | first }}"
