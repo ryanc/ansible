@@ -1,0 +1,11 @@
+---
+- name: configure
+  template:
+    src: app.ini.j2
+    dest: "{{ gitea_config_path }}"
+    owner: root
+    group: "{{ gitea_group }}"
+    mode: 0640
+  notify:
+    - restart gitea
+

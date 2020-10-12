@@ -1,0 +1,71 @@
+---
+- name: "download gitea {{ gitea_version }}"
+  get_url:
+    url: "{{ gitea_url }}"
+    checksum: "{{ gitea_checksum }}"
+    dest: "{{ gitea_path }}"
+    owner: root
+    group: root
+    mode: 0755
+  notify:
+    - restart gitea
+  retries: 3
+
+- name: create group
+  user:
+    name: "{{ gitea_group }}"
+    system: yes
+
+- name: create user and group
+  user:
+    name: "{{ gitea_user }}"
+    group: "{{ gitea_group }}"
+    shell: "{{ gitea_shell }}"
+    comment: "{{ gitea_gecos }}"
+    system: yes
+    password: "{{ gitea_password }}"
+    home: "{{ gitea_home_path }}"
+
+- name: "create {{ gitea_etc_path }}"
+  file:
+    path: "{{ gitea_etc_path }}"
+    owner: root
+    group: "{{ gitea_group }}"
+    mode: 0750
+    state: directory
+
+- name: "create {{ gitea_var_path }} tree"
+  file:
+    path: "{{ item }}"
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_group }}"
+    mode: 0750
+    state: directory
+  with_items: "{{ gitea_var_tree }}"
+
+- name: "create {{ gitea_log_path }} path"
+  file:
+    path: "{{ gitea_log_path }}"
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_group }}"
+    mode: 0755
+    state: directory
+
+- name: configure systemd unit
+  template:
+    src: gitea.service.j2
+    dest: "{{ gitea_systemd_unit_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - gitea daemon-reload
+    - restart gitea
+  when: ansible_service_mgr == 'systemd'
+
+- name: manage service
+  service:
+    name: "{{ gitea_service_name }}"
+    state: "{{ gitea_service_state }}"
+    enabled: "{{ gitea_service_enabled }}"
+

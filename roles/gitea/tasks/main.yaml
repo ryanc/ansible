@@ -1,93 +1,35 @@
 ---
-- name: gather architecture specific variables
+- name: gather os specific variables
   include_vars: "{{ lookup('first_found', possible_files) }}"
   vars:
     possible_files:
       files:
-        - "{{ ansible_userspace_architecture }}.yaml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
         - "default.yaml"
       paths:
         - vars
 
-- name: "download gitea {{ gitea_version }}"
-  get_url:
-    url: "{{ gitea_url }}"
-    checksum: "{{ gitea_checksum }}"
-    dest: "{{ gitea_path }}"
-    owner: root
-    group: root
-    mode: 0755
-  notify:
-    - restart gitea
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
 
-- name: create group
-  user:
-    name: "{{ gitea_group }}"
-    system: yes
+- include: pre.yaml
 
-- name: create user and group
-  user:
-    name: "{{ gitea_user }}"
-    group: "{{ gitea_group }}"
-    shell: "{{ gitea_shell }}"
-    comment: "{{ gitea_gecos }}"
-    system: yes
-    password: "{{ gitea_password }}"
-    home: "{{ gitea_home_path }}"
+- include: install.yaml
+  when:
+    - gitea_version is version(gitea_local_version, '>')
 
-- name: "create {{ gitea_etc_path }}"
-  file:
-    path: "{{ gitea_etc_path }}"
-    owner: root
-    group: "{{ gitea_group }}"
-    mode: 0750
-    state: directory
+- include: configure.yaml
 
-- name: configure
-  template:
-    src: app.ini.j2
-    dest: "{{ gitea_config_path }}"
-    owner: root
-    group: "{{ gitea_group }}"
-    mode: 0640
-  notify:
-    - restart gitea
-
-- name: "create {{ gitea_var_path }} tree"
-  file:
-    path: "{{ item }}"
-    owner: "{{ gitea_user }}"
-    group: "{{ gitea_group }}"
-    mode: 0750
-    state: directory
-  with_items: "{{ gitea_var_tree }}"
-
-- name: "create {{ gitea_log_path }} path"
-  file:
-    path: "{{ gitea_log_path }}"
-    owner: "{{ gitea_user }}"
-    group: "{{ gitea_group }}"
-    mode: 0755
-    state: directory
-
-- name: configure systemd unit
-  template:
-    src: gitea.service.j2
-    dest: "{{ gitea_systemd_unit_path }}"
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - gitea daemon-reload
-    - restart gitea
-  when: ansible_service_mgr == 'systemd'
-
-- name: manage service
-  service:
-    name: "{{ gitea_service_name }}"
-    state: "{{ gitea_service_state }}"
-    enabled: "{{ gitea_service_enabled }}"
-
-- name: configure nginx
-  include: nginx.yaml
-  when: "'nginx' in ansible_play_role_names"
+- include: nginx.yaml
+  when: '"nginx" in ansible_play_role_names'

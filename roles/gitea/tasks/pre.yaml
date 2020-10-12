@@ -1,0 +1,43 @@
+---
+- block:
+  - name: determine if installed
+    stat:
+      path: "{{ gitea_bin_path }}/gitea"
+    register: st
+
+  - name: determine latest version
+    uri:
+      url: https://api.github.com/repos/go-gitea/gitea/releases/latest
+      return_content: true
+      body_format: json
+    register: _latest_version
+    until: _latest_version.status == 200
+    retries: 3
+
+  - name: determine installed version
+    command: "{{ gitea_bin_path }}/gitea --version"
+    register: _installed_version_string
+    changed_when: false
+    when: st.stat.exists
+
+  - name: set gitea facts
+    set_fact:
+      gitea_local_version: "{{ _installed_version_string.stdout | regex_search('^Gitea version ([\\d.]+)', '\\1') | first }}"
+    when: st.stat.exists
+
+  - name: set gitea facts
+    set_fact:
+      gitea_local_version: "0"
+    when: not st.stat.exists
+
+  - name: set gitea facts
+    set_fact:
+      gitea_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+
+  - name: download checksums
+    set_fact:
+      checksum_string: "{{ lookup('url', gitea_url + '.sha256') }}"
+
+  - name: set gitea checksum
+    set_fact:
+      gitea_checksum: "sha256:{{ checksum_string.split(' ') | first }}"
