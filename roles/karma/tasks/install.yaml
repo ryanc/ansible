@@ -1,0 +1,29 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ karma_release_url }}"
+      dest: "{{ karma_download_path }}"
+      checksum: "{{ karma_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ karma_download_path }}"
+      dest: "{{ karma_unarchive_dest_path }}"
+      creates: "{{ karma_extracted_path }}"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ karma_extracted_path }}"
+      dest: "{{ karma_bin_path }}/karma"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    notify: restart karma
+  when: karma_version != karma_local_version

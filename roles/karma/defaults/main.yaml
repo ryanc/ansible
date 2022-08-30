@@ -1,0 +1,45 @@
+---
+karma_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+karma_go_arch: "{{ karma_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+karma_service_name: karma.service
+karma_service_enabled: true
+karma_service_state: started
+
+karma_version_regex: ^(.+)
+
+karma_github_project_url: https://github.com/prymitive/karma
+karma_release_file: "karma-{{ ansible_system | lower }}-{{ karma_go_arch }}.tar.gz"
+karma_release_url: "{{ karma_github_project_url }}/releases/download/v{{ karma_version }}/{{ karma_release_file }}"
+karma_checksum_url: "{{ karma_github_project_url }}/releases/download/v{{ karma_version }}/sha512sum.txt"
+karma_download_path: "/tmp/{{ karma_release_file }}"
+karma_unarchive_dest_path: /tmp
+karma_extracted_path: "{{ karma_download_path | replace('.tar.gz', '') }}"
+
+karma_user: karma
+karma_user_state: present
+karma_user_shell: /usr/sbin/nologin
+
+karma_group: karma
+karma_group_state: "{{ karma_user_state | default('present') }}"
+
+karma_etc_path: /etc/karma
+karma_etc_owner: root
+karma_etc_group: root
+karma_etc_mode: "0755"
+
+karma_config_path: "{{ karma_etc_path }}/karma.yml"
+
+karma_var_path: /var/lib/karma
+karma_var_owner: "{{ karma_user }}"
+karma_var_group: "{{ karma_group }}"
+karma_var_mode: "0755"
+
+karma_bin_path: /usr/local/bin
+
+karma_port: 8080
+
+karma_config: {}

@@ -1,0 +1,56 @@
+---
+- name: create group
+  group:
+    name: "{{ karma_group }}"
+    system: true
+    state: "{{ karma_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ karma_user }}"
+    system: true
+    shell: "{{ karma_user_shell }}"
+    group: "{{ karma_group }}"
+    createhome: false
+    home: "{{ karma_var_path }}"
+    state: "{{ karma_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ karma_etc_path }}"
+    state: directory
+    owner: "{{ karma_etc_owner }}"
+    group: "{{ karma_etc_group }}"
+    mode: "{{ karma_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ karma_var_path }}"
+    state: directory
+    owner: "{{ karma_var_owner }}"
+    group: "{{ karma_var_group }}"
+    mode: "{{ karma_var_mode }}"
+
+- name: configure
+  copy:
+    dest: "{{ karma_config_path }}"
+    content: "{{ (karma_config | default({})) | to_nice_yaml }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart karma
+
+- name: configure systemd template
+  template:
+    src: karma.service.j2
+    dest: /etc/systemd/system/karma.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart karma
+
+- name: manage service
+  service:
+    name: "{{ karma_service_name }}"
+    enabled: "{{ karma_service_enabled }}"
+    state: "{{ karma_service_state }}"

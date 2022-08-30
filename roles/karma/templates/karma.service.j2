@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Karma Alertmanager dashboard
+Wants=network-online.target
+After=network-online.target
+After=alertmanager.service
+ 
+[Service]
+Type=simple
+User={{ karma_user }}
+Group={{ karma_group }}
+WorkingDirectory={{ karma_etc_path }}
+ExecStart={{ karma_bin_path }}/karma \
+    --config.file={{ karma_config_path }}
+ 
+[Install]
+WantedBy=multi-user.target
