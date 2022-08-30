@@ -49,6 +49,12 @@
   notify:
     - restart gitea
 
+- name: set environment
+  lineinfile:
+    path: /etc/environment
+    regexp: ^GITEA_WORK_DIR
+    line: "GITEA_WORK_DIR=\"{{ gitea_var_path }}\""
+
 - name: configure systemd unit
   template:
     src: gitea.service.j2

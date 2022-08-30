@@ -48,13 +48,11 @@ gitea_config:
     root_path: /var/log/gitea
     mode: file
     access: file
-    macaron: file
     router: file
-    redirect_macaron_log: true
   log.console:
     colorize: no
   service:
-    disable_registration: yes
+    register_manual_confirm: true
 
 gitea_var_tree:
   - "{{ gitea_var_path }}"
