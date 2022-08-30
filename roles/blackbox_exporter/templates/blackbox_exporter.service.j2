@@ -1,0 +1,11 @@
+[Unit]
+Description=Blackbox Exporter
+
+[Service]
+User=blackbox_exporter
+ExecStart={{ blackbox_exporter_bin_path }}/blackbox_exporter \
+  --config.file={{ blackbox_exporter_etc_path }}/config.yaml
+AmbientCapabilities=CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target

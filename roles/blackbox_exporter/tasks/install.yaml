@@ -1,0 +1,31 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ blackbox_exporter_release_url }}"
+      dest: "{{ blackbox_exporter_download_path }}"
+      checksum: "{{ blackbox_exporter_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ blackbox_exporter_download_path }}"
+      dest: "{{ blackbox_exporter_unarchive_dest_path }}"
+      creates: "{{ blackbox_exporter_extracted_path }}/blackbox_exporter"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ blackbox_exporter_extracted_path }}/{{ item }}"
+      dest: "{{ blackbox_exporter_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - blackbox_exporter
+    notify: restart blackbox_exporter
+  when: blackbox_exporter_version != blackbox_exporter_local_version

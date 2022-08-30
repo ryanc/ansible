@@ -1,0 +1,39 @@
+blackbox_exporter_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+blackbox_exporter_go_arch: "{{ blackbox_exporter_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+blackbox_exporter_service_name: blackbox_exporter.service
+blackbox_exporter_service_enabled: true
+blackbox_exporter_service_state: started
+
+blackbox_exporter_version_regex: ^blackbox_exporter, version ([\d.]+)
+
+blackbox_exporter_release_file: "blackbox_exporter-{{ blackbox_exporter_version }}.{{ ansible_system | lower }}-{{ blackbox_exporter_go_arch }}.tar.gz"
+blackbox_exporter_release_url: "https://github.com/prometheus/blackbox_exporter/releases/download/v{{ blackbox_exporter_version }}/{{ blackbox_exporter_release_file }}"
+blackbox_exporter_checksum_url: "https://github.com/prometheus/blackbox_exporter/releases/download/v{{ blackbox_exporter_version }}/sha256sums.txt"
+blackbox_exporter_download_path: "/tmp/{{ blackbox_exporter_release_file }}"
+blackbox_exporter_unarchive_dest_path: /tmp
+blackbox_exporter_extracted_path: "{{ blackbox_exporter_download_path | replace('.tar.gz', '') }}"
+
+blackbox_exporter_user: blackbox_exporter
+blackbox_exporter_user_state: present
+blackbox_exporter_user_shell: /usr/sbin/nologin
+
+blackbox_exporter_group: blackbox_exporter
+blackbox_exporter_group_state: "{{ blackbox_exporter_user_state | default('present') }}"
+
+blackbox_exporter_etc_path: /etc/blackbox_exporter
+blackbox_exporter_etc_owner: root
+blackbox_exporter_etc_group: root
+blackbox_exporter_etc_mode: "0755"
+
+blackbox_exporter_var_path: /var/lib/blackbox_exporter
+blackbox_exporter_var_owner: "{{ blackbox_exporter_user }}"
+blackbox_exporter_var_group: "{{ blackbox_exporter_group }}"
+blackbox_exporter_var_mode: "0755"
+
+blackbox_exporter_bin_path: /usr/local/bin
+
+blackbox_exporter_config: {}
