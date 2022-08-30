@@ -1,0 +1,97 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: enable br_netfilter
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: enable br_netfilter (persistent)
+  copy:
+    dest: /etc/modules-load.d/br_netfilter.conf
+    content: br_netfilter
+    mode: 0644
+
+- name: sysctl net.bridge.bridge-nf-call-arptables
+  sysctl:
+    name: net.bridge.bridge-nf-call-arptables
+    value: "1"
+    sysctl_set: yes
+    state: present
+
+- name: sysctl net.bridge.bridge-nf-call-ip6tables
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: "1"
+    sysctl_set: yes
+    state: present
+
+- name: sysctl net.bridge.bridge-nf-call-iptables
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: "1"
+    sysctl_set: yes
+    state: present
+
+- name: create plugin directory
+  file:
+    path: "{{ nomad_plugin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: install unzip
+  package:
+    name: unzip
+    state: present
+
+- name: install plugins
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ nomad_plugin_dir }}"
+    remote_src: true
+  loop: "{{ nomad_plugins }}"
+  notify: restart nomad
+
+- name: install
+  package:
+    name: "{{ nomad_package_name | default('nomad') }}"
+    state: "{{ nomad_package_state | default('present') }}"
+
+- name: configure
+  template:
+    src: "{{ nomad_config_template }}"
+    dest: "{{ nomad_config_path }}"
+    owner: "{{ nomad_config_owner }}"
+    group: "{{ nomad_config_group }}"
+    mode: "{{ nomad_config_mode }}"
+  notify: restart nomad
+
+- name: service
+  service:
+    name: "{{ nomad_service_name | default('nomad') }}"
+    state: "{{ nomad_service_state | default('started') }}"
+    enabled: "{{ nomad_service_enabled | default(true) }}"

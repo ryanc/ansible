@@ -1,0 +1,46 @@
+// {{ ansible_managed }}
+
+data_dir = "{{ nomad_data_dir }}"
+bind_addr = "{{ nomad_bind_addr }}"
+
+{% if nomad_consul_enabled %}
+consul {
+    address = "{{ nomad_consul_address }}"
+}
+{% endif %}
+
+server {
+  enabled = {{ nomad_server__enabled | bool | lower }}
+  bootstrap_expect = {{ nomad_server__bootstrap_expect }}
+  server_join = {
+    retry_join = [
+{%- set comma = joiner(",") -%}
+{%- for x in nomad_server__server_join__retry_join | default([]) -%}
+    {{ comma() }}"{{ x }}"
+{%- endfor -%} ]
+{% if nomad_server__server_join__retry_max is defined %}
+    retry_max = {{ nomad_server__server_join__retry_max }}
+{% endif %}
+{% if nomad_server__server_join__retry_interval is defined %}
+    retry_interval = "{{ nomad_server__server_join__retry_interval }}"
+{% endif %}
+  }
+}
+
+client {
+  enabled = {{ nomad_client__enabled | bool | lower }}
+{% if nomad_client__servers %}
+  servers = [
+{%- set comma = joiner(",") -%}
+{%- for x in nomad_client__servers -%}
+    {{ comma() }}"{{ x }}"
+{%- endfor -%} ]
+{% endif %}
+{% if nomad_client__cni_path is defined %}
+  cni_path = "{{ nomad_client__cni_path }}"
+{% endif %}
+{% if nomad_client__cni_config_dir is defined %}
+  cni_config_dir = "{{ nomad_client__cni_config_dir }}"
+{% endif %}
+}
+

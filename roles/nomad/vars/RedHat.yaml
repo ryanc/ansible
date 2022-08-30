@@ -1,0 +1,3 @@
+---
+nomad_client__cni_path: /usr/libexec/cni
+nomad_client__cni_config_dir: /etc/cni/net.d

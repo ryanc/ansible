@@ -1,0 +1,26 @@
+---
+nomad_package_name: nomad
+nomad_package_state: present
+nomad_service_name: nomad
+nomad_service_state: started
+nomad_service_enabled: true
+nomad_etc_path: /etc/nomad.d
+nomad_config_path: "{{ nomad_etc_path }}/nomad.hcl"
+nomad_config_template: nomad.hcl.j2
+nomad_user: nomad
+nomad_group: nomad
+nomad_config_owner: "{{ nomad_user }}"
+nomad_config_group: "{{ nomad_group }}"
+nomad_config_mode: 0644
+nomad_data_dir: /opt/nomad/data
+nomad_bind_addr: 0.0.0.0
+nomad_server__enabled: true
+nomad_server__bootstrap_expect: 1
+nomad_client__enabled: true
+nomad_client__servers:
+  - 127.0.0.1
+nomad_plugin_dir: "{{ nomad_data_dir }}/plugins"
+nomad_plugins:
+  - https://releases.hashicorp.com/nomad-driver-podman/0.3.0/nomad-driver-podman_0.3.0_linux_amd64.zip
+nomad_consul_enabled: no
+nomad_consul_address: 127.0.0.1:8500
