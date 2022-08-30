@@ -1,0 +1,21 @@
+---
+consul_package_name: consul
+consul_package_state: present
+consul_service_name: consul
+consul_service_state: started
+consul_service_enabled: true
+consul_etc_path: /etc/consul.d
+consul_config_path: "{{ consul_etc_path }}/consul.hcl"
+consul_config_template: consul.hcl.j2
+consul_user: consul
+consul_group: consul
+consul_config_owner: "{{ consul_user }}"
+consul_config_group: "{{ consul_group }}"
+consul_config_mode: 0644
+consul_data_dir: /opt/consul
+consul_bind_addr: "{{ ansible_default_ipv4.address }}"
+consul_server: false
+consul_bootstrap_expect: 1
+consul_ui_config_enabled: true
+consul_client_addr: 0.0.0.0
+consul_unbound_enabled: false

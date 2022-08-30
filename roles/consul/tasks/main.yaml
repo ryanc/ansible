@@ -1,0 +1,47 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: install
+  package:
+    name: "{{ consul_package_name | default('consul') }}"
+    state: "{{ consul_package_state | default('present') }}"
+
+- name: configure
+  template:
+    src: "{{ consul_config_template }}"
+    dest: "{{ consul_config_path }}"
+    owner: "{{ consul_config_owner }}"
+    group: "{{ consul_config_group }}"
+    mode: "{{ consul_config_mode }}"
+  notify: restart consul
+
+- name: service
+  service:
+    name: "{{ consul_service_name | default('consul') }}"
+    state: "{{ consul_service_state | default('started') }}"
+    enabled: "{{ consul_service_enabled | default(true) }}"
+
+- include: forward-unbound.yaml
+  when: consul_unbound_enabled

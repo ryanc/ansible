@@ -1,0 +1,12 @@
+---
+- name: reload consul
+  service:
+    name: "{{ consul_service_name }}"
+    state: reloaded
+  when: consul_service_enabled
+
+- name: restart consul
+  service:
+    name: "{{ consul_service_name }}"
+    state: restarted
+  when: consul_service_enabled

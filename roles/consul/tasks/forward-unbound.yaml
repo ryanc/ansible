@@ -1,0 +1,9 @@
+---
+- name: configure unbound forwarder
+  copy:
+    src: unbound-consul.conf
+    dest: "{{ unbound_conf_d_path }}/consul.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload unbound

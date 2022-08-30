@@ -1,0 +1,41 @@
+// {{ ansible_managed }}
+
+data_dir = "{{ consul_data_dir }}"
+
+{% if consul_server is defined %}
+server = {{ (consul_server | lower) | default(false) }}
+{% endif %}
+
+{% if consul_bind_addr is defined %}
+bind_addr = "{{ (consul_bind_addr | lower) | default("0.0.0.0") }}"
+{% endif %}
+
+{% if consul_server is true and consul_bootstrap_expect is defined %}
+bootstrap_expect = {{ consul_bootstrap_expect }}
+{% endif %}
+
+{% if consul_retry_join is defined %}
+retry_join = [
+{%- set comma = joiner(",") -%}
+{%- for x in consul_retry_join | default([]) -%}
+{{ comma() }}"{{ x }}"
+{%- endfor -%} ]
+{% endif %}
+
+{% if consul_server_addresses is defined %}
+server_addresses = [
+{%- set comma = joiner(",") -%}
+{%- for x in consul_server_addresses | default([]) -%}
+{{ comma() }}"{{ x }}"
+{%- endfor -%} ]
+{% endif %}
+
+ui_config {
+{% if consul_ui_config_enabled is defined %}
+    enabled = {{ (consul_ui_config_enabled | lower) | default(false) }}
+{% endif %}
+}
+
+{% if consul_client_addr is defined %}
+client_addr = "{{ (consul_client_addr | lower) | default("0.0.0.0") }}"
+{% endif %}
