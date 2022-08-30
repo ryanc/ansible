@@ -1,0 +1,24 @@
+---
+supervisor_package_name: supervisor
+supervisor_package_state: present
+
+supervisor_service_name: supervisor
+supervisor_service_state: started
+supervisor_service_enabled: true
+
+supervisor_etc_path: /etc/supervisor
+supervisor_config_path: "{{ supervisor_etc_path }}/supervisord.conf"
+supervisor_config_owner: root
+supervisor_config_group: root
+supervisor_config_mode: "0644"
+
+supervisor_unix_http_server_socket_file: /var/run/supervisor.sock
+supervisor_unix_http_server_socket_chmod: "0700"
+
+supervisor_supervisord_logfile: /var/log/supervisor/supervisord.log
+supervisor_supervisord_pidfile: /var/run/supervisord.pid
+supervisor_supervisord_childlogdir: /var/log/supervisor
+
+supervisor_supervisorctl_serverurl: "unix://{{ supervisor_unix_http_server_socket_file }}"
+
+supervisor_include_files: /etc/supervisor/conf.d/*.conf

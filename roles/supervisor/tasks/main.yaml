@@ -1,0 +1,44 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: install package
+  package:
+    name: "{{ supervisor_package_name }}"
+    state: "{{ supervisor_package_state }}"
+
+- name: configure
+  template:
+    src: supervisord.conf.j2
+    dest: "{{ supervisor_config_path }}"
+    owner: "{{ supervisor_config_owner }}"
+    group: "{{ supervisor_config_group }}"
+    mode: "{{ supervisor_config_mode }}"
+  notify: restart supervisor
+
+- name: manage service
+  service:
+    name: "{{ supervisor_service_name }}"
+    state: "{{ supervisor_service_state }}"
+    enabled: "{{ supervisor_service_enabled }}"

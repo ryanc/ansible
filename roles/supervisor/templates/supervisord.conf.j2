@@ -1,0 +1,26 @@
+; {{ ansible_managed }}
+
+[unix_http_server]
+{% if supervisor_unix_http_server_socket_file is defined %}
+file={{ supervisor_unix_http_server_socket_file }}
+{% endif %}
+{% if supervisor_unix_http_server_socket_chmod is defined %}
+chmod={{ supervisor_unix_http_server_socket_chmod }}
+{% endif %}
+{% if supervisor_unix_http_server_socket_chown is defined %}
+chown={{ supervisor_unix_http_server_socket_chown }}
+{% endif %}
+
+[supervisord]
+logfile={{ supervisor_supervisord_logfile }}
+pidfile={{ supervisor_supervisord_pidfile }}
+childlogdir={{ supervisor_supervisord_childlogdir }}
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl={{ supervisor_supervisorctl_serverurl }}
+
+[include]
+files = {{ supervisor_include_files }}
