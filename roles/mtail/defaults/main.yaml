@@ -1,0 +1,50 @@
+---
+mtail_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+mtail_go_arch: "{{ mtail_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+mtail_service_name: mtail.service
+mtail_service_state: started
+mtail_service_enabled: yes
+
+mtail_version_regex: ^mtail version (\S+)
+
+mtail_github_project_url: https://github.com/google/mtail
+mtail_release_file: "mtail_{{ mtail_version }}_{{ ansible_system | capitalize }}_{{ ansible_architecture }}.tar.gz"
+mtail_release_url: "{{ mtail_github_project_url }}/releases/download/v{{ mtail_version }}/{{ mtail_release_file }}"
+mtail_download_path: "/tmp/{{ mtail_release_file }}"
+mtail_checksum_url: "{{ mtail_github_project_url }}/releases/download/v{{ mtail_version }}/checksums.txt"
+mtail_extracted_path: "/tmp"
+mtail_unarchive_dest_path: "/tmp"
+
+mtail_user: mtail
+mtail_user_state: present
+mtail_user_shell: /usr/sbin/nologin
+mtail_append_groups:
+  - adm
+
+mtail_group: mtail
+mtail_group_state: "{{ mtail_user_state | default('present') }}"
+
+mtail_etc_path: /etc/mtail
+mtail_etc_owner: root
+mtail_etc_group: root
+mtail_etc_mode: "0755"
+
+mtail_var_path: /var/lib/mtail
+mtail_var_owner: "{{ mtail_user }}"
+mtail_var_group: "{{ mtail_group }}"
+mtail_var_mode: "0755"
+
+mtail_var_log_path: /var/log/mtail
+mtail_var_log_owner: "{{ mtail_user }}"
+mtail_var_log_group: "{{ mtail_group }}"
+mtail_var_log_mode: "0755"
+
+mtail_bin_path: /usr/local/bin
+
+mtail_arg_logs:
+  - "/var/log/syslog/{{ inventory_hostname_short }}/*/*/*.log"   
+  - /var/log/nginx/*.access.log

@@ -1,0 +1,67 @@
+---
+- name: create group
+  group:
+    name: "{{ mtail_group }}"
+    system: true
+    state: "{{ mtail_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ mtail_user }}"
+    system: true
+    shell: "{{ mtail_user_shell }}"
+    group: "{{ mtail_group }}"
+    groups: "{{ [mtail_group] + (mtail_append_groups | default([])) }}"
+    append: true
+    createhome: false
+    home: "{{ mtail_var_path }}"
+    state: "{{ mtail_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ mtail_etc_path }}"
+    state: directory
+    owner: "{{ mtail_etc_owner }}"
+    group: "{{ mtail_etc_group }}"
+    mode: "{{ mtail_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ mtail_var_path }}"
+    state: directory
+    owner: "{{ mtail_var_owner }}"
+    group: "{{ mtail_var_group }}"
+    mode: "{{ mtail_var_mode }}"
+
+- name: create var_log path
+  file:
+    path: "{{ mtail_var_log_path }}"
+    state: directory
+    owner: "{{ mtail_var_log_owner }}"
+    group: "{{ mtail_var_log_group }}"
+    mode: "{{ mtail_var_log_mode }}"
+
+- name: configure rules
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mtail_etc_path }}/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ lookup('fileglob', 'rules/*.mtail', wantlist=True) }}"
+  notify: restart mtail
+
+- name: configure systemd template
+  template:
+    src: mtail.service.j2
+    dest: /etc/systemd/system/mtail.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart mtail
+
+- name: manage service
+  service:
+    name: "{{ mtail_service_name }}"
+    enabled: "{{ mtail_service_enabled }}"
+    state: "{{ mtail_service_state }}"

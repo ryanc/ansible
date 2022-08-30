@@ -1,0 +1,29 @@
+getfilename() !~ /nginx\/.*\.log$/ {
+    stop
+}
+
+counter nginx_http_requests_total by vhost, method, code
+counter nginx_http_response_size_bytes_total by vhost, method, code
+
+histogram nginx_http_response_time_seconds buckets 0.0, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 25.0, 50.0 by vhost, method, code
+
+/^/ +
+/(?P<vhost>[0-9A-Za-z\.\-:]+) / +
+/(?P<remote_addr>\S+) / +
+/- / + 
+/(?P<remote_user>\S+) / +
+/\[(?P<time_local>\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2} (\+|-)\d{4})\] / +
+/"(?P<request_method>[A-Z]+) (?P<request_uri>\S+) (?P<http_version>HTTP\/[0-9\.]+)" / +
+/(?P<status>\d{3}) / +
+/(?P<bytes_sent>\d+) / +
+/(?P<request_time>\d+\.\d+) / +
+/"(?P<http_referer>\S+)" / +
+/"(?P<http_user_agent>[[:print:]]+)" / +
+/"(?P<http_x_forwarded_for>\S+)"/ +
+/$/ {
+    nginx_http_requests_total[$vhost][$request_method][$status]++
+
+    nginx_http_response_size_bytes_total[$vhost][$request_method][$status] += $bytes_sent
+
+    nginx_http_response_time_seconds[$vhost][$request_method][$status] = $request_time
+}

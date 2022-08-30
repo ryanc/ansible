@@ -1,0 +1,16 @@
+[Unit]
+Description=mtail
+
+[Service]
+User={{ mtail_user }}
+ExecStart={{ mtail_bin_path }}/mtail \
+  --progs {{ mtail_etc_path }} \
+  --log_dir={{ mtail_var_log_path }} \
+{% if mtail_arg_logs %}
+{% for path in  mtail_arg_logs %}
+  --logs {{ path }} \
+{% endfor %}
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

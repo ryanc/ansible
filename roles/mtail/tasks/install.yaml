@@ -1,0 +1,52 @@
+---
+#- block:
+#  - name: download tar
+#    get_url:
+#      url: "{{ mtail_release_url }}"
+#      dest: "{{ mtail_download_path }}"
+#    register: dl
+#    until: dl is success
+#    retries: 5
+#    delay: 10
+#
+#  - name: install binaries
+#    copy:
+#      src: "{{ mtail_download_path }}"
+#      dest: "{{ mtail_bin_path }}/mtail"
+#      owner: root
+#      group: root
+#      mode: 0755
+#      remote_src: true
+#    notify: restart mtail
+#  when: mtail_version != mtail_local_version
+#
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ mtail_release_url }}"
+      dest: "{{ mtail_download_path }}"
+      checksum: "{{ mtail_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ mtail_download_path }}"
+      dest: "{{ mtail_unarchive_dest_path }}"
+      creates: "{{ mtail_extracted_path }}/mtail"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ mtail_extracted_path }}/{{ item }}"
+      dest: "{{ mtail_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - mtail
+    notify: restart mtail
+  when: mtail_version != mtail_local_version
