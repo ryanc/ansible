@@ -1,14 +1,46 @@
 ---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
 - name: install unbound
   package:
     name: "{{ unbound_package_name }}"
     state: "{{ unbound_package_state }}"
 
-- name: configure unbound
+- name: configure unbound interfaces
+  template:
+    src: listen.conf.j2
+    dest: "{{ unbound_conf_d_path }}/listen.conf"
+    validate: "{{ unbound_checkconf_command }}"
+  notify:
+    - restart unbound
+
+- name: configure unbound forward zones
   template:
     src: forward.conf.j2
-    dest: /etc/unbound/unbound.conf.d/forward.conf
-    validate: 'unbound-checkconf %s'
+    dest: "{{ unbound_conf_d_path }}/forward.conf"
+    validate: "{{ unbound_checkconf_command }}"
   notify:
     - reload unbound
 

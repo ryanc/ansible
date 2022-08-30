@@ -6,6 +6,14 @@ unbound_service_name: 'unbound'
 unbound_service_state: 'started'
 unbound_service_enabled: yes
 
+unbound_interfaces:
+  - 127.0.0.1
+  - ::1
+
+unbound_access_control:
+  - 127.0.0.1 allow
+  - ::1 allow
+
 unbound_forward_zones:
   - name: .
     forward_addr:

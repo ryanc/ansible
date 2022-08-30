@@ -1,3 +1,5 @@
 ---
+unbound_conf_d_path: /etc/unbound/conf.d
+unbound_checkconf_command: 'true %s'
 
 # vim:ft=yaml.ansible:

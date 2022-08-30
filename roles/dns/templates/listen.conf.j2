@@ -1,0 +1,9 @@
+server:
+{% if unbound_interfaces is defined %}
+{%   for iface in unbound_interfaces | default([]) %}
+  interface: {{ iface }}
+{%   endfor %}
+{%   for ac in unbound_access_control | default([]) %}
+  access-control: {{ ac }}
+{%   endfor %}
+{% endif %}

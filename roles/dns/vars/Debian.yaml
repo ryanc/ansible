@@ -1,0 +1,3 @@
+---
+unbound_conf_d_path: /etc/unbound/unbound.conf.d
+unbound_checkconf_command: unbound-checkconf %s
