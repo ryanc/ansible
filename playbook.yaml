@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  become: true
   roles:
     - common
     - util
@@ -14,34 +15,62 @@
     - dns
     - firewall
     - openssh
-    - openvpn
-    - autossh
-    - spiped
+    - wireguard
     - chrony
     - unattended-upgrades
     - postfix
     - aide
     - telegraf
     - restic
+    - node_exporter
+    - blackbox_exporter
+    - mtail
+    - supervisor
 - hosts: minecraft_servers
+  become: true
   roles:
     - minecraft
-    - craftbukkit
 - hosts: jump_servers
+  become: true
   roles:
     - go
+    - dl
 - hosts: git_servers
+  become: true
   roles:
     - nginx
     - certbot
     - gitea
 - hosts: stats_servers
+  become: true
   roles:
     - nginx
     - certbot
     - influxdb
     - grafana
+- hosts: monitor_servers
+  become: true
+  roles:
+    - nginx
+    - role: prometheus
+      tags:
+        - prometheus
+        - monitoring
+    - alertmanager
+    - blackbox_exporter
+    - pushgateway
+    - role: karma
+      tags:
+        - monitoring
+    - role: kthxbye
+      tags:
+        - monitoring
+    - role: thanos
+      tags:
+        - thanos
+        - monitoring
 - hosts: name_servers
+  become: true
   roles:
     - nsd
 
