@@ -1,0 +1,302 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+
+syslogfacility: LOG_LOCAL2
+
+network_nameservers: "{{ dns_servers }}"
+network_search: kill0.net
+
+postfix_aliases:
+  postmaster: root
+  hostmaster: root
+  webmaster: root
+  abuse: root
+  administrator: root
+  admin: root
+  root: sysops@kill0.net
+  devnull: /dev/null
+
+    #firewall_ssh_whitelist:
+    #  - "{{ lookup('dig', 'jump0.kill0.net/A') }}"
+    #  - "{{ lookup('dig', 'jump0.kill0.net/AAAA') }}"
+    #  - 192.168.255.17
+    #  - 2600:3c00:e000:343::11/128
+
+firewall_ipset_mgmt:
+  - "{{ lookup('dig', 'jump0.kill0.net/A') }}"
+  - "{{ lookup('dig', 'jump0.kill0.net/AAAA') }}"
+
+firewall_limited_tcp_ports:
+  - 22
+
+#unattended_upgrades_mailto: sysops@kill0.net
+unattended_upgrades_mailto: devnull
+unattended_upgrades_automatic_reboot: yes
+unattended_upgrades_automatic_reboot_time: '8:00'
+unattended_upgrades_reboot_with_users: no
+
+openssh_sshd_config:
+  PermitRootLogin: prohibit-password
+
+autossh_config:
+  - name: influx
+    host: jump0.kill0.net
+    options:
+      - -L 127.254.254.1:8086:127.0.0.1:8086
+  - name: syslog
+    host: jump0.kill0.net
+    options:
+      - -L 127.254.254.1:1514:127.0.0.1:514
+
+user_authorized_keys_hash:
+  ryan:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGznaofIstAxYsX1MH8xQiZU4aOO4SUw9OlRbyFMfQTx
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKdWuh9fbKNubIWaYGwOcbGNkh1Osifh/22KE5pKlVxfVqTT2MiEY6LlvlqR0UkU0hos5F0aEigK7wsABy0KEP2Z0hlx1IwO89rX1TbeqbNVvFk34+jBFflNhBTwE4fekBc4WyvQ3MtlygUTqUnPiQNMBL6uV3rHfh015C5ZqRHSqT7O/+bIbuLSOLizQPph/EJ7U7ti5gfZb5J8uSLdaK0vCLSIokleht3dE1DxfNq4LaVcNCGfNXHIzhaew7L4IkJ7nSWGRtGD7aHKcPV8PRJCt3Mn1IDXrVwFYx0tmFF4eyJ5h9l7fTiRs8PjJ8zD8BePtAP/LFCrhCS+vYbGJT 
+    # windows 10
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCe1dmofrPBmchiBs1NQxJVEiAyNfd/eG/U6xh8buekKpEYu6vY9oLN3fk1TdIQoq5gl6qVMaT8cRXQkN7zPBHdwpX55ifmM8O5sQJ3Q2Wioi+6W2elVG58kDIaWFUiQLFm3CXUQ43Ec3+SMo2xlr8b7tUUbCc7690TNJx4gB1t+mYQMIv5OBuzRgUJLSclT0Tp5luJgVKVimPKXTqawDPIKwEZHHvJjs1S4irDdIP4OJJHfHmegapXbMexfEEmgt82axlSjywlMDOKCxnJphOSxtzbUGHkdNMM8VBQC/iMEHprmp75LQzgL5tk9cdIe6T8b1XyuD3tdO/xguChBPpV
+    # work
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICndorpp/6aKlLq2K1YP81r8zA80VGp1qAUeCZtdVhAw rcavicchioni@NMLT072
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCW02T3dkh1Ra9n+Ql86e/C2ZdtwY5if5RZoc2BYwFCcygwP3GUKOrR6c9SW25B3X048+tVdTiOUhqfsqWf6jxCJ5h17lJ2sigMxEZOht0hUQZSgmQgdviYv3WYrqC4hlStumwEgEsJjRl9PP5LnIcdjWWINslaweFdfD7KhTRPlok1T2ycd0wEvsSCVATW32xV4Dpof5HLgLqnNwtK3VKSl7YIQu5i9SimtRDijwPnOkeMoknGjatpOu5VrnOP03GaExqXnjaIaUz++5GhCGEQEKhlcQrBCYlxubH+L4r6bka1S5r1GeeZNL6g+uUVUP5XaG8HcA9vArilmQfDj3xd
+  rick:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDTt13M/kyXmm8ORhefa6b4e0j1XczLu+R/asgTSdvhDCljo1LLtDvXWdUVQCwXxMXw8aPKjskBr+k1KJOFsdfVi65dExHhmaHk4qeGgkSkLNLPaMkKcNv3h+hS7VGmZjsxU0+bwl0b3g6woKEuMjnD5MfCsKIs6TOB5XjoDw8PMC+BsOiafFPeXGL8UA4yBtdNXFk6B4Ev6lZflPvenJXXJjYeePnhXjPaI6cNjSPhByy8mPU0AzWhtq8akbXlOCUrjuq2XoatwVOd1ZWj344PHfav7zmZkYLWOE7AR++ng+4pNxrfeiCxBcgSluKNYkZFac04OX8PSNbvqTWA29GIDlmcomaSJOWslVoVOiWYQ+7wWIb0d2+RgH/6UvVS500NyacOSkSlfI8SyqC5VVb2jjUC+GQ2zW/IMfYlwRutXT3MRgVtuoQ2i/aXizPLsH6iBqKxQDMV48avTNIitN29owOBPpDNsd1o4iy4kdMPrAFmrPBYSA939nOUzPmCCwU=
+
+users_interactive:
+  - name: ryan
+    groups:
+      - users
+      - sudo
+      - adm
+    comment: Ryan Cavicchioni
+    password: "{{ vault_user_password_hashes['ryan'] }}"
+  - name: rick
+    groups:
+      - users
+    comment: Rick Elias
+    password:
+
+users_authorized_keys:
+  - name: ryan
+    keys: "{{ user_authorized_keys_hash['ryan'] }}"
+  - name: rick
+    keys: "{{ user_authorized_keys_hash['rick'] }}"
+  - name: root
+    keys: "{{ user_authorized_keys_hash['ryan'] }}"
+
+telegraf_config_outputs:
+  influxdb:
+    urls:
+      - http://127.254.254.1:8086
+
+telegraf_config_d:
+  - name: ping
+    config:
+      inputs.ping:
+        - urls:
+            - 10.255.0.1
+          count: 10
+          ipv6: false
+          binary: ping4
+
+rsyslog_archival_format_enabled: true
+
+rsyslog_outputs:
+  - name: omfwd
+    params:
+      #target: 127.254.254.1
+      target: 10.255.0.1
+      #port: 1514
+      port: 514
+      protocol: tcp
+      action.resumeretrycount: -1
+      queue.type: linkedlist
+      queue.size: 10000
+      queue.filename: fwd
+      queue.saveonshutdown: "on"
+      keepalive: "on"
+
+sudo_aliases:
+  host:
+    - name: minecraft
+      items:
+        - mine[[\:digit\:]]*
+    - name: jumphosts
+      items:
+        - jump[[\:digit\:]]*
+
+sudo_rules:
+  - name: "%sudo"
+    hosts: ALL
+    runas:
+      users: ALL
+      groups: ALL
+    tags:
+      - NOPASSWD
+    commands: ALL
+
+restic_repos:
+  - name: b2
+    repo: "b2:kill0-infra-backup:"
+    environment:
+      RESTIC_PASSWORD: "{{ vault_restic_repo_b2_password }}"
+      B2_ACCOUNT_ID: "{{ vault_restic_repo_b2_account_id }}"
+      B2_ACCOUNT_KEY: "{{ vault_restic_repo_b2_account_key }}"
+
+restic_jobs:
+  - name: system
+    repo: b2
+    paths:
+      - /
+
+certs_trusted_ca:
+  chill9-root-ca: |
+    subject=C = US, O = chill9, CN = chill9 Root CA
+    issuer=C = US, O = chill9, CN = chill9 Root CA
+    notBefore=May 16 17:36:20 2020 GMT
+    notAfter=May 14 17:36:20 2030 GMT
+    -----BEGIN CERTIFICATE-----
+    MIIFOjCCAyKgAwIBAgIQdRhWyOcUQ+uIEypQfJLvqTANBgkqhkiG9w0BAQsFADA3
+    MQswCQYDVQQGEwJVUzEPMA0GA1UECgwGY2hpbGw5MRcwFQYDVQQDDA5jaGlsbDkg
+    Um9vdCBDQTAeFw0yMDA1MTYxNzM2MjBaFw0zMDA1MTQxNzM2MjBaMDcxCzAJBgNV
+    BAYTAlVTMQ8wDQYDVQQKDAZjaGlsbDkxFzAVBgNVBAMMDmNoaWxsOSBSb290IENB
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAswTensn+vA45WGRp3o/5
+    LX+wh6PTHAGNluLaZRyUNOg+EunnXAvMBF912D587wLAiC1G9FGOn+8JVws2QITX
+    +U8Y8L2vhnfGQNCQYvqBfJc5PJt3ZZ35to5tdTRJTeVhNWzIA7qOZh8ualFbCDYd
+    m6K74SlfEbvKzS02pYWN6wCVXtGOPl7VoOtjg8cOUX6u1pZpBKQfzq3lgLS2oMp0
+    VuBJeUMiki/O8nCC10VCXcZ9q4bsUvWH9lJB/IqlKt+bG9TjO+vigb9eOSfaILkM
+    d7NMziP5OQXMjv6NwmJQY7N5TiKWdh9h4G3KS41dr2Oeo+A1FcMEP9nkZb1lX3Ft
+    9Xzw8jJ99SD36mCEiqndvKA66/pcgMCvPAkkDwoSS+Er4LPcNmY2TVN+mIaF1OaS
+    Dc1EAXUfjnX8mZlclS/AfCg8TIPCc8o6Neg3DECT2j+IC9bgeoLqZLIuzzLNFrG5
+    aPNhG+24phHqdZvAkdhHWeEh1GS5uMutvV02hF5MrZLz8ou+56feFpUmeuPzQAfR
+    0Xbz0ot2JdETmcCTcmZBQ+9oP5DIszJt85wCHJ5S5FewUzsXJs1MQue3NLSM5FBS
+    hhOq+w6Pp64aaGKKyPi1GeZ1m31sM6w1yFVTQsqqy28GSjd/fQu55ESQ1sM0UhIo
+    DCUBbNPxycJGh9Ivxii1RqMCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNV
+    HQ8BAf8EBAMCAQYwHQYDVR0OBBYEFHFG9UxX+vMe4E0uEZ2LqyldmHkbMA0GCSqG
+    SIb3DQEBCwUAA4ICAQCC1jksFZp38JTGFIrNJJ6PgI6xXigtD2Z3KstS1cAIJi/P
+    /3NPu8iTgoyhNiq7a20tojPJGPlumezy3R5twA16UCq8guGFVEEEkJX+wOM0T4p0
+    jwtcMOeA6GchzS3+u74kk8oIvvw41K5gU2VU/W2axxnejt/HQMAYaMsD/zcNPXrP
+    oHAgEP5i7G7fX0FXqERnLU9lgbtTTTuszBnZHIdaUKSoK0Oji46y15pEdhxkVB6t
+    /BiNPAYM1Pc/Hi366eb6yuY8eJCK94QMQBvYpIjNwThAKclFh8n62KF6gXqj7Hcu
+    UQr1Z55KOuAlAM7fIBsqL4G2Ihs8yBeJe4YZrkdBqBzpJwOYNj7IsUnxgXYQpkVQ
+    u5coTbrB8w4Mw8ak+L2McMAYhG5FIndy9GAFEEanrmyiHJW96MHqTD1xY9TyvdN/
+    Kt/lsYt0W/y6jknv7hU9uP4X/xkZk8z1D+m4jZHRQpnUPL1eSOUPSJ0t+68GQUVJ
+    NJFmTx/qv1/9lXNy40jecX6sO4ZPLoQydMjwRmSerxki7MP4gxGNuBEpOvoj+ABM
+    MBlD7BhUn5++BZQOLUU+JYr5kNi0WmFFN1v2SpoMyDydTgA+cJsS/TiOeMrY9Szs
+    ZEFa3PSiA1fP03SRKC9tqjc7d6vQU0fE93wzcUCgyyf5mln6NV7cxOfDJNO8gA==
+    -----END CERTIFICATE-----
+
+openvpn_config:
+  client:
+    client:
+    remote: vpn-jump0.kill0.net 1194
+    ca: "{{ openvpn_etc_path }}/client/ca.pem"
+    cert: "{{ openvpn_etc_path }}/client/cert.pem"
+    key: "{{ openvpn_etc_path }}/client/key.pem"
+    tls-auth: "{{ openvpn_etc_path }}/client/ta.key 1"
+    verb: 3
+    dev: tun
+
+teleport_service_state: stopped
+teleport_service_enabled: false
+firewall_teleport_node_enabled: false
+
+teleport_roles: [ node ]
+teleport_config:
+  teleport:
+    auth_token: "{{ vault_teleport_static_token }}"
+    ca_pin: sha256:4ef484a5949aadedf983bc1f1d43f6f31356ca37f9608267424ddc0d9b68e010
+    auth_servers:
+      - "jump0.kill0.net:3025"
+
+firewall_ipset_node_exporter:
+  - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
+  - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
+  - 10.255.0.1
+
+firewall_ipset_blackbox_exporter:
+  - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
+  - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
+  - 10.255.0.1
+
+firewall_ipset_mtail:
+  - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
+  - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
+  - 10.255.0.1
+
+node_exporter_du_directories:
+  - /var/log/syslog
+  - /var/spool/rsyslog
+
+wireguard_iptables:
+  wg0:
+    input: true
+
+wireguard_network_prefix: 10.255.0
+wireguard_peers:
+  wg0:
+  - public_key: 1ipGUnK8XDbIoBIEF440BhwLUe0yHa5l3kZZc4eFxV8=
+    endpoint: "{{ lookup('dig', 'jump0.kill0.net./A') }}:{{ wireguard_port }}"
+    allowed_ips: "{{ hostvars['jump0.kill0.net'].wireguard_interfaces.wg0.address }}"
+
+supervisor_unix_http_server_socket_chown: root:node_exporter
+supervisor_unix_http_server_socket_chmod: "0770"
+
+firewall_ipset_loki:
+  - 10.255.0.1
+
+promtail_clients:
+  - url: http://10.255.0.1:3100/loki/api/v1/push
+
+promtail_scrape_configs:
+- job_name: system
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: syslog
+      __path__: "/var/log/syslog/{{ ansible_hostname }}/**/*.log"
+- job_name: nginx
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: nginx
+      host: "{{ ansible_hostname }}"
+      __path__: /var/log/nginx/*.log
+  pipeline_stages:
+  - match:
+      selector: '{job="nginx"}'
+      stages:
+      - regex:
+          expression: '^(?P<remote_addr>[^ ]+) - (?P<remote_user>[^ ]*) \[(?P<time_local>.*)\] "(?P<method>[^ ]*) (?P<request>[^ ]*) (?P<protocol>[^ ]*)" (?P<status>[\d]+) (?P<body_bytes_sent>[\d]+) "(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)"?'
+      - metrics:
+          nginx_requests_total:
+            type: Counter
+            description: requests in nginx access logs
+            source: method
+            config:
+              action: inc
+      - labels:
+          #remote_addr:
+          #remote_user:
+          #time_local:
+          method:
+          #request:
+          #protocol:
+          status:
+          body_bytes_sent:
+          #http_referer:
+          #http_user_agent:
+
+loki_service_enabled: false
+loki_service_state: stopped
+
+promtail_service_enabled: false
+promtail_service_state: stopped
+
+influxdb_service_enabled: false
+influxdb_service_state: stopped
+influxdb_package_state: absent
+
+telegraf_service_enabled: false
+telegraf_service_state: stopped
+telegraf_package_state: absent

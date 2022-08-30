@@ -1,0 +1,142 @@
+---
+node_exporter_machine_roles:
+  - minecraft
+
+firewall_allowed_tcp_ports:
+  - 25565
+  - 8123
+
+firewall_minecraft_enabled: true
+
+minecraft_worlds:
+  - name: vanilla
+  - name: skyblock
+    port: 25566
+    state: stopped
+    enabled: no
+
+minecraft_ops:
+  - uuid: ce962d5b-590a-46b8-8372-f3254ca52a57
+    name: chill9
+    level: 4
+    bypassesPlayerLimit: true
+  - uuid: cfb8c434-98da-460a-91e5-2321fa8bdc5e
+    name: totums
+    level: 3
+    bypassesPlayerLimit: true
+
+minecraft_whitelist:
+  - uuid: ce962d5b-590a-46b8-8372-f3254ca52a57
+    name: rcavicchioni
+  - uuid: cfb8c434-98da-460a-91e5-2321fa8bdc5e
+    name: totums
+  - uuid: 70f36187-6e2e-4c24-9dd6-1addc477760a
+    name: Vandic
+
+#firewall_ipset_bogons: []
+
+users_authorized_keys:
+  - name: ryan
+    keys: "{{ user_authorized_keys_hash['ryan'] }}"
+  - name: root
+    keys: "{{ user_authorized_keys_hash['ryan'] }}"
+
+rclone_config:
+  - name: mine0-b2
+    type: b2
+    account: "{{ vault_rclone_minecraft_b2_account }}"
+    key: "{{ vault_rclone_minecraft_b2_key }}"
+
+rclone_cron:
+  - name: minecraft-rclone
+    hour: 10 
+    minute: 0
+    job: "rclone --config {{ rclone_config_path }}/mine0-b2.conf copy --skip-links {{ minecraft_backup_path }} mine0-b2:kill0-minecraft-backup"
+    state: absent
+
+restic_jobs:
+  - name: system
+    repo: b2
+    paths:
+      - /
+    exclude:
+      - /opt/minecraft
+      - /var/opt/minecraft
+      - /var/opt/craftbukkit
+  - name: minecraft
+    repo: b2
+    paths:
+      - /var/opt/minecraft
+    hooks:
+      - minecraft.sh
+    cron:
+      hour: 11
+      minute: 0
+  - name: craftbukkit
+    repo: b2
+    paths:
+      - /var/opt/craftbukkit
+    hooks:
+      - craftbukkit.sh
+    cron:
+      hour: 11
+      minute: 0
+      state: absent
+
+minecraft_discord_config:
+  webhook_id: "{{ vault_minecraft_discord_webhook_id }}"
+  webhook_token: "{{ vault_minecraft_discord_webhook_token }}"
+
+craftbukkit_discord_config:
+  webhook_id: "{{ vault_craftbukkit_discord_webhook_id }}"
+  webhook_token: "{{ vault_craftbukkit_discord_webhook_token }}"
+
+craftbukkit_port: 25565
+craftbukkit_service_state: stopped
+craftbukkit_service_enabled: no
+
+minecraft_port: 25566
+minecraft_service_state: started
+minecraft_service_enabled: yes
+
+telegraf_config_d:
+  - name: filecount
+    config:
+      inputs.filecount:
+        - directories:
+          - /var/opt/craftbukkit
+          - /var/opt/craftbukkit/world
+          - /var/opt/craftbukkit/world_nether
+          - /var/opt/craftbukkit/world_the_end
+          - /var/opt/minecraft
+          - /var/opt/minecraft/world
+          - /var/opt/minecraft/world/DIM1
+          - /var/opt/minecraft/world/DIM-1
+  - name: craftbukkit
+    config:
+      inputs.procstat:
+        - systemd_unit: craftbukkit.service
+  - name: ping
+    config:
+      inputs.ping:
+        - urls:
+            - 10.255.0.1
+          count: 10
+          ipv6: false
+          binary: ping4
+
+minecraft_config:
+  white-list: true
+  enforce-whitelist: true
+  server-port: 25565
+  motd: chill9's world
+
+node_exporter_du_directories:
+  - /var/log/syslog
+  - /var/spool/rsyslog
+  - /var/opt/minecraft/world
+
+minecraft_java_xms: 2g
+minecraft_java_xmx: 2g
+
+# vim:ft=yaml.ansible:

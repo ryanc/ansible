@@ -1,0 +1,68 @@
+---
+grafana_package_version:
+grafana_package_name: "grafana{{grafana_package_version}}"
+grafana_package_state: present
+
+grafana_service_name: grafana-server.service
+grafana_service_state: started
+grafana_service_enabled: yes
+
+grafana_etc_path: /etc/grafana
+grafana_config_path: "{{ grafana_etc_path }}/grafana.ini"
+grafana_provisioning_path: /etc/grafana/provisioning
+
+grafana_domain: "stats.{{ ansible_domain }}"
+grafana_port: 3002
+grafana_user: grafana
+grafana_group: grafana
+
+grafana_config:
+  server:
+    domain: "{{ grafana_domain }}"
+    root_url: "https://{{ grafana_domain }}"
+    http_addr: localhost
+    http_port: "{{ grafana_port }}"
+
+grafana_ssl_enabled: yes
+grafana_ssl_certificate: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
+grafana_ssl_certificate_key: "/etc/letsencrypt/live/{{ grafana_domain }}/privkey.pem"
+#grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
+
+grafana_datasources:
+  apiVersion: 1
+  datasources:
+    - name: influxdb
+      type: influxdb
+      access: proxy
+      url: http://localhost:8086
+      database: telegraf
+      isDefault: yes
+      version: 1
+
+grafana_dashboards:
+  apiVersion: 1
+  providers:
+    - name: ansible
+      folder: Built-in
+      type: file
+      options:
+        path: /var/lib/grafana/dashboards
+
+grafana_dashboard_files:
+  - connectivity.json
+  - home-networking.json
+  - iptables.json
+  - nginx.json
+  - processes.json
+  - switching.json
+  - system.json
+  - ups.json
+
+firewall_ipset_influxdb:
+  - 172.16.100.16
+  - 10.255.0.17
+
+telegraf_config_outputs:
+  influxdb:
+    urls:
+      - http://localhost:8086

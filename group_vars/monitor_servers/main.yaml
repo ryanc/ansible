@@ -1,0 +1,419 @@
+---
+node_exporter_machine_roles:
+  - monitor
+  - stats
+
+prometheus_web_external_url: https://monitor.kill0.net/prometheus
+alertmanager_web_external_url: https://monitor.kill0.net/alertmanager
+prometheus_web_route_prefix: /
+alertmanager_web_route_prefix: /
+
+prometheus_config:
+  global:
+    scrape_interval: 15s
+    external_labels:
+      cluster: 1
+      region: dallas
+      provider: linode
+      replica: A
+  alerting:
+    alertmanagers:
+      - static_configs:
+        - targets:
+          - localhost:9093
+  scrape_configs:
+    - job_name: prometheus
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - localhost:9090
+    - job_name: alertmanager
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - localhost:9093
+    - job_name: pushgateway
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - jump0.kill0.net:9091
+    - job_name: node
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - jump0.kill0.net:9100
+          - mine0.kill0.net:9100
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: instance
+          regex: (.+):\d+
+          replacement: $1
+    - job_name: mtail
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - jump0.kill0.net:3903
+          - mine0.kill0.net:3903
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: instance
+          regex: (.+):\d+
+          replacement: $1
+    - job_name: blackbox
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - jump0.kill0.net:9115
+          - mine0.kill0.net:9115
+    - job_name: blackbox-icmp4
+      metrics_path: /probe
+      params:
+        module:
+          - icmpv4
+      static_configs:
+        - targets:
+          - dns.google
+          - vpn-home.kill0.net
+          - ping-home.kill0.net
+          - 10.255.0.16
+          - vpn1-sch.corp.nmi.com
+          - vpn-chi.ops.nmi.com
+          - vpn-ash.ops.nmi.com
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+    - job_name: blackbox-icmp6
+      metrics_path: /probe
+      params:
+        module:
+          - icmpv6
+      static_configs:
+        - targets:
+          - dns.google
+          - ping-home.kill0.net
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+    - job_name: blackbox-tcp4
+      metrics_path: /probe
+      params:
+        module:
+          - tcp_connect4
+      static_configs:
+        - targets:
+          - mine0.kill0.net:25565
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+    - job_name: blackbox-tcp6
+      metrics_path: /probe
+      params:
+        module:
+          - tcp_connect6
+      static_configs:
+        - targets:
+          - mine0.kill0.net:25565
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+    - job_name: blackbox-http
+      metrics_path: /probe
+      params:
+        module:
+          - http_2xx
+      static_configs:
+        - targets:
+          - https://cavi.cc
+          - https://git.kill0.net
+          - https://stats.kill0.net
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9115  # The blackbox exporter's real hostname:port.
+    - job_name: thanos-sidecar
+      scrape_interval: 5s
+      static_configs:
+      - targets:
+        - "localhost:10902"
+    - job_name: thanos-query
+      scrape_interval: 5s
+      static_configs:
+      - targets:
+        - "localhost:10904"
+    - job_name: thanos-store
+      scrape_interval: 5s
+      static_configs:
+      - targets:
+        - "localhost:10902"
+    - job_name: thanos-compact
+      scrape_interval: 5s
+      static_configs:
+      - targets:
+        - "localhost:10912"
+  rule_files:
+    - rules.yaml
+
+prometheus_rules_config:
+  groups:
+    - name: alertmanager.rules
+      rules:
+        - alert: PrometheusAlertmanagerJobMissing
+          expr: absent(up{job="alertmanager"})
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{% raw %} Prometheus AlertManager job missing (instance {{ $labels.instance }}){% endraw %}"
+            description: "{% raw %}A Prometheus AlertManager job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}"
+        - alert: PrometheusAlertmanagerE2eDeadManSwitch
+          expr: vector(1)
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{% raw %}Prometheus AlertManager E2E dead man switch (instance {{ $labels.instance }}){% endraw %}"
+            description: "{% raw %}Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}"
+    - name: node.rules
+      rules:
+        - record: is_dst
+          expr: |
+            (vector(0) and (month() < 3 or month() > 11))
+            or
+            (vector(1) and (month() > 3 and month() < 11))
+            or
+            (vector(1) and month() == 3 and (day_of_month() - day_of_week()) >= 8 and absent(day_of_week() == 0 and day_of_month() >= 8 and day_of_month() <= 14))
+            or
+            (vector(1) and month() == 11 and (day_of_month() - day_of_week()) <= 0)
+            or
+            (vector(1) and month() == 3 and day_of_month() >= 8 and day_of_month() <= 14 and day_of_week() == 0 and hour() >= 8)
+            or
+            (vector(1) and month() == 11 and day_of_month() >= 1 and day_of_month() <= 7 and day_of_week() == 0 and hour() < 7)
+            or
+            vector(0)
+        - record: america_chicago_time
+          expr: time() - ((6 * 3600) - (3600 * is_dst))
+        - record: america_chicago_hour
+          expr: hour(america_chicago_time)
+        - alert: InstanceDown
+          expr: up{job="node"} == 0
+          for: 1m
+        - alert: ThanosServiceDown
+          expr: up{job=~"thanos.+"} == 0
+          labels:
+            severity: critical
+        - alert: FileSystemUsage
+          expr: ((node_filesystem_size_bytes{mountpoint!~"fuse.lxcfs|tmpfs"} - node_filesystem_free_bytes) / node_filesystem_size_bytes) > 0.80
+          for: 1m
+        - alert: FileSystemReadOnly
+          expr: node_filesystem_readonly{fstype!~"fuse.lxcfs|tmpfs"} == 1
+        - alert: RebootRequired
+          expr: node_reboot_required > 0
+          for: 15m
+        - alert: AptUpgradesPending
+          expr: apt_upgrades_pending > 0
+          for: 1d
+        - alert: ResticSystemJobLastRun
+          expr: (time() - node_restic_last_run_time{restic_job="system"}) > 7200
+          for: 2h
+        - alert: ResticMinecraftJobLastRun
+          expr: (time() - node_restic_last_run_time{restic_job=~"minecraft"}) > 86400
+          for: 2h
+        - alert: MinecraftUnitInactive
+          expr: node_systemd_unit_state{name="minecraft.service",state="inactive"} == 1 
+          for: 15m
+        - alert: GiteaUnitInactive
+          expr: node_systemd_unit_state{name="gitea.service",state="inactive"} == 1 
+          for: 15m
+        - alert: MaintenanceMode
+          expr: maintenance_mode == 1
+          for: 1m
+        #- alert: QuietHours
+        #  expr: america_chicago_hour >= 22 or america_chicago_hour < 10
+        #  for: 1m
+    - name: blackbox.rules
+      rules:
+        - alert: ServiceDown
+          expr: probe_success{job!~"blackbox-icmp[0-9]"} == 0
+          for: 1m
+        - alert: PingDown 
+          expr: probe_success{job=~"blackbox-icmp[0-9]"} == 0
+          for: 15s
+        - alert: CertExpiry
+          expr: ((probe_ssl_earliest_cert_expiry{job="blackbox-http"} - time()) / 86400) < 30
+          for: 15s
+          labels:
+            severity: warning
+          annotations:
+            # summary: Certificates expiring in < 30 days
+            summary: "{% raw %}Blackbox SSL certificate will expire soon (instance {{ $labels.instance }}){% endraw %}"
+            description: "{% raw %}SSL certificate expires in 30 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}"
+        - alert: CertExpiry 
+          expr: ((probe_ssl_earliest_cert_expiry{job="blackbox-http"} - time()) / 86400) < 14
+          for: 15s
+          labels:
+            severity: critical
+          annotations:
+            # summary: Certificates expiring in < 14 days
+            summary: "{% raw %}Blackbox SSL certificate will expire soon (instance {{ $labels.instance }}){% endraw %}"
+            description: "{% raw %}SSL certificate expires in 14 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}"
+
+blackbox_exporter_config:
+  modules:
+    icmpv4:
+      prober: icmp
+      timeout: 5s
+      icmp:
+        preferred_ip_protocol: ip4
+    icmpv6:
+      prober: icmp
+      timeout: 5s
+      icmp:
+        preferred_ip_protocol: ip6
+    tcp_connect4:
+      prober: tcp
+      timeout: 5s
+      tcp:
+        preferred_ip_protocol: ip4
+    tcp_connect6:
+      prober: tcp
+      timeout: 5s
+      tcp:
+        preferred_ip_protocol: ip6
+    http_2xx:
+      prober: http
+      timeout: 5s
+      http:
+        method: GET
+
+#  route:
+#    receiver: pushover-receiver
+#    mute_time_intervals:
+#      - quiet_hours
+#    routes:
+#      - receiver: blackhole
+#        match:
+#          alertname: MaintenanceMode
+#      #- receiver: blackhole
+#      #  match:
+#      #    alertname: QuietHours
+#  receivers:
+#    - name: blackhole
+#    - name: pushover-receiver
+#      pushover_configs:
+#        - token: "{{ vault_pushover_token }}"
+#          user_key: "{{ vault_pushover_user_key }}"
+#  inhibit_rules:
+#    - source_match:
+#        alertname: MaintenanceMode
+#    #- source_match:
+#    #    alertname: QuietHours
+#  time_intervals:
+#    - name: quiet_hours
+#      times:
+#        - start_time: 03:00
+#          end_time: 15:00
+
+alertmanager_config:
+  inhibit_rules:
+    - source_match:
+        alertname: MaintenanceMode
+  receivers:
+    - name: blackhole
+    - name: pushover-receiver
+      pushover_configs:
+        - token: agwd6wv7xveakykb8e5rz7rw3eg2v3
+          user_key: 28G1x3lT4oUtlck50R1H3e6j8kDHjb
+  route:
+    receiver: pushover-receiver
+    routes:
+      - match:
+          alertname: MaintenanceMode
+        receiver: blackhole
+      - match:
+          alertname: PrometheusAlertmanagerE2eDeadManSwitch
+        receiver: blackhole
+      - receiver: pushover-receiver
+        mute_time_intervals:
+          - quiet_hours
+  time_intervals:
+    - name: quiet_hours
+      time_intervals:
+        - times:
+            - start_time: "03:00"
+              end_time: "15:00"
+  
+node_exporter_du_directories:
+  - /var/log/syslog
+  - /var/spool/rsyslog
+  - /var/lib/influxdb
+  - /var/lib/prometheus
+  - /var/lib/loki
+
+firewall_ipset_loki:
+  - 10.255.0.0/24
+
+karma_config:
+  alertmanager:
+    interval: 60s
+    servers:
+      - name: local
+        uri: http://localhost:9093
+        timeout: 10s
+        proxy: true
+        readonly: false
+        healthcheck:
+          filters:
+            dms:
+              - alertname=PrometheusAlertmanagerE2eDeadManSwitch
+  grid:
+    sorting:
+      order: label
+      reverse: false
+      label: cluster
+      customValues:
+        labels:
+          severity:
+            critical: 1
+            warning: 2
+            info: 3
+    auto:
+      order:
+        - severity
+  labels:
+    color:
+      custom:
+        severity:
+          - value: info
+            color: "#87c4e0"
+          - value: warning
+            color: "#ffae42"
+          - value: critical
+            color: "#ff220c"
+  alertAcknowledgement:
+    enabled: true
+    #duration: 15m0s
+    #author: karma
+    #comment: ACK! This alert was acknowledged using karma on %NOW%
+
+thanos_bucket_config: "{{ vault_thanos_bucket_config }}"
+
+kthxbye_listen: :8081

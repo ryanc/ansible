@@ -1,0 +1,14 @@
+---
+firewall_allowed_tcp_ports:
+  - 80
+  - 443
+
+gitea_domain: git.kill0.net
+
+restic_jobs:
+  - name: system
+    repo: b2
+    paths:
+      - /
+    hooks:
+      - gitea.sh

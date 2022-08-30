@@ -1,0 +1,353 @@
+---
+firewall_allowed_tcp_ports:
+  - 443
+  - 80
+
+firewall_allowed_udp_ports:
+  - 1194
+
+firewall_ipset_syslog:
+  - 10.255.0.0/24
+
+autossh_authorized_keys:
+  - key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOvKqDI6VUYFgMUC54pVr5U8CX+Xl2ewV7PIYkTiQ70o
+  - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDrte7/aVUhovxsFTF9olsO6V3TiHStlF5XFN1u8uKmYmJ9jfvosOLPAv4KHvVDuOww79JPUXrsSkemC/AM9tlHycBf4+4R8q9o7aL0MNzB1ZaiBCvgx+Wn54QgktM/V7e4yl4LCtjxbscspYCJFtqjWuC85c4d8p7Gwq3t7+wbO3TGZAx1ETdqKjhecTCJpjlvUIYDZlCkXMtmhB52ntTu9/GBXD5mAdTCqyq5aTAxGbt56LCmM0Z2qjAxVWRdJK93C2dQ4OPzWnvc2IWR2EazOLDep8jSz4XOzUlfQCeKfFsEvUJZJi7BtcgVKBvL+e8SmwZNG+SdCmFFJxoXVmat
+
+autossh_config: []
+
+rsyslog_inputs:
+  - name: imtcp
+    params:
+      port: 514
+  - name: imudp
+    params:
+      port: 514
+  - name: imrelp
+    params:
+      port: 2514
+
+rsyslog_outputs: []
+
+telegraf_config_d:
+  - name: ping
+    config:
+      inputs.ping:
+        - urls:
+            - ping-home.kill0.net
+          interface: eth0
+          count: 10
+          ipv6: false
+          binary: ping4
+        - urls:
+            - ping6-home.kill0.net
+          interface: eth0
+          count: 10
+          ipv6: true
+          name_override: ping6
+          binary: ping6
+        - urls:
+            - 10.255.0.1
+          count: 10
+          ipv6: false
+          binary: ping4
+
+openvpn_ip_forward: 1
+
+openvpn_config:
+  server:
+    port: 1194
+    proto: udp
+    dev: tun
+    server: 10.8.0.0 255.255.255.0
+    ifconfig-pool-persist: /var/log/openvpn/ipp.txt
+    keepalive: 10 120
+    cipher: AES-256-CBC
+    persist-key:
+    persist-tun:
+    tun-ipv6:
+    status: /var/log/openvpn/openvpn-status.log
+    verb: 3
+    explicit-exit-notify: 1
+    ca: "{{ openvpn_etc_path }}/server/ca.pem"
+    cert: "{{ openvpn_etc_path }}/server/cert.pem"
+    key: "{{ openvpn_etc_path }}/server/key.pem"
+    dh: "{{ openvpn_etc_path }}/server/dh.pem"
+    tls-auth: "{{ openvpn_etc_path }}/server/ta.key 0"
+    client-config-dir: "{{ openvpn_etc_path }}/server/ccd"
+    route:
+      - 172.16.0.0 255.255.0.0
+      - 192.168.255.0 255.255.255.0
+      - 10.8.0.0 255.255.255.0
+    push:
+      - route 10.8.0.0 255.255.255.0
+
+openvpn_dh_params:
+  server:
+    dh.pem: |
+      -----BEGIN DH PARAMETERS-----
+      MIIBCAKCAQEAwmTargQ4ki0rYdoPifubzjBWklJXYzsQUU2TbGvuP0ug2weMOA4D
+      XSmlyJFUmSsSEUxDCG5PXcIdvNHISTX2PiUqf3OhCGghxIbAQwbCdqqs/VnZYt0C
+      P/M5DJD4hsF8OTrdDG9b5mK3XmB40o9K3xkptfQvoN1ecjhRQ+zgNZcnkOfd0XFB
+      myPPSBy/9fK6e6N1SnGN7Ao7AJ3VFLpT77hHaW6wZ+hOxWlmjroIlT5FRyvtEATE
+      2N697E6kWV+1jfyfd8ocu+QfnFbccshJY88OhZ4xddHquFhKMT68TCg43nefQCk7
+      tnJAVcpUfS6AqhwZRysWNRJfG/NiPsMxIwIBAg==
+      -----END DH PARAMETERS-----
+
+openvpn_certificates:
+  server:
+    cert.pem: |
+      subject=C = US, CN = jump0.kill0.net
+      issuer=C = US, O = chill9, CN = chill9 Sub CA
+      notBefore=May 18 01:58:38 2020 GMT
+      notAfter=May 18 01:58:38 2021 GMT
+      X509v3 Subject Alternative Name: 
+          DNS:jump0.kill0.net, DNS:vpn-jump0.kill0.net
+      -----BEGIN CERTIFICATE-----
+      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
+      cjkBmYeslLjtUPqu9OrqjuiiLw==
+      -----END CERTIFICATE-----
+      subject=C = US, O = chill9, CN = chill9 Sub CA
+      issuer=C = US, O = chill9, CN = chill9 Root CA
+      notBefore=May 17 01:19:29 2020 GMT
+      notAfter=May 15 01:19:29 2030 GMT
+      -----BEGIN CERTIFICATE-----
+      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
+      utoYQ7uVeeWbAD+clJpc2kky
+      -----END CERTIFICATE-----
+    ca.pem: |
+      subject=C = US, O = chill9, CN = chill9 Sub CA
+      issuer=C = US, O = chill9, CN = chill9 Root CA
+      notBefore=May 17 01:19:29 2020 GMT
+      notAfter=May 15 01:19:29 2030 GMT
+      -----BEGIN CERTIFICATE-----
+      MIIGnjCCBIagAwIBAgIQdRhWyOcUQ+uIEypQfJLvqjANBgkqhkiG9w0BAQsFADA3
+      MQswCQYDVQQGEwJVUzEPMA0GA1UECgwGY2hpbGw5MRcwFQYDVQQDDA5jaGlsbDkg
+      Um9vdCBDQTAeFw0yMDA1MTcwMTE5MjlaFw0zMDA1MTUwMTE5MjlaMDYxCzAJBgNV
+      BAYTAlVTMQ8wDQYDVQQKDAZjaGlsbDkxFjAUBgNVBAMMDWNoaWxsOSBTdWIgQ0Ew
+      ggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCsP549Xs/Dzfw3HHGhDlIT
+      dFun9cqsCmyaXJSMOFZqZSyGJg4WASJRW797lnQlsOfLk7x8fR7I1CkWF9x3KDVi
+      A9MvJTlFgdYGF27LNGP7zo3ZNB99oA+NtHhoIhclprzT4qmHSk6tz31uJV42jNBH
+      km3m4wqH3NlqOqWbkw8nC9yF0/qCz1UyG/wSIQr3UpN5c96WWE3Bt6rKW7vEZ//i
+      t4nDzRV+pttv5O/L5DQdhG01NKD0XxH0q8SocdTPIsDO0ZUQwVFYcxJYB0pPab8V
+      Uk4+bzb8hN+mO2vyO5DK01efiNVfMZ7NDxQXvU6cMs4c+S/BtC9PWO0hR0hJm/hw
+      vg1RdhyfOVATVfviiEG8YQdl8sIHk3qYGdGJyrZHIOlssgnKdeGlLHbYXtHPFAk/
+      gvZMtR2t0VKXVQR03Yz5llF9okKCAbmHmntLFcM5hHJxEl0phqbLLcBh+130Qb7q
+      K/CRSHnPfzL04KW9cw5b0cNOn728M5Fj2Q8IQvY5m0NYDbaZf0qF34OyixtGIE8n
+      dJupLDSp6KkHlrIfedpgNwi16y5cy4Uw/aTCGcIO/WZZO6Q59R+xlobw8VQc4V/i
+      pqSiQK0wEuDtq9uw7r+GV9BDoxfmbHygeKFV+Ee9UXQ/FMPhItSQTMlFhrci6U75
+      e+iOnmh3AkldPZ3Z6TpfsQIDAQABo4IBpTCCAaEwcAYIKwYBBQUHAQEEZDBiMDAG
+      CCsGAQUFBzAChiRodHRwOi8vcm9vdC1jYS5raWxsMC5uZXQvcm9vdC1jYS5jcnQw
+      LgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwLnJvb3QtY2Eua2lsbDAubmV0OjkwODAw
+      HwYDVR0jBBgwFoAUcUb1TFf68x7gTS4RnYurKV2YeRswEgYDVR0TAQH/BAgwBgEB
+      /wIBADA1BgNVHR8ELjAsMCqgKKAmhiRodHRwOi8vcm9vdC1jYS5raWxsMC5uZXQv
+      cm9vdC1jYS5jcmwwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMA4GA1Ud
+      DwEB/wQEAwIBBjBzBgNVHR4EbDBqoDYwC4IJa2lsbDAubmV0MAuCCWtpbGwwLmNv
+      bTAMggpjaGlsbDkubmV0MAyCCmNoaWxsOS5jb22hMDAKhwgAAAAAAAAAADAihyAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAdBgNVHQ4EFgQUk4bTwH0d
+      BRska82lVaZ0T2Fb6SUwDQYJKoZIhvcNAQELBQADggIBAENgGWgn3geR6Ciz9YsE
+      x4594ew+JJ9uiiPoHSUxw95NuVa2WpB1/UZoL93lm3sEqqzR6FYEeP5JWuvlrw4Q
+      TJpzXBo/0Ik5BX2eTcW1HlhXxHV0HnzjKd8eldxDsY78ve46d9DfHLYk4zdn7OVj
+      TLVokJvbL9jEIOfH2OJu8Ow+5jNmKQzmv4aNmG9RHoqDkgBmRgbrWJkhZ9xVqSb4
+      jKBDsNovLkkW2Xm0RxJVc9B3sE15aDq06UeT1BfCXL7xH1ABjX5tV4LegJUsaTlU
+      EMOyXYdxoEnqKw/f7Qns/lsq6Gzbx+RDXnShBPsrJX/TTcqc/KETu1z6zwxnb4PO
+      uwK1VHUcOB27hA6STfe9HqiJwdSSQG1aFmk+nCN0IqeC7oXS8z27Lbjzx182osAZ
+      F7oLtdctWav9sAo03M3MLapdgzM66weNzdfw7z6vsxE6qxB+4U95IplVAaWCqFfr
+      USrr4BmYi6yD9xbGT8f0diQ7DsA0ki8QPpZD6bzlUoO5pZ+qv49wFh+1wb4gjEYi
+      ReBLvIHjVYL1GPSR1vrCzP+/i0Rhc+8sHgC2lpuUj4E2swBBuHhUsgSpaCcvV5ID
+      qCBR4ak3EYuWzKYJCakhauIW8G7QDhO1XuPKqOk93qRpwZveUFMQjDa2xDEElxZJ
+      utoYQ7uVeeWbAD+clJpc2kky
+      -----END CERTIFICATE-----
+      subject=C = US, O = chill9, CN = chill9 Root CA
+      issuer=C = US, O = chill9, CN = chill9 Root CA
+      notBefore=May 16 17:36:20 2020 GMT
+      notAfter=May 14 17:36:20 2030 GMT
+      -----BEGIN CERTIFICATE-----
+      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
+      -----END CERTIFICATE-----
+
+openvpn_ccd:
+  server:
+    fw0:
+      ifconfig-push: 10.8.0.16 10.8.0.1
+      iroute:
+        - 172.16.0.0 255.255.0.0
+        - 192.168.255.0 255.255.255.0
+    mine0:
+      ifconfig-push: 10.8.0.17 10.8.0.1
+      push:
+        - route 172.16.0.0 255.255.0.0
+    "Ryan Cavicchioni":
+      ifconfig-push: 10.8.0.200 10.8.0.1
+
+firewall_teleport_node_enabled: false
+firewall_teleport_proxy_enabled: false
+firewall_teleport_auth_enabled: false
+
+teleport_service_state: stopped
+teleport_service_enabled: true
+
+teleport_roles: [ auth, node, proxy ]
+teleport_config:
+  auth_service:
+    cluster_name: main
+    enabled: true
+    tokens:
+      - "node:{{ vault_teleport_static_token }}"
+      - "trusted_cluster:{{ vault_teleport_trusted_cluster_static_token }}"
+  teleport:
+    auth_token: "{{ vault_teleport_static_token }}"
+    ca_pin: sha256:4ef484a5949aadedf983bc1f1d43f6f31356ca37f9608267424ddc0d9b68e010
+    auth_servers:
+      - "jump0.kill0.net:3025"
+  proxy_service:
+    enabled: "yes"
+    https_key_file: /etc/letsencrypt/live/jump0.kill0.net/privkey.pem
+    https_cert_file: /etc/letsencrypt/live/jump0.kill0.net/fullchain.pem
+
+wireguard_iptables:
+  wg0:
+    input: true
+  wg1:
+    forward: true
+    nat:
+      source: 192.168.255.0/24
+      out_iface: eth0
+    dns: true
+
+wireguard_peers:
+  wg0:
+    - comment: mine0.kill0.net
+      public_key: Cm9yZNczjghAh4hV4fSvy3rsmuLsQFZk+ET5CoWxVnI=
+      #endpoint: "{{ lookup('dig', 'mine0.kill0.net./A') }}:{{ wireguard_port }}"
+      endpoint: "mine0.kill0.net:{{ wireguard_port }}"
+      allowed_ips: "{{ hostvars['mine0.kill0.net'].wireguard_interfaces.wg0.address }}"
+    - comment: vpn-home.kill0.net
+      public_key: j5AgKWcXx8we7QVkt6//oQWsGfXj+5IJKt9mx0EpTW0=
+      endpoint: "vpn-home.kill0.net:{{ wireguard_port }}"
+      allowed_ips: 172.16.0.0/16, 10.255.0.2/32
+  wg1:
+    - comment: pixel-2
+      public_key: GzQOU0x1POvkY4+6smBGkE/B1XytoVxIJa6zGX8j6Bc=
+      allowed_ips:
+        - 192.168.255.16/32
+        - 2600:3c00:e000:343::10/128
+    - comment: work laptop
+      public_key: TRT1SRQd3mFJDJK9tdglqsydXJmkzyrNdUOm4nr7M3k=
+      allowed_ips:
+        - 192.168.255.17/32
+        - 2600:3c00:e000:343::11/128
+    - comment: home workstation
+      public_key: ISvgu8zZWjmKyKrJi2mbqoJg2mrvIjPbQRs0Sp+dLzc=
+      allowed_ips:
+        - 192.168.255.18/32
+        - 2600:3c00:e000:343::12/128
+    - comment: rick
+      public_key: oFJcRhs7tQ4vPHTjbKwwWirpjx9T9ng7PFj3+iAVYWo=
+      allowed_ips:
+        - 192.168.255.32/32
+        - 2600:3c00:e000:343::20/128
+
+unbound_interfaces:
+  - 127.0.0.1
+  - 192.168.255.1
+  - ::1
+  - 2600:3c00:e000:343::1
+
+unbound_access_control:
+  - 127.0.0.1 allow
+  - 192.168.255.0/24 allow
+  - ::1 allow
+  - 2600:3c00:e000:343::/64 allow

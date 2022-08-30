@@ -1,0 +1,55 @@
+---
+certbot_certificates:
+  - domains:
+      - monitor.kill0.net
+    email: rcavicchioni@gmail.com
+  - domains:
+      - git.kill0.net
+    email: rcavicchioni@gmail.com
+  - domains:
+      - stats.kill0.net
+    email: rcavicchioni@gmail.com
+  - domains:
+      - jump0.kill0.net
+    email: rcavicchioni@gmail.com
+  - domains:
+      - dl.kill0.net
+    email: rcavicchioni@gmail.com
+  - domains:
+      - cavi.cc
+    email: rcavicchioni@gmail.com
+
+autossh_config: []
+
+wireguard_interfaces:
+  wg0:
+    address: 10.255.0.1/32
+    private_key: "{{ vault_wireguard_private_keys.wg0 }}"
+    listen_port: 51820
+  wg1:
+    address:
+      - 192.168.255.1/24
+      - 2600:3c00:e000:343::1/128
+    private_key: "{{ vault_wireguard_private_keys.wg1 }}"
+    listen_port: 51821
+
+restic_tidy_enabled: true
+
+nginx_vhosts:
+  cavicc:
+    - server_name: cavi.cc
+      root: /var/www/cavicc
+      listen:
+        - 80
+        - "[::]:80"
+      raw: |
+        location / {
+            return 301 https://$server_name$request_uri;
+        }
+    - server_name: cavi.cc
+      root: /var/www/cavicc
+      listen:
+        - 443 ssl http2
+        - "[::]:443 ssl http2"
+      ssl_certificate: /etc/letsencrypt/live/cavi.cc/fullchain.pem
+      ssl_certificate_key: /etc/letsencrypt/live/cavi.cc/privkey.pem

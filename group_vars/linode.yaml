@@ -1,0 +1,33 @@
+---
+#dns_servers:
+#  - 173.255.199.5
+#  - 66.228.53.5
+#  - 96.126.122.5
+#  - 96.126.124.5
+#  - 96.126.127.5
+#  - 198.58.107.5
+#  - 198.58.111.5
+#  - 23.239.24.5
+#  - 72.14.179.5
+#  - 72.14.188.5
+#  - 2600:3c00::5
+#  - 2600:3c00::6
+#  - 2600:3c00::7
+#  - 2600:3c00::8
+#  - 2600:3c00::9
+#  - 2600:3c00::b
+#  - 2600:3c00::c
+
+dns_servers:
+  - 127.0.0.1
+  - ::1
+
+timezone: Etc/UTC
+
+#vm_guest_qemu_agent_package_state: absent
+vm_guest_qemu_agent_service_state: stopped
+vm_guest_qemu_agent_service_enabled: false
+
+#vm_guest_spice_agent_package_state: absent
+vm_guest_spice_agent_service_state: stopped
+vm_guest_spice_agent_service_enabled: false

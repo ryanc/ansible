@@ -1,0 +1,29 @@
+---
+keepalived_vrrp_scripts:
+  chk_rabbitmq:
+    script: rabbitmq-diagnostics -q check_running
+    interval: 15
+    weight: -2
+    #    script: /usr/bin/systemctl is-active --quiet rabbitmq-server
+    #    interval: 2
+    #    weight: -4
+    #  chk_amqp_port:
+    #    script: </dev/tcp/127.0.0.1/5672
+    #    interval: 1
+    #    weight: -2
+
+keepalived_vrrp_instances:
+  VI_1:
+    state: BACKUP
+    interface: eth0
+    virtual_router_id: 51
+    authentication:
+      auth_type: PASS
+      auth_pass: asdf
+    unicast_peer: |
+      {{ groups['rabbitmq_servers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | difference([ansible_default_ipv4.address])| list }}
+    virtual_ipaddress:
+      - 10.100.100.20/24
+    track_script:
+      - chk_rabbitmq
+      - chk_amqp_port
