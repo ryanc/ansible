@@ -42,3 +42,4 @@
     name: "{{ influxdb_service_name }}"
     state: "{{ influxdb_service_state }}"
     enabled: "{{ influxdb_service_enabled }}"
+  when: influxdb_package_state != "absent"
