@@ -1,0 +1,12 @@
+---
+- name: install podman packages
+  package:
+    name: "{{ item }}"
+    state: "{{ podman_package_state | default('present') }}"
+  loop: "{{ podman_packages }}"
+
+- name: podman socket
+  service:
+    name: "{{ podman_service_name }}"
+    state: "{{ podman_service_state | default('started') }}"
+    enabled: "{{ podman_service_enabled | default(true) }}"

@@ -1,0 +1,11 @@
+---
+podman_packages:
+  - podman
+  - podman-docker
+  - podman-remote
+  - containernetworking-plugins
+podman_package_state: present
+
+podman_service_name: podman.socket
+podman_service_state: started
+podman_service_enabled: true
