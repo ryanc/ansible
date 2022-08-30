@@ -25,3 +25,5 @@ restic_global_exclude:
 
 restic_repos: []
 restic_jobs: []
+
+restic_tidy_enabled: false

@@ -62,3 +62,4 @@
     user: root
     state: present
     job: "( {{ restic_bin_path }}/restic-tidy {{ item.name }} | logger --id=$$ -t restic-tidy -p user.info ) 2>&1 | logger --id=$$ -t restic-tidy -p user.err"
+  when: restic_tidy_enabled
