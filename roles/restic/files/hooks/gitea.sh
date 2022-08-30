@@ -9,7 +9,7 @@ GITEA_CONFIG=${GITEA_CONFIG:-/etc/gitea/app.ini}
 GITEA_WORK_PATH=${GITEA_WORK_PATH:-/var/lib/gitea}
 GITEA_CUSTOM_PATH=${GITEA_CUSTOM_PATH:-$GITEA_WORK_PATH/custom}
 GITEA_BACKUP_PATH=${GITEA_BACKUP_PATH:-$GITEA_WORK_PATH/backup}
-GITEA_KEEP_DAYS=${GITEA_KEEP_DAYS:-7}
+GITEA_KEEP_DAYS=${GITEA_KEEP_DAYS:-2}
 
 prereq() {
     if ! systemctl list-units --full --all | grep -Fq "gitea.service"; then
