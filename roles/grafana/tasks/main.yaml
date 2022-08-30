@@ -4,7 +4,7 @@
   vars:
     possible_files:
       files:
-        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
         - "{{ ansible_os_family }}.yaml"
         - "default.yaml"
@@ -16,8 +16,17 @@
   vars:
     possible_files:
       files:
-        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: include os family specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
         - "{{ ansible_os_family }}.yaml"
         - "default.yaml"
       paths:
