@@ -1,0 +1,9 @@
+---
+- name: reboot all servers
+  hosts: all
+  serial: 1
+  tasks:
+  - name: Reboot
+    reboot:
+  - name: Wait for system to become reachable
+    wait_for_connection:

@@ -1,0 +1,18 @@
+---
+- name: update all servers
+  become: true
+  hosts: all
+  tasks:
+  - name: Upgrade the OS (apt)
+    apt:
+      update_cache: true
+      upgrade: dist
+    when: ansible_pkg_mgr == 'apt'
+
+  - name: Upgrade the OS (dnf)
+    dnf:
+      name: '*'
+      state: latest
+      update_cache: yes
+      update_only: yes
+    when: ansible_pkg_mgr == 'dnf'
