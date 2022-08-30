@@ -1,0 +1,63 @@
+---
+- name: sysctl fs.protected_hardlinks
+  sysctl:
+    name: fs.protected_hardlinks
+    value: "0"
+    sysctl_set: yes
+    state: present
+
+- name: create group
+  group:
+    name: "{{ thanos_group }}"
+    system: true
+    state: "{{ thanos_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ thanos_user }}"
+    system: true
+    shell: "{{ thanos_user_shell }}"
+    group: "{{ thanos_group }}"
+    groups: "{{ prometheus_group }}"
+    createhome: false
+    home: "{{ thanos_var_path }}"
+    state: "{{ thanos_user_state | default('present') }}"
+    append: true
+
+- name: create etc path
+  file:
+    path: "{{ thanos_etc_path }}"
+    state: directory
+    owner: "{{ thanos_etc_owner }}"
+    group: "{{ thanos_etc_group }}"
+    mode: "{{ thanos_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ thanos_var_path }}"
+    state: directory
+    owner: "{{ thanos_var_owner }}"
+    group: "{{ thanos_var_group }}"
+    mode: "{{ thanos_var_mode }}"
+
+- name: configure bucket
+  copy:
+    dest: "{{ thanos_sidecar_objstore_config_file }}"
+    content: "{{ (thanos_bucket_config | default({})) | to_nice_yaml }}"
+    owner: "{{ thanos_sidecar_objstore_config_file_owner }}"
+    group: "{{ thanos_sidecar_objstore_config_file_group }}"
+    mode: "{{ thanos_sidecar_objstore_config_file_mode }}"
+  notify: restart thanos sidecar
+
+- name: configure thanos query frontend cache
+  copy:
+    dest: "{{ thanos_etc_path }}/cache.yaml"
+    content: "{{ (thanos_query_frontend_cache_config | default({})) | to_nice_yaml }}"
+    owner: "{{ thanos_user }}"
+    group: "{{ thanos_group }}"
+    mode: "0444"
+  notify: restart thanos query frontend
+
+- name: configure thanos components
+  include: configure-component.yaml
+  loop: "{{ thanos_services }}"

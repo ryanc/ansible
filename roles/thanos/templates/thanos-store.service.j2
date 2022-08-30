@@ -1,0 +1,29 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Thanos Store Gateway
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+ 
+[Service]
+Type=simple
+User={{ thanos_user }}
+Group={{ thanos_group }}
+SyslogIdentifier=thanos-store
+ExecStart={{ thanos_bin_path }}/thanos store \
+{% if thanos_store_data_dir %}
+  --data-dir={{ thanos_store_data_dir }} \
+{% endif %}
+{% if thanos_store_objstore_config_file %}
+  --objstore.config-file={{ thanos_store_objstore_config_file }} \
+{% endif %}
+{% if thanos_store_http_address %}
+  --http-address={{ thanos_store_http_address }} \
+{% endif %}
+{% if thanos_store_grpc_address %}
+  --grpc-address={{ thanos_store_grpc_address }} \
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target

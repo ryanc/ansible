@@ -1,0 +1,30 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ thanos_release_url }}"
+      dest: "{{ thanos_download_path }}"
+      checksum: "{{ thanos_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ thanos_download_path }}"
+      dest: "{{ thanos_unarchive_dest_path }}"
+      creates: "{{ thanos_extracted_path }}"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ thanos_extracted_path }}/{{ item }}"
+      dest: "{{ thanos_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop: "{{ thanos_binaries }}"
+    notify: restart thanos
+  when: thanos_version != thanos_local_version

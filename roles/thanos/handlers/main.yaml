@@ -1,0 +1,35 @@
+---
+- name: restart thanos sidecar
+  systemd:
+    name: "{{ thanos_sidecar_service_name }}"
+    daemon_reload: true
+    state: restarted
+  listen: restart thanos
+
+- name: restart thanos query
+  systemd:
+    name: "{{ thanos_query_service_name }}"
+    daemon_reload: true
+    state: restarted
+  listen: restart thanos
+
+- name: restart thanos store
+  systemd:
+    name: "{{ thanos_store_service_name }}"
+    daemon_reload: true
+    state: restarted
+  listen: restart thanos
+
+- name: restart thanos compact
+  systemd:
+    name: "{{ thanos_compact_service_name }}"
+    daemon_reload: true
+    state: restarted
+  listen: restart thanos
+
+- name: restart thanos query frontend
+  systemd:
+    name: "{{ thanos_query_frontend_service_name }}"
+    daemon_reload: true
+    state: restarted
+  listen: restart thanos

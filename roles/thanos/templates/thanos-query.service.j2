@@ -1,0 +1,28 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Thanos Query
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+ 
+[Service]
+Type=simple
+User={{ thanos_user }}
+Group={{ thanos_group }}
+SyslogIdentifier=thanos-query
+ExecStart={{ thanos_bin_path }}/thanos query \
+{% if thanos_query_http_address %}
+  --http-address={{ thanos_query_http_address }} \
+{% endif %}
+{% if thanos_query_grpc_address %}
+  --grpc-address={{ thanos_query_grpc_address }} \
+{% endif %}
+{% if thanos_query_store %}
+{% for s in thanos_query_store %}
+  --store={{ s }} \
+{% endfor %}
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target

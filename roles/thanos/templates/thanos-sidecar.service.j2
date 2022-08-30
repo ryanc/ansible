@@ -1,0 +1,32 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Thanos Sidecar
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+ 
+[Service]
+Type=simple
+User={{ thanos_user }}
+Group={{ thanos_group }}
+SyslogIdentifier=thanos-sidecar
+ExecStart={{ thanos_bin_path }}/thanos sidecar \
+{% if thanos_sidecar_tsdb_path %}
+  --tsdb.path={{ thanos_sidecar_tsdb_path }} \
+{% endif %}
+{% if thanos_sidecar_objstore_config_file %}
+  --objstore.config-file={{ thanos_sidecar_objstore_config_file }} \
+{% endif %}
+{% if thanos_sidecar_prometheus_url %}
+  --prometheus.url={{ thanos_sidecar_prometheus_url }} \
+{% endif %}
+{% if thanos_sidecar_http_address %}
+  --http-address={{ thanos_sidecar_http_address }} \
+{% endif %}
+{% if thanos_sidecar_grpc_address %}
+  --grpc-address={{ thanos_sidecar_grpc_address }} \
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target

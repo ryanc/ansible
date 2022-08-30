@@ -1,0 +1,15 @@
+---
+- name: "{{ item }}: configure systemd"
+  template:
+    src:  "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+    owner: root
+    group: root
+    mode: 0444
+  notify: "restart {{ item | replace('-', ' ')}}"
+
+- name: "{{ item }}: manage service"
+  service:
+    name: "{{ item }}.service"
+    enabled: "{{ lookup('vars', item | replace('-', '_') + '_service_enabled') }}"
+    state: "{{ lookup('vars', item | replace('-', '_') + '_service_state') }}"

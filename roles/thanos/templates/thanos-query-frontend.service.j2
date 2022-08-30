@@ -1,0 +1,25 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Thanos Query Frontend
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+ 
+[Service]
+Type=simple
+User={{ thanos_user }}
+Group={{ thanos_group }}
+SyslogIdentifier=thanos-query-frontend
+ExecStart={{ thanos_bin_path }}/thanos query-frontend \
+  --query-range.response-cache-config-file={{ thanos_etc_path }}/cache.yaml \
+  --labels.response-cache-config-file={{ thanos_etc_path }}/cache.yaml \
+{% if thanos_query_frontend_http_address %}
+  --http-address={{ thanos_query_frontend_http_address }} \
+{% endif %}
+{% if thanos_query_frontend_downstream_url %}
+  --query-frontend.downstream-url={{ thanos_query_frontend_downstream_url }} \
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target

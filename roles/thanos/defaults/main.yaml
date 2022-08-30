@@ -1,0 +1,113 @@
+---
+thanos_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+thanos_go_arch: "{{ thanos_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+thanos_services:
+  - thanos-sidecar
+  - thanos-query
+  - thanos-store
+  - thanos-compact
+  - thanos-query-frontend
+
+thanos_ports:
+  sidecar:        { grpc: 10901, http: 10902 }
+  query:          { grpc: 10903, http: 10904 }
+  store:          { grpc: 10905, http: 10906 }
+  receive:        { grpc: 10907, http: 10909, http_remote_write: 10908 }
+  rule:           { grpc: 10910, http: 10911 }
+  compact:        { http: 10912 }
+  query_frontend: { http: 10913 }
+
+
+thanos_sidecar_service_name: thanos-sidecar.service
+thanos_sidecar_service_enabled: true
+thanos_sidecar_service_state: started
+
+thanos_query_service_name: thanos-query.service
+thanos_query_service_enabled: true
+thanos_query_service_state: started
+
+thanos_store_service_name: thanos-store.service
+thanos_store_service_enabled: true
+thanos_store_service_state: started
+
+thanos_compact_service_name: thanos-compact.service
+thanos_compact_service_enabled: true
+thanos_compact_service_state: started
+
+thanos_query_frontend_service_name: thanos-query-frontend.service
+thanos_query_frontend_service_enabled: true
+thanos_query_frontend_service_state: started
+
+thanos_version_regex: ^thanos, version ([\d.]+)
+
+thanos_checksum_algo: sha256
+thanos_github_rel_path: thanos-io/thanos
+thanos_github_project_url: "https://github.com/{{ thanos_github_rel_path }}"
+thanos_release_file: "thanos-{{ thanos_version }}.{{ ansible_system | lower }}-{{ thanos_go_arch }}.tar.gz"
+thanos_release_url: "{{ thanos_github_project_url }}/releases/download/v{{ thanos_version }}/{{ thanos_release_file }}"
+thanos_checksum_url: "{{ thanos_github_project_url }}/releases/download/v{{ thanos_version }}/{{ thanos_checksum_algo }}sums.txt"
+thanos_download_path: "/tmp/{{ thanos_release_file }}"
+thanos_unarchive_dest_path: /tmp
+thanos_extracted_path: "{{ thanos_download_path | replace('.tar.gz', '') }}"
+thanos_binaries:
+ - thanos
+
+thanos_user: thanos
+thanos_user_state: present
+thanos_user_shell: /usr/sbin/nologin
+
+thanos_group: thanos
+thanos_group_state: "{{ thanos_user_state | default('present') }}"
+
+thanos_etc_path: /etc/thanos
+thanos_etc_owner: root
+thanos_etc_group: root
+thanos_etc_mode: "0755"
+
+thanos_var_path: /var/lib/thanos
+thanos_var_owner: "{{ thanos_user }}"
+thanos_var_group: "{{ thanos_group }}"
+thanos_var_mode: "0755"
+
+thanos_bin_path: /usr/local/bin
+
+thanos_sidecar_tsdb_path: /var/lib/prometheus
+thanos_sidecar_objstore_config_file: "{{ thanos_etc_path }}/bucket.yaml"
+thanos_sidecar_objstore_config_file_owner: "{{ thanos_user }}"
+thanos_sidecar_objstore_config_file_group: "{{ thanos_group }}"
+thanos_sidecar_objstore_config_file_mode: "0600"
+thanos_sidecar_prometheus_url: http://localhost:9090
+thanos_sidecar_http_address: "0.0.0.0:{{ thanos_ports.sidecar.http }}"
+thanos_sidecar_grpc_address: "0.0.0.0:{{ thanos_ports.sidecar.grpc }}"
+
+thanos_query_http_address: "0.0.0.0:{{ thanos_ports.query.http }}"
+thanos_query_grpc_address: "0.0.0.0:{{ thanos_ports.query.grpc }}"
+thanos_query_store:
+  - "127.0.0.1:{{ thanos_ports.sidecar.grpc }}"
+  - "127.0.0.1:{{ thanos_ports.store.grpc }}"
+
+thanos_store_data_dir: "{{ thanos_var_path }}/store"
+thanos_store_objstore_config_file: "{{ thanos_sidecar_objstore_config_file }}"
+thanos_store_http_address: "0.0.0.0:{{ thanos_ports.store.http }}"
+thanos_store_grpc_address: "0.0.0.0:{{ thanos_ports.store.grpc }}"
+
+thanos_compact_data_dir: "{{ thanos_var_path }}/compact"
+thanos_compact_objstore_config_file: "{{ thanos_sidecar_objstore_config_file }}"
+thanos_compact_http_address: "0.0.0.0:{{ thanos_ports.compact.http }}"
+thanos_compact_wait: true
+
+thanos_query_frontend_http_address: "0.0.0.0:{{ thanos_ports.query_frontend.http }}"
+thanos_query_frontend_downstream_url: "http://127.0.0.1:{{ thanos_ports.query.http }}"
+thanos_query_frontend_cache_config:
+  type: IN-MEMORY
+  config:
+    max_size: 256M
+    max_size_items: 0
+    validity: 0s
+
+thanos_bucket_config: {}
+thanos_config: {}

@@ -1,0 +1,29 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Thanos Store Compactor
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+ 
+[Service]
+Type=simple
+User={{ thanos_user }}
+Group={{ thanos_group }}
+SyslogIdentifier=thanos-compact
+ExecStart={{ thanos_bin_path }}/thanos compact \
+{% if thanos_compact_data_dir %}
+  --data-dir={{ thanos_compact_data_dir }} \
+{% endif %}
+{% if thanos_compact_objstore_config_file %}
+  --objstore.config-file={{ thanos_compact_objstore_config_file }} \
+{% endif %}
+{% if thanos_compact_http_address %}
+  --http-address={{ thanos_compact_http_address }} \
+{% endif %}
+{% if thanos_compact_wait %}
+  --wait \
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target
