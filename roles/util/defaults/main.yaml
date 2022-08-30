@@ -63,6 +63,7 @@ util_packages:
     - jq
     - crudini
     - xmlstarlet
+    - ack
   interpreters:
     - lua5.3
   python:
