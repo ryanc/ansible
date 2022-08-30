@@ -1,0 +1,53 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: yum repo (devel:kubic:libcontainers:stable)
+  yum_repository:
+    name: devel:kubic:libcontainers:stable
+    description: "Stable Releases of Upstream github.com/containers packages ({{ crio_os }}) type=rpm-md"
+    baseurl: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os }}/"
+    gpgcheck: yes
+    gpgkey: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os }}/repodata/repomd.xml.key"
+    enabled: yes
+
+- name: "yum repo (devel:kubic:libcontainers:stable:cri-o:{{ crio_version }})"
+  yum_repository:
+    name: "devel_kubic_libcontainers_stable_cri-o_{{ crio_version }}"
+    description: "devel:kubic:libcontainers:stable:cri-o:{{ crio_version }} ({{ crio_os }})"
+    baseurl: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os }}/"
+    gpgcheck: yes
+    gpgkey: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os }}/repodata/repomd.xml.key"
+    enabled: yes
+
+- name: install
+  package:
+    name: "{{ crio_package_name | default('cri-o') }}"
+    state: "{{ crio_package_state | default('present') }}"
+
+- name: manage service
+  service:
+    name: "{{ crio_service_name | default('crio') }}"
+    state: "{{ crio_service_state | default('started') }}"
+    enabled: "{{ crio_service_enabled | default(true) }}"
