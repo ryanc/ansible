@@ -1,5 +1,7 @@
 ---
-rsyslog_package_name: rsyslog
+rsyslog_package_name:
+  - rsyslog
+  - rsyslog-relp
 rsyslog_package_state: present
 
 rsyslog_service_name: rsyslog
@@ -19,6 +21,7 @@ rsyslog_load_modules:
       permitnonkernelfacility: "on"
   - name: imtcp
   - name: imudp
+  - name: imrelp
 
 rsyslog_work_directory: /var/spool/rsyslog
 rsyslog_include_config: /etc/rsyslog.d/*.conf

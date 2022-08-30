@@ -7,8 +7,9 @@
 
 - name: install package
   package:
-    name: "{{ rsyslog_package_name }}"
+    name: "{{ item }}"
     state: "{{ rsyslog_package_state }}"
+  loop: "{{ rsyslog_package_name }}"
 
 - name: configure
   template:
