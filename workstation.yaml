@@ -1,0 +1,178 @@
+---
+- hosts: localhost
+  become: true
+  vars:
+    libvirt_guests:
+      #      - name: rmq1
+      #        memory: 4194304
+      #        vcpu: 2
+      #        root_image: rocky-8.x86_64.qcow2
+      #        network: br_nat
+      #        state: running
+      #        network_config:
+      #          address: 172.17.10.16/24
+      #          gateway: 172.17.10.1
+      #      - name: rmq2
+      #        memory: 4194304
+      #        vcpu: 2
+      #        root_image: rocky-8.x86_64.qcow2
+      #        network: br_nat
+      #        state: running
+      #        network_config:
+      #          address: 172.17.10.17/24
+      #          gateway: 172.17.10.1
+      #      - name: rmq3
+      #        memory: 4194304
+      #        vcpu: 2
+      #        root_image: rocky-8.x86_64.qcow2
+      #        network: br_nat
+      #        state: running
+      #        network_config:
+      #          address: 172.17.10.18/24
+      #          gateway: 172.17.10.1
+      #- name: k1
+      #  memory: 4194304
+      #  vcpu: 2
+      #  root_image: rocky-8.x86_64.qcow2
+      #  network: br_nat
+      #  state: running
+      #  network_config:
+      #    address: 172.17.10.32/24
+      #    gateway: 172.17.10.1
+      #- name: k2
+      #  memory: 4194304
+      #  vcpu: 2
+      #  root_image: rocky-8.x86_64.qcow2
+      #  network: br_nat
+      #  state: running
+      #  network_config:
+      #    address: 172.17.10.33/24
+      #    gateway: 172.17.10.1
+      #- name: k3
+      #  memory: 4194304
+      #  vcpu: 2
+      #  root_image: rocky-8.x86_64.qcow2
+      #  network: br_nat
+      #  state: running
+      #  network_config:
+      #    address: 172.17.10.34/24
+      #    gateway: 172.17.10.1
+      - name: nomad1
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.48/24
+          gateway: 172.17.10.1
+      - name: nomad2
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.49/24
+          gateway: 172.17.10.1
+      - name: nomad3
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.50/24
+          gateway: 172.17.10.1
+      - name: worker1
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.51/24
+          gateway: 172.17.10.1
+      - name: worker2
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.52/24
+          gateway: 172.17.10.1
+      - name: worker3
+        memory: 2097152
+        vcpu: 1
+        root_image: rocky-8.x86_64.qcow2
+        network: br_nat
+        state: running
+        network_config:
+          address: 172.17.10.53/24
+          gateway: 172.17.10.1
+  roles:
+  - libvirt
+- hosts: rabbitmq_servers
+  become: true
+  vars:
+    ansible_user: root
+    ansible_ssh_pass: password
+    rabbitmq_erlang_cookie: aachahl3Eelae1oe2oow8ooji
+    rabbitmq_loopback_users: none
+    rabbitmq_cluster_formation_peer_discovery_backend: classic_config
+    rabbitmq_cluster_formation_classic_config_nodes: "{{ query('inventory_hostnames', 'rabbitmq') | map('regex_replace', '^', 'rabbit@') | list }}"
+  roles:
+  - rabbitmq
+  - keepalived
+- hosts: nomad_servers
+  become: true
+  vars:
+    nomad_consul_enabled: yes
+    nomad_client__enabled: false
+    nomad_server__bootstrap_expect: 3
+    nomad_server__server_join__retry_join:
+      - 172.17.10.48
+      - 172.17.10.49
+      - 172.17.10.50
+    nomad_server__server_join__retry_max: 3
+    nomad_server__server_join__retry_interval: 15s 
+    consul_server: true
+    consul_bootstrap_expect: 3
+    consul_retry_join:
+      - 172.17.10.48
+      - 172.17.10.49
+      - 172.17.10.50
+    consul_unbound_enabled: true
+    dns_servers:
+      - 127.0.0.1
+  roles:
+  - dns
+  - nomad
+  - consul
+    #- vault
+- hosts: nomad_clients
+  become: true
+  vars:
+    nomad_consul_enabled: yes
+    nomad_server__enabled: false
+    nomad_client__servers:
+      - 172.17.10.48
+      - 172.17.10.49
+      - 172.17.10.50
+    consul_server: false
+    consul_retry_join:
+      - 172.17.10.48
+      - 172.17.10.49
+      - 172.17.10.50
+    consul_unbound_enabled: true
+    dns_servers:
+      - 127.0.0.1
+    vault_agent_enabled: true
+  roles:
+  - dns
+  #- podman
+  - docker
+  - nomad
+  - consul
+    #- vault
