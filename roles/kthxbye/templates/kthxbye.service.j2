@@ -1,0 +1,20 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Kthxbye
+Wants=network-online.target
+After=network-online.target
+After=alertmanager.service
+ 
+[Service]
+Type=simple
+User={{ kthxbye_user }}
+Group={{ kthxbye_group }}
+WorkingDirectory={{ kthxbye_etc_path }}
+ExecStart={{ kthxbye_bin_path }}/kthxbye \
+{% if kthxbye_listen %}
+  -listen={{ kthxbye_listen }}
+{% endif %}
+ 
+[Install]
+WantedBy=multi-user.target

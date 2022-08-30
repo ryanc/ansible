@@ -1,0 +1,6 @@
+---
+- name: restart kthxbye
+  systemd:
+    name: kthxbye.service
+    daemon_reload: true
+    state: restarted

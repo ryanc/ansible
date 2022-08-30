@@ -1,0 +1,30 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ kthxbye_release_url }}"
+      dest: "{{ kthxbye_download_path }}"
+      checksum: "{{ kthxbye_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ kthxbye_download_path }}"
+      dest: "{{ kthxbye_unarchive_dest_path }}"
+      creates: "{{ kthxbye_extracted_path }}"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ kthxbye_extracted_path }}"
+      dest: "{{ kthxbye_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop: "{{ kthxbye_binaries }}"
+    notify: restart kthxbye
+  when: kthxbye_version != kthxbye_local_version

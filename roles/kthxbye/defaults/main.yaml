@@ -1,0 +1,47 @@
+---
+kthxbye_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+kthxbye_go_arch: "{{ kthxbye_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+kthxbye_sidecar_service_name: kthxbye-sidecar.service
+kthxbye_sidecar_service_enabled: true
+kthxbye_sidecar_service_state: started
+
+kthxbye_service_name: kthxbye.service
+kthxbye_service_enabled: true
+kthxbye_service_state: started
+
+kthxbye_version_regex: (.+)
+
+kthxbye_checksum_algo: sha512
+kthxbye_github_rel_path: prymitive/kthxbye
+kthxbye_github_project_url: "https://github.com/{{ kthxbye_github_rel_path }}"
+kthxbye_release_file: "kthxbye-{{ ansible_system | lower }}-{{ kthxbye_go_arch }}.tar.gz"
+kthxbye_release_url: "{{ kthxbye_github_project_url }}/releases/download/v{{ kthxbye_version }}/{{ kthxbye_release_file }}"
+kthxbye_checksum_url: "{{ kthxbye_github_project_url }}/releases/download/v{{ kthxbye_version }}/{{ kthxbye_checksum_algo }}sum.txt"
+kthxbye_download_path: "/tmp/{{ kthxbye_release_file }}"
+kthxbye_unarchive_dest_path: /tmp
+kthxbye_extracted_path: "{{ kthxbye_download_path | replace('.tar.gz', '') }}"
+kthxbye_binaries:
+ - kthxbye
+
+kthxbye_user: kthxbye
+kthxbye_user_state: present
+kthxbye_user_shell: /usr/sbin/nologin
+
+kthxbye_group: kthxbye
+kthxbye_group_state: "{{ kthxbye_user_state | default('present') }}"
+
+kthxbye_etc_path: /etc/kthxbye
+kthxbye_etc_owner: root
+kthxbye_etc_group: root
+kthxbye_etc_mode: "0755"
+
+kthxbye_var_path: /var/lib/kthxbye
+kthxbye_var_owner: "{{ kthxbye_user }}"
+kthxbye_var_group: "{{ kthxbye_group }}"
+kthxbye_var_mode: "0755"
+
+kthxbye_bin_path: /usr/local/bin

@@ -1,0 +1,47 @@
+---
+- name: create group
+  group:
+    name: "{{ kthxbye_group }}"
+    system: true
+    state: "{{ kthxbye_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ kthxbye_user }}"
+    system: true
+    shell: "{{ kthxbye_user_shell }}"
+    group: "{{ kthxbye_group }}"
+    createhome: false
+    home: "{{ kthxbye_var_path }}"
+    state: "{{ kthxbye_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ kthxbye_etc_path }}"
+    state: directory
+    owner: "{{ kthxbye_etc_owner }}"
+    group: "{{ kthxbye_etc_group }}"
+    mode: "{{ kthxbye_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ kthxbye_var_path }}"
+    state: directory
+    owner: "{{ kthxbye_var_owner }}"
+    group: "{{ kthxbye_var_group }}"
+    mode: "{{ kthxbye_var_mode }}"
+
+- name: configure systemd template
+  template:
+    src: kthxbye.service.j2
+    dest: /etc/systemd/system/kthxbye.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart kthxbye
+
+- name: manage service
+  service:
+    name: "{{ kthxbye_service_name }}"
+    enabled: "{{ kthxbye_service_enabled }}"
+    state: "{{ kthxbye_service_state }}"

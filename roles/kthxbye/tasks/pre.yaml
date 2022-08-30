@@ -1,0 +1,54 @@
+---
+- name: determine if installed
+  stat:
+    path: "{{ kthxbye_bin_path }}/kthxbye"
+  register: st
+
+- name: set kthxbye_installed
+  set_fact:
+    kthxbye_installed: "{{ st.stat.exists | bool }}"
+
+- block:
+  - name: determine latest version
+    uri:
+      url: "https://api.github.com/repos/{{ kthxbye_github_rel_path }}/releases/latest"
+      return_content: true
+      body_format: json
+    register: _latest_version
+    until: _latest_version.status == 200
+    retries: 3
+
+  - name: set kthxbye_version
+    set_fact:
+      kthxbye_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+
+- block:
+  - name: determine installed version
+    command: "{{ kthxbye_bin_path }}/kthxbye --version"
+    register: _installed_version_string
+    changed_when: false
+
+  - name: set kthxbye_local_version
+    set_fact:
+      kthxbye_local_version: "{{ _installed_version_string.stdout | regex_search(kthxbye_version_regex, '\\1') | first }}"
+  rescue:
+  - name: set kthxbye_local_version
+    set_fact:
+      kthxbye_local_version: "{{ _installed_version_string.stderr | regex_search(kthxbye_version_regex, '\\1') | first }}"
+  when: kthxbye_installed
+
+- name: set kthxbye_local_version to 0
+  set_fact:
+    kthxbye_local_version: "0"
+  when: not kthxbye_installed
+
+- block:
+  - name: get checksums
+    set_fact:
+      _checksums: "{{ lookup('url', kthxbye_checksum_url, wantlist=True) }}"
+
+  - name: set kthxbye_checksum
+    set_fact:
+      kthxbye_checksum: "sha512:{{ item.split(' ') | first }}"
+    loop: "{{ _checksums }}"
+    when: "kthxbye_release_file in item"
