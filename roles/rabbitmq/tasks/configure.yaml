@@ -1,0 +1,28 @@
+---
+- name: configure erlang cookie
+  copy:
+    dest: "{{ rabbitmq_erlang_cookie_path }}"
+    owner: "{{ rabbitmq_erlang_cookie_onwer }}"
+    group: "{{ rabbitmq_erlang_cookie_group }}"
+    mode: "{{ rabbitmq_erlang_cookie_mode }}"
+    content: "{{ rabbitmq_erlang_cookie }}"
+  when: rabbitmq_erlang_cookie | length
+  notify: restart rabbitmq
+
+- name: configure
+  template:
+    src: rabbitmq.conf.j2
+    dest: "{{ rabbitmq_config_path }}"
+  notify: restart rabbitmq
+
+- name: register enabled plugins
+  command: rabbitmq-plugins list --enabled --minimal
+  changed_when: false
+  register: rabbitmq_enabled_plugins
+
+- name: enable plugins
+  command: "rabbitmq-plugins enable {{ item }}"
+  loop: "{{ rabbitmq_plugins_enabled }}"
+  when:
+    - item not in rabbitmq_enabled_plugins.stdout_lines[1:]
+

@@ -1,0 +1,28 @@
+---
+rabbitmq_package_name: rabbitmq-server
+rabbitmq_package_state: present
+
+rabbitmq_service_name: rabbitmq-server
+rabbitmq_service_state: started
+rabbitmq_service_enabled: true
+
+rabbitmq_plugins_enabled:
+  - rabbitmq_management
+  - rabbitmq_prometheus
+
+rabbitmq_etc_path: /etc/rabbitmq
+rabbitmq_var_path: /var/lib/rabbitmq
+rabbitmq_config_path: "{{ rabbitmq_etc_path }}/rabbitmq.conf"
+
+rabbitmq_erlang_cookie_path: "{{ rabbitmq_var_path }}/.erlang.cookie"
+rabbitmq_erlang_cookie_onwer: rabbitmq
+rabbitmq_erlang_cookie_group: rabbitmq
+rabbitmq_erlang_cookie_mode: "0400"
+rabbitmq_erlang_cookie: ""
+
+rabbitmq_loopback_users:
+
+# rabbitmq_cluster_formation_peer_discovery_backend: classic_config
+# rabbitmq_cluster_formation_classic_config_nodes: []
+
+rabbitmq_vm_memory_high_watermark_relative:

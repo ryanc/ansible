@@ -1,0 +1,26 @@
+---
+- name: add erlang yum repo
+  yum_repository:
+    name: rabbitmq_erlang
+    baseurl: https://packagecloud.io/rabbitmq/erlang/el/$releasever/$basearch
+    repo_gpgcheck: yes 
+    gpgcheck: no
+    enabled: yes 
+    gpgkey: https://packagecloud.io/rabbitmq/erlang/gpgkey
+    sslverify: yes 
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: "300"
+    description: RabbitMQ Erlang Yum repo
+
+- name: add rabbitmq yum repo
+  yum_repository:
+    name: rabbitmq_rabbitmq-server
+    baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/$releasever/$basearch
+    repo_gpgcheck: true
+    gpgcheck: false
+    enabled: true
+    gpgkey: https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: "300"
+    description: RabbitMQ Yum repo
