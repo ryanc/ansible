@@ -1,0 +1,56 @@
+---
+- name: create group
+  group:
+    name: "{{ alertmanager_group }}"
+    system: true
+    state: "{{ alertmanager_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ alertmanager_user }}"
+    system: true
+    shell: "{{ alertmanager_user_shell }}"
+    group: "{{ alertmanager_group }}"
+    createhome: false
+    home: "{{ alertmanager_var_path }}"
+    state: "{{ alertmanager_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ alertmanager_etc_path }}"
+    state: directory
+    owner: "{{ alertmanager_etc_owner }}"
+    group: "{{ alertmanager_etc_group }}"
+    mode: "{{ alertmanager_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ alertmanager_var_path }}"
+    state: directory
+    owner: "{{ alertmanager_var_owner }}"
+    group: "{{ alertmanager_var_group }}"
+    mode: "{{ alertmanager_var_mode }}"
+
+- name: configure
+  copy:
+    dest: "{{ alertmanager_etc_path }}/alertmanager.yaml"
+    content: "{{ (alertmanager_config | default({})) | to_nice_yaml }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart alertmanager
+
+- name: configure systemd template
+  template:
+    src: alertmanager.service.j2
+    dest: /etc/systemd/system/alertmanager.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart alertmanager
+
+- name: manage service
+  service:
+    name: "{{ alertmanager_service_name }}"
+    enabled: "{{ alertmanager_service_enabled }}"
+    state: "{{ alertmanager_service_state }}"

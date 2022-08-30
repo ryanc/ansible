@@ -1,0 +1,32 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ alertmanager_release_url }}"
+      dest: "{{ alertmanager_download_path }}"
+      checksum: "{{ alertmanager_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ alertmanager_download_path }}"
+      dest: "{{ alertmanager_unarchive_dest_path }}"
+      creates: "{{ alertmanager_extracted_path }}/alertmanager"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ alertmanager_extracted_path }}/{{ item }}"
+      dest: "{{ alertmanager_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - alertmanager
+      - amtool
+    notify: restart alertmanager
+  when: alertmanager_version != alertmanager_local_version

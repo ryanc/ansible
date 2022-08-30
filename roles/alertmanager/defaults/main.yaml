@@ -1,0 +1,52 @@
+---
+alertmanager_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+alertmanager_go_arch: "{{ alertmanager_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+alertmanager_service_name: alertmanager.service
+alertmanager_service_enabled: true
+alertmanager_service_state: started
+
+alertmanager_version_regex: ^alertmanager, version ([\d.]+)
+
+alertmanager_github_project_url: https://github.com/prometheus/alertmanager
+alertmanager_release_file: "alertmanager-{{ alertmanager_version }}.{{ ansible_system | lower }}-{{ alertmanager_go_arch }}.tar.gz"
+alertmanager_release_url: "{{ alertmanager_github_project_url }}/releases/download/v{{ alertmanager_version }}/{{ alertmanager_release_file }}"
+alertmanager_checksum_url: "{{ alertmanager_github_project_url }}/releases/download/v{{ alertmanager_version }}/sha256sums.txt"
+alertmanager_download_path: "/tmp/{{ alertmanager_release_file }}"
+alertmanager_unarchive_dest_path: /tmp
+alertmanager_extracted_path: "{{ alertmanager_download_path | replace('.tar.gz', '') }}"
+
+alertmanager_user: alertmanager
+alertmanager_user_state: present
+alertmanager_user_shell: /usr/sbin/nologin
+
+alertmanager_group: alertmanager
+alertmanager_group_state: "{{ alertmanager_user_state | default('present') }}"
+
+alertmanager_etc_path: /etc/alertmanager
+alertmanager_etc_owner: root
+alertmanager_etc_group: root
+alertmanager_etc_mode: "0755"
+
+alertmanager_var_path: /var/lib/alertmanager
+alertmanager_var_owner: "{{ alertmanager_user }}"
+alertmanager_var_group: "{{ alertmanager_group }}"
+alertmanager_var_mode: "0755"
+
+alertmanager_bin_path: /usr/local/bin
+
+alertmanager_web_listen_address: 0.0.0.0:9093
+alertmanager_port: "{{ alertmanager_web_listen_address.split(':')[1] }}"
+alertmanager_web_external_url:
+alertmanager_web_route_prefix:
+alertmanager_cluster_advertise_address: 0.0.0.0:9093
+
+alertmanager_config:
+  route:
+    routes:
+      receiver: dummy
+  receivers:
+    - name: dummy

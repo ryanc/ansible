@@ -1,0 +1,26 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Alertmanager
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ alertmanager_user }}
+Group={{ alertmanager_group }}
+ExecStart={{ alertmanager_bin_path }}/alertmanager \
+  --config.file={{ alertmanager_etc_path }}/alertmanager.yaml \
+  --storage.path={{ alertmanager_var_path }} \
+  --cluster.advertise-address={{ alertmanager_cluster_advertise_address }} \
+{% if alertmanager_web_external_url %}
+  --web.external-url={{ alertmanager_web_external_url }} \
+{% endif %}
+{% if alertmanager_web_route_prefix %}
+  --web.route-prefix={{ alertmanager_web_route_prefix }} \
+{% endif %}
+{% if alertmanager_web_listen_address %}
+  --web.listen-address={{ alertmanager_web_listen_address }} \
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target
