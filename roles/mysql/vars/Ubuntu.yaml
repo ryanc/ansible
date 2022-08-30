@@ -1,0 +1,4 @@
+---
+mysql_package_name: 'mysql-server'
+
+# vim:ft=yaml.ansible:

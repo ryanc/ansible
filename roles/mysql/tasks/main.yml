@@ -1,0 +1,39 @@
+---
+- name: gather OS distribution version specific variables
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+
+- name: gather OS distribution specific variables
+  include_vars: "{{ ansible_distribution }}.yaml"
+
+- name: gather OS family specific variables
+  include_vars: "{{ ansible_os_family }}.yaml"
+
+- name: manage mysql package
+  package:
+    name: "{{ mysql_package_name }}"
+    state: "{{ mysql_package_state }}"
+
+- name: create datadir
+  file:
+    path: "{{ mysql_config.mysqld.datadir }}"
+    owner: "{{ mysql_datadir_owner }}"
+    group: "{{ mysql_datadir_group }}"
+    mode: "{{ mysql_datadir_mode }}"
+    state: directory
+
+- name: initialize mysql
+  command: "mysqld --initialize --log-error={{ mysql_initialize_log_error }}"
+  args:
+    creates: "{{ mysql_config.mysqld.datadir }}/mysql"
+
+- name: configure mysql
+  template:
+    src: my.cnf.j2
+    dest: "{{ mysql_cfg_path }}"
+  notify: restart mysql
+
+- name: manage mysql service
+  service:
+    name: "{{ mysql_service_name }}"
+    state: "{{ mysql_service_state }}"
+    enabled: "{{ mysql_service_enabled }}"

@@ -1,0 +1,57 @@
+---
+mysql_package_state: 'present'
+
+mysql_service_name: 'mysql'
+mysql_service_state: 'started'
+mysql_service_enabled: yes
+
+mysql_initialize_log_error: /var/tmp/mysqld_initialize.log
+
+mysql_cfg_path: /etc/my.cnf
+
+mysql_datadir_owner: mysql
+mysql_datadir_group: mysql
+mysql_datadir_mode: 0700
+
+mysql_config:
+  mysql:
+    port: 3306
+    socket: /var/run/mysqld/mysqld.sock
+  mysqld:
+    basedir: /usr
+    bind_address: 127.0.0.1
+    datadir: /var/lib/mysql
+    default_storage_engine: InnoDB
+    innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * 0.25) | int }}M"
+    innodb_file_per_table: 1
+    innodb_flush_log_at_trx_commit: 1
+    innodb_flush_method: O_DIRECT
+    innodb_log_file_size: 128M
+    innodb_log_files_in_group: 2
+    key_buffer_size: 16M
+    log_error: /var/log/mysql/mysql-error.log
+    log_queries_not_using_indexes: 1
+    max_allowed_packet: 16M
+    max_connect_errors: 1000000
+    max_connections: 100
+    max_heap_table_size: 32M
+    myisam_recover_options: FORCE,BACKUP
+    open_files_limit: 65535
+    pid_file: /var/run/mysqld/mysqld.pid
+    query_cache_size: 0
+    query_cache_type: 0
+    slow_query_log: 1
+    slow_query_log_file: /var/log/mysql/mysql-slow.log
+    socket: /var/run/mysqld/mysqld.sock
+    table_definition_cache: 4096
+    table_open_cache: 300
+    thread_cache_size: 16
+    tmp_table_size: 32M
+    tmpdir: /tmp
+    user: mysql
+  mysqld_safe:
+    nice: 0
+    socket: /var/run/mysqld/mysqld.sock
+    syslog: ~
+
+# vim:ft=yaml.ansible:

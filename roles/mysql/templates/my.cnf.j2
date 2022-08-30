@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+{% for section, cfg in mysql_config.iteritems() | sort %}
+
+[{{section}}]
+{% for k, v in cfg.iteritems() | sort %}
+{% if k is defined and v is not none %}
+{{ k }} = {{ v }}
+{% elif k and v is none %}
+{{ k }}
+{% endif %}
+{% endfor %}
+{% endfor %}

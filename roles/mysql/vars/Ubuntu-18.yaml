@@ -1,0 +1,5 @@
+---
+mysql_service_name: 'mysql.service'
+mysql_cfg_path: /etc/mysql/my.cnf
+
+# vim:ft=yaml.ansible:
