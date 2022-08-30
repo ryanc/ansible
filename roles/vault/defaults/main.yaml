@@ -1,0 +1,41 @@
+---
+vault_package_name: vault
+vault_package_state: present
+vault_service_name: vault
+vault_service_state: started
+vault_service_enabled: true
+vault_etc_path: /etc/vault.d
+vault_config_path: "{{ vault_etc_path }}/vault.hcl"
+vault_config_template: vault.hcl.j2
+vault_user: vault
+vault_group: vault
+vault_config_owner: "{{ vault_user }}"
+vault_config_group: "{{ vault_group }}"
+vault_config_mode: 0644
+vault_data_dir: /opt/vault
+vault_bind_addr: 0.0.0.0
+vault_server: false
+vault_bootstrap_expect: 1
+vault_ui_config_enabled: true
+vault_client_addr: 0.0.0.0
+
+vault_agent_enabled: false
+
+ #vault_disable_mlock: true
+#vault_api_addr: http://[::]:8200
+#vault_cluster_addr: https://[::]:8200
+#vault_ui: true
+
+vault_listener:
+ - tls_disable: true
+
+#vault_storage:
+#  consul:
+#    address: "127.0.0.1:8500"
+#    path: "vault"
+
+vault_storage:
+  consul:
+
+vault_seal_transit:
+  address:

@@ -1,0 +1,31 @@
+# {{ ansible_managed }}
+
+{% if vault_agent_enabled %}
+{% else %}
+disable_mlock = {{ (vault_disable_mlock | default(true)) | bool | lower }}
+api_addr = "{{ vault_api_addr | default('http://' + ansible_default_ipv4.address + ':8200') }}"
+cluster_addr = "{{ vault_cluster_addr | default('https://' + ansible_default_ipv4.address + ':8201') }}"
+ui = {{ (vault_ui | default(true)) | bool | lower }}
+
+{% if vault_storage.consul is defined %}
+storage "consul" {
+  address = "{{ vault_storage.consul.address | default('127.0.0.1:8500') }}"
+  path = "{{ vault_storage.consul.path | default('vault/') }}"
+}
+{% endif %}
+
+{% for l in vault_listener %}
+listener "{{ l.proto | default('tcp') }}" {
+  address = "{{ l.address | default('[::]:8200') }}"
+  tls_disable = {{ (l.tls_disable | default(false)) | bool | lower }}
+}
+{% endfor %}
+
+#seal "transit" {
+#  address = "http://127.0.0.1:8200"
+#  disable_renewal = "false"
+#  key_name = "autounseal"
+#  mount_path = "transit/"
+#  tls_skip_verify = "true"
+#}
+{% endif %}

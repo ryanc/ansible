@@ -1,0 +1,46 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: install
+  package:
+    name: "{{ vault_package_name | default('vault') }}"
+    state: "{{ vault_package_state | default('present') }}"
+
+- name: configure
+  template:
+    src: "{{ vault_config_template }}"
+    dest: "{{ vault_config_path }}"
+    owner: "{{ vault_config_owner }}"
+    group: "{{ vault_config_group }}"
+    mode: "{{ vault_config_mode }}"
+  notify: restart vault
+  when: not vault_agent_enabled
+
+- name: service
+  service:
+    name: "{{ vault_service_name | default('vault') }}"
+    state: "{{ vault_service_state | default('started') }}"
+    enabled: "{{ vault_service_enabled | default(true) }}"
+  when: not vault_agent_enabled

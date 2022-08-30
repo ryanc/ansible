@@ -1,0 +1,12 @@
+---
+- name: reload vault
+  service:
+    name: "{{ vault_service_name }}"
+    state: reloaded
+  when: vault_service_enabled
+
+- name: restart vault
+  service:
+    name: "{{ vault_service_name }}"
+    state: restarted
+  when: vault_service_enabled
