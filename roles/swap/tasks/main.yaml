@@ -1,0 +1,15 @@
+---
+- name: manage swap
+  command: swapoff -a
+  when: not swap_enabled
+
+- name: manage swapfile
+  file:
+    path: "{{ swap_file_path }}"
+    state: absent
+
+- name: manage fstab
+  lineinfile:
+    path: /etc/fstab
+    regexp: swap
+    state: absent
