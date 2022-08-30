@@ -68,7 +68,7 @@
     minute: "0"
     hour: "1"
     user: root
-    job: find /var/log/syslog/ -mindepth 4 -type f -name "*.log" -mtime +5 -exec xz {} \;
+    job: find /var/log/syslog/ -mindepth 4 -type f -name "*.log" ! -newerct 00:00:00 -exec nice xz -f {} \;
     state: "{{ rsyslog_archival_format_enabled | ternary('present', 'absent') }}"
 
 - name: purge log cron job
