@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+{% for k, v in item.value.items() %}
+{% if v is string %}
+{{ k }} {{ v }}
+{% elif v is sequence %}
+{% for vv in v %}
+{{ k }} {{ vv | quote if k == "push" else vv }}
+{% endfor %}
+{% elif v is not defined %}
+{{ k }}
+{% else %}
+{{ k }} {{ v }}
+{% endif %}
+{% endfor %}

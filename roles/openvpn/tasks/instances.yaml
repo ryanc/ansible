@@ -1,0 +1,76 @@
+---
+- set_fact:
+    instance_path: "{{ openvpn_etc_path }}/{{ instance }}"
+    openvpn_instance: "{{ instance }}"
+
+- name: openvpn static keys
+  copy:
+    dest: "{{ instance_path }}/{{ item.key }}"
+    content: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ openvpn_static_keys[instance] | dict2items }}"
+  no_log: true
+  notify: restart openvpn instance
+
+- name: openvpn dh params
+  copy:
+    dest: "{{ instance_path }}/{{ item.key }}"
+    content: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ openvpn_dh_params[instance] | default({}) | dict2items }}"
+  notify: restart openvpn instance
+
+- name: openvpn private_keys
+  copy:
+    dest: "{{ instance_path }}/{{ item.key }}"
+    content: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ openvpn_private_keys[instance] | dict2items }}"
+  no_log: true
+  notify: restart openvpn instance
+
+- name: openvpn certificates
+  copy:
+    dest: "{{ instance_path }}/{{ item.key }}"
+    content: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ openvpn_certificates[instance] | dict2items }}"
+  notify: restart openvpn instance
+
+- name: configure openvpn
+  template:
+    src: openvpn.conf.j2
+    dest: "{{ instance_path }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart openvpn instance
+
+- name: mkdir ccd
+  file:
+    path: "{{ instance_path }}/ccd"
+    state: directory
+
+- name: configure ccd
+  template:
+    src: ccd.j2
+    dest: "{{ instance_path }}/ccd/{{ item.key }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ openvpn_ccd[instance] | default({}) | dict2items }}"
+  notify: restart openvpn instance
+
+- name: "manage openvpn@{{ instance }} service"
+  service:
+    name: "{{ openvpn_service_name }}@{{ instance }}"
+    state: "{{ openvpn_service_state }}"
+    enabled: "{{ openvpn_service_enabled }}"

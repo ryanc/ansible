@@ -1,0 +1,17 @@
+---
+openvpn_package_name: openvpn
+openvpn_package_state: present
+
+openvpn_service_name: openvpn
+openvpn_service_state: started
+openvpn_service_enabled: true
+
+openvpn_etc_path: /etc/openvpn
+
+openvpn_config: {}
+openvpn_dh_params: {}
+openvpn_static_keys: {}
+openvpn_private_keys: {}
+openvpn_certificates: {}
+
+openvpn_ip_forward: 0

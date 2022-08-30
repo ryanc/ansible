@@ -1,0 +1,52 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- name: "install {{ openvpn_package_name }}"
+  package:
+    name: "{{ openvpn_package_name }}"
+    state: "{{ openvpn_package_state }}"
+
+
+- name: "manage instances {{ item }}"
+  include: instances.yaml
+  loop: "{{ openvpn_config.keys() | list }}"
+  loop_control:
+    loop_var: instance
+
+- name: configure IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "{{ openvpn_ip_forward | default(0) }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: configure IPv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "{{ openvpn_ip_forward | default(0) }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
