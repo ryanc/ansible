@@ -7,6 +7,7 @@ util_package_state: latest
 util_packages:
   editors:
     - vim
+    - neovim
   devel:
     - git
     - mercurial

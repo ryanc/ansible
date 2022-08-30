@@ -8,3 +8,8 @@
   apt_repository:
     repo: ppa:git-core/ppa
     state: "{{ util_git_ppa_state }}"
+
+- name: add neovim ppa
+  apt_repository:
+    repo: ppa:neovim-ppa/stable
+    state: present
