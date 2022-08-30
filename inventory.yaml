@@ -1,7 +1,72 @@
 ---
-pi:
+all:
   hosts:
-    pi:
+    mine0.kill0.net:
+    jump0.kill0.net:
+    localhost:
       ansible_connection: local
+  children:
+    minecraft_servers:
+      hosts:
+        mine0.kill0.net:
+    jump_servers:
+      hosts:
+        jump0.kill0.net
+    git_servers:
+      hosts:
+        jump0.kill0.net
+    stats_servers:
+      hosts:
+        jump0.kill0.net
+    monitor_servers:
+      hosts:
+        jump0.kill0.net
+    name_servers:
+      hosts:
+        jump0.kill0.net
+    linode:
+      hosts:
+        mine0.kill0.net:
+        jump0.kill0.net:
+    rabbitmq_servers:
+      hosts:
+        rmq1:
+          ansible_host: 10.100.100.16
+        rmq2:
+          ansible_host: 10.100.100.17
+        rmq3:
+          ansible_host: 10.100.100.18
+    k8s_servers:
+      hosts:
+        k1:
+          ansible_host: 10.100.100.32
+        k2:
+          ansible_host: 10.100.100.33
+        k3:
+          ansible_host: 10.100.100.34
+    nomad_servers:
+      hosts:
+        nomad1:
+          ansible_host: 172.17.10.48
+        nomad2:
+          ansible_host: 172.17.10.49
+        nomad3:
+          ansible_host: 172.17.10.50
+    nomad_clients:
+      hosts:
+        worker1:
+          ansible_host: 172.17.10.51
+        worker2:
+          ansible_host: 172.17.10.52
+        worker3:
+          ansible_host: 172.17.10.53
+        worker4:
+          ansible_host: 172.17.10.54
+        worker5:
+          ansible_host: 172.17.10.55
+    nomad:
+      children:
+        nomad_servers:
+        nomad_clients:
 
 # vim:ft=yaml.ansible:
