@@ -62,3 +62,4 @@
     name: "{{ telegraf_service_name }}"
     state: "{{ telegraf_service_state }}"
     enabled: "{{ telegraf_service_enabled }}"
+  when: telegraf_package_state != "absent"
