@@ -43,6 +43,7 @@ util_packages:
     - p7zip-full
     - pigz
     - pxz
+    - zstd
     - pbzip2
     - pv
     - htop
