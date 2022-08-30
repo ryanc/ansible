@@ -45,10 +45,10 @@ telegraf_config_inputs:
   ipset: []
   iptables:
     - table: filter
-      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD", "LIMIT_SSH" ]
+      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD" ]
     - table: filter
       name_override: ip6tables
-      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD", "LIMIT_SSH" ]
+      chains: [ "INPUT", "OUTPUT", "FORWARD", "LOG_DROP", "LOG_ACCEPT", "ICMP_FLOOD" ]
   kernel_vmstat: []
   net: []
   netstat: []
