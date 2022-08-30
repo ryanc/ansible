@@ -1,0 +1,48 @@
+---
+- name: create group
+  group:
+    name: "{{ loki_group }}"
+    system: true
+    state: "{{ loki_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ loki_user }}"
+    system: true
+    shell: "{{ loki_user_shell }}"
+    group: "{{ loki_group }}"
+    createhome: false
+    home: "{{ loki_var_path }}"
+    state: "{{ loki_user_state | default('present') }}"
+
+- name: configure
+  template:
+    src: loki.yaml.j2
+    dest: "{{ loki_config_path }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart loki
+
+- name: create var path
+  file:
+    path: "{{ loki_var_path }}"
+    state: directory
+    owner: "{{ loki_var_owner }}"
+    group: "{{ loki_var_group }}"
+    mode: "{{ loki_var_mode }}"
+
+- name: configure systemd template
+  template:
+    src: "{{ loki_service_name }}.j2"
+    dest: "/etc/systemd/system/{{ loki_service_name }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart loki
+
+- name: manage service
+  service:
+    name: "{{ loki_service_name }}"
+    enabled: "{{ loki_service_enabled }}"
+    state: "{{ loki_service_state }}"

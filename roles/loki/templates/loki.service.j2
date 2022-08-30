@@ -1,0 +1,19 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Loki
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ loki_user }}
+Group={{ loki_group }}
+ExecStart={{ loki_bin_path }}/loki \
+  -config.file {{ loki_config_path }}
+WorkingDirectory={{ loki_var_path }}
+
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

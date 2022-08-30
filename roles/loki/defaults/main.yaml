@@ -1,0 +1,74 @@
+---
+loki_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+loki_go_arch: "{{ loki_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+loki_service_name: loki.service
+loki_service_enabled: true
+loki_service_state: started
+
+loki_version_regex: ^loki, version ([\d.]+)
+
+loki_github_project_url: https://github.com/grafana/loki
+loki_release_file: "loki-{{ ansible_system | lower }}-{{ loki_go_arch }}.zip"
+loki_release_url: "{{ loki_github_project_url }}/releases/download/v{{ loki_version }}/{{ loki_release_file }}"
+loki_checksum_url: "{{ loki_github_project_url }}/releases/download/v{{ loki_version }}/SHA256SUMS"
+loki_download_path: "/tmp/{{ loki_release_file }}"
+loki_unarchive_dest_path: /tmp
+loki_extracted_path: "{{ loki_download_path | replace('.zip', '') }}"
+
+loki_user: loki
+loki_user_state: present
+loki_user_shell: /usr/sbin/nologin
+
+loki_group: loki
+loki_group_state: "{{ loki_user_state | default('present') }}"
+
+loki_config_path: /etc/loki.yaml
+
+loki_var_path: /var/lib/loki
+loki_var_owner: "{{ loki_user }}"
+loki_var_group: "{{ loki_group }}"
+loki_var_mode: "0755"
+
+loki_bin_path: /usr/local/bin
+
+loki_auth_enabled: false
+
+loki_server:
+  http_listen_port: 3100
+
+loki_ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+
+loki_schema_config:
+  configs:
+  - from: 2020-05-15
+    store: boltdb
+    object_store: filesystem
+    schema: v11
+    index:
+      prefix: index_
+      period: 168h
+
+loki_storage_config:
+  boltdb:
+    directory: "{{ loki_var_path }}/index"
+  filesystem:
+    directory: "{{ loki_var_path }}/chunks"
+
+loki_limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  ingestion_burst_size_mb: 16

@@ -1,0 +1,29 @@
+---
+- block:
+  - name: download archive
+    get_url:
+      url: "{{ loki_release_url }}"
+      dest: "{{ loki_download_path }}"
+      checksum: "{{ loki_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract archive
+    unarchive:
+      src: "{{ loki_download_path }}"
+      dest: "{{ loki_unarchive_dest_path }}"
+      creates: "{{ loki_extracted_path }}/loki"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ loki_extracted_path }}"
+      dest: "{{ loki_bin_path }}/loki"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    notify: restart loki
+  when: loki_version != loki_local_version
