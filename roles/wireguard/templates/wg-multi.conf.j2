@@ -1,0 +1,49 @@
+{%- macro render_interface(i) %}
+[Interface]
+{%   if "private_key" in i %}
+PrivateKey = {{ i.private_key }}
+{%   endif %}
+{%   if "address" in i %}
+{%     if i.address is string %}
+Address = {{ i.address }}
+{%     elif i.address is sequence %}
+{%       for address in i.address %}
+Address = {{ address }}
+{%       endfor %}
+{%     endif %}
+{%   endif %}
+{%   if "listen_port" in i %}
+ListenPort = {{ i.listen_port }}
+{%   endif %}
+{% endmacro -%}
+
+{%- macro render_peer(p) %}
+{%   if "comment" in p %}
+# {{ p.comment }}
+{%   endif %}
+[Peer]
+{%   if "public_key" in p %}
+PublicKey = {{ p.public_key }}
+{%   endif %}
+{%   if "endpoint" in p %}
+Endpoint = {{ p.endpoint }}
+{%   endif %}
+{%   if "allowed_ips" in p %}
+{%     if p.allowed_ips is string %}
+AllowedIPs = {{ p.allowed_ips }}
+{%     elif p.allowed_ips is sequence %}
+AllowedIPs = {{ p.allowed_ips | join(', ') }}
+{%     endif %}
+{%   endif %}
+{% endmacro -%}
+
+{% if wireguard_interfaces[_wireguard_interface] and
+      wireguard_interfaces[_wireguard_interface] is mapping %}
+{{   render_interface(wireguard_interfaces[_wireguard_interface]) }}
+{% endif %}
+{% if wireguard_peers[_wireguard_interface] and
+      wireguard_peers[_wireguard_interface] is sequence %}
+{%   for peer in wireguard_peers[_wireguard_interface] %}
+{{     render_peer(peer) }}
+{%   endfor %}
+{% endif %}

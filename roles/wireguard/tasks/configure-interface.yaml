@@ -1,0 +1,15 @@
+---
+- name: configure interface
+  template:
+    src: wg-multi.conf.j2
+    dest: "{{ wireguard_etc_path }}/{{ _wireguard_interface }}.conf"
+    owner: root
+    group: root
+    mode: 0400
+  notify: restart wg-quick
+
+- name: manage service
+  service:
+    name: "{{ wireguard_service_name }}@{{ _wireguard_interface }}"
+    state: "{{ wireguard_service_state }}"
+    enabled: "{{ wireguard_service_enabled }}"

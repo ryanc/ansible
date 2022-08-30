@@ -1,0 +1,5 @@
+---
+- name: install package
+  package:
+    name: "{{ wireguard_package_name }}"
+    state: "{{ wireguard_package_state }}"

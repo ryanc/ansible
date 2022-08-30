@@ -1,0 +1,36 @@
+---
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- include: install.yaml
+
+#- include: configure.yaml
+
+- include: configure-interface.yaml
+  loop: "{{ wireguard_interfaces.keys() | list }}"
+  loop_control:
+    loop_var: _wireguard_interface
+  when:
+    - wireguard_interfaces is mapping
+    - wireguard_interfaces.keys() | length

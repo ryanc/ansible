@@ -1,0 +1,13 @@
+---
+wireguard_package_name: wireguard
+wireguard_package_state: present
+
+wireguard_service_name: "wg-quick"
+wireguard_service_state: started
+wireguard_service_enabled: true
+
+wireguard_etc_path: /etc/wireguard
+wireguard_port: 51820
+wireguard_interface: wg0
+
+wireguard_peers: {}
