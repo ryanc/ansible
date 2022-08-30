@@ -23,16 +23,31 @@
 -A LOG_DROP -p udp -m udp -m comment --comment "drop udp" -j DROP
 -A LOG_DROP -m comment --comment "reject all" -j REJECT --reject-with icmp-admin-prohibited
 
+{% if "wireguard" in ansible_play_role_names %}
+{%   for name, conf in wireguard_interfaces.items() %}
+-A INPUT -m udp -p udp --dport {{ conf.listen_port }} -m comment --comment "accept wireguard {{ conf.listen_port }}/udp" -j LOG_ACCEPT
+{%   endfor %}
+{%   for name, conf in wireguard_iptables.items() %}
+{%     if "input" in conf and conf.input %}
+-A INPUT -i {{ name }} -j LOG_ACCEPT
+{%     endif %}
+{%     if "dns" in conf and conf.dns %}
+-A INPUT -i {{ name }} -m tcp -p tcp --dport 53 -j LOG_ACCEPT
+-A INPUT -i {{ name }} -m udp -p udp --dport 53 -j LOG_ACCEPT
+{%     endif %}
+{%   endfor %}
+{% endif %}
+
 {% if firewall_limit_ssh %}
 -N LIMIT_SSH
--A LIMIT_SSH -p tcp -m tcp -m set --match-set cooloff_v4 src -m comment --comment "rate limit ssh 22/tcp" -j REJECT --reject-with tcp-reset
+-A LIMIT_SSH -p tcp -m tcp -m set --match-set cooloff4 src -m comment --comment "rate limit ssh 22/tcp" -j REJECT --reject-with tcp-reset
 -A LIMIT_SSH -m recent --set --name SSH --rsource
 {% if firewall_use_ulogd %}
 -A LIMIT_SSH -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j NFLOG --nflog-prefix "[iptables SSH BRUTE] "
 {% else %}
 -A LIMIT_SSH -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -m limit --limit {{ firewall_log_limit }} --limit-burst {{ firewall_log_limit_burst }} -j LOG --log-prefix "[iptables SSH BRUTE] " --log-level info
 {% endif %}
--A LIMIT_SSH -p tcp -m tcp -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -j SET --add-set cooloff_v4 src
+-A LIMIT_SSH -p tcp -m tcp -m recent --update --seconds {{ firewall_limit_ssh_seconds }} --hitcount {{ firewall_limit_ssh_hitcount }} --name SSH --rsource -j SET --add-set cooloff4 src
 -A LIMIT_SSH -j ACCEPT
 {% endif %}
 
@@ -48,34 +63,6 @@
 -A ICMP_FLOOD -j ACCEPT
 {% endif %}
 
-{% if firewall_dns_whitelist is defined and
-      firewall_dns_whitelist | length %}
--N ACCEPT_DNS
-{% for ip in firewall_dns_whitelist | ipv4 %}
--A ACCEPT_DNS -m tcp -p tcp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/tcp" -j LOG_ACCEPT
--A ACCEPT_DNS -m udp -p udp --dport 53 --source {{ ip }} -m comment --comment "accept {{ ip }} dns 53/udp" -j LOG_ACCEPT
-{% endfor %}
--A ACCEPT_DNS -m comment --comment "ACCEPT_DNS default drop" -j LOG_DROP
-{% endif %}
-
-{% if firewall_influx_whitelist is defined and
-      firewall_influx_whitelist | length %}
--N ACCEPT_INFLUX
-{% for ip in firewall_influx_whitelist | ipv4 %}
--A ACCEPT_INFLUX -m tcp -p tcp --dport 8086 --source {{ ip }} -m comment --comment "accept {{ ip }} influxdb 8086/tcp" -j LOG_ACCEPT
-{% endfor %}
--A ACCEPT_INFLUX -m comment --comment "ACCEPT_INFLUX default drop" -j LOG_DROP
-{% endif %}
-
-{% if firewall_syslog_whitelist is defined and
-      firewall_syslog_whitelist | length %}
--N ACCEPT_SYSLOG
-{% for ip in firewall_syslog_whitelist | ipv4 %}
--A ACCEPT_SYSLOG -m tcp -p tcp --dport 514 --source {{ ip }} -m comment --comment "accept {{ ip }} syslog 514/tcp" -j LOG_ACCEPT
-{% endfor %}
--A ACCEPT_SYSLOG -m comment --comment "ACCEPT_SYSLOG default drop" -j LOG_DROP
-{% endif %}
-
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
@@ -85,33 +72,15 @@
 {% endif %}
 
 {% if firewall_ipset_mgmt | length %}
--A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt_v4 src -m comment --comment "accept mgmt ssh 22/tcp" -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -m set --match-set mgmt4 src -m comment --comment "accept mgmt ssh 22/tcp" -j ACCEPT
 {% endif %}
 
-{% if firewall_dns_whitelist is defined and
-      firewall_dns_whitelist | length %}
--A INPUT -m tcp -p tcp --dport 53 -m comment --comment "accept dns 53/tcp" -j ACCEPT_DNS
--A INPUT -m udp -p udp --dport 53 -m comment --comment "accept dns 53/udp" -j ACCEPT_DNS
-{% endif %}
-
-{% if firewall_influx_whitelist is defined and
-      firewall_influx_whitelist | length %}
--A INPUT -m tcp -p tcp --dport 8086 -m comment --comment "accept influx 8086/tcp" -j ACCEPT_INFLUX
-{% endif %}
-
-{% if firewall_syslog_whitelist is defined and
-      firewall_syslog_whitelist | length %}
--A INPUT -m tcp -p tcp --dport 514 -m comment --comment "accept syslog 514/tcp" -j ACCEPT_SYSLOG
-{% endif %}
-
+-A INPUT -m set --match-set block4 src -m comment --comment "drop block4" -j LOG_DROP
+-A INPUT -m set --match-set gray4 src -m comment --comment "drop gray4" -j LOG_DROP
 -A INPUT -m state --state INVALID -m comment --comment "drop invalid" -j DROP
 
-{% if firewall_ipset_blacklist | length %}
--A INPUT -m set --match-set mgmt_v4 src -m comment --comment "drop blacklist" -j LOG_DROP
-{% endif %}
-
 {% if firewall_ipset_bogons | length %}
--A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons_v4 src,dst -m comment --comment "drop bogons" -j LOG_DROP
+-A INPUT -i {{ firewall_bogon_interface }} -m set --match-set bogons4 src,dst -m comment --comment "drop bogons" -j LOG_DROP
 {% endif %}
 
 -A INPUT -p icmp -m icmp --icmp-type destination-unreachable -m comment --comment "accept icmp destination-unreachable" -j ACCEPT
@@ -134,6 +103,33 @@
 -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp" -j LIMIT_SSH
 {% else %}
 -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW -m comment --comment "accept ssh 22/tcp" -j ACCEPT
+{% endif %}
+
+{% if firewall_ipset_node_exporter is defined %}
+-A INPUT -p tcp -m tcp --dport 9100 -m set --match-set node_exporter4 src -m comment --comment "accept node_exporter 9100/tcp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_blackbox_exporter is defined %}
+-A INPUT -p tcp -m tcp --dport 9115 -m set --match-set blackbox_exporter4 src -m comment --comment "accept blackbox_exporter 9115/tcp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_mtail is defined %}
+-A INPUT -p tcp -m tcp --dport 3903 -m set --match-set mtail4 src -m comment --comment "accept mtail 3903/tcp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_syslog is defined %}
+-A INPUT -p tcp -m tcp --dport 514 -m set --match-set syslog4 src -m comment --comment "accept syslog 514/tcp" -j LOG_ACCEPT
+-A INPUT -p udp -m udp --dport 514 -m set --match-set syslog4 src -m comment --comment "accept syslog 514/udp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_influxdb is defined %}
+-A INPUT -p tcp -m tcp --dport 8086 -m set --match-set influxdb4 src -m comment --comment "accept influxdb 8086/tcp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_dns is defined %}
+-A INPUT -p tcp -m tcp --dport 53 -m set --match-set dns4 src -m comment --comment "accept dns 53/tcp" -j LOG_ACCEPT
+-A INPUT -p udp -m udp --dport 53 -m set --match-set dns4 src -m comment --comment "accept dns 53/udp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_loki is defined %}
+-A INPUT -p tcp -m tcp --dport 3100 -m set --match-set loki4 src -m comment --comment "accept loki 3100/tcp" -j LOG_ACCEPT
+{% endif %}
+{% if firewall_ipset_promtail is defined %}
+-A INPUT -p tcp -m tcp --dport 9080 -m set --match-set promtail4 src -m comment --comment "accept promtail 9080/tcp" -j LOG_ACCEPT
 {% endif %}
 
 {% if firewall_allowed_tcp_ports | length %}
@@ -166,6 +162,14 @@
 
 -A INPUT -m comment --comment "default drop" -j LOG_DROP
 
+{% if "wireguard" in ansible_play_role_names %}
+{%   for name, conf in wireguard_iptables.items() %}
+{%     if "forward" in conf and conf.forward %}
+-A FORWARD -i {{ name }} -o eth0 -j ACCEPT
+{%      endif %}
+{%   endfor %}
+{% endif %}
+-A FORWARD -m state --state RELATED,ESTABLISHED -m comment --comment "accept related/established" -j ACCEPT
 -A FORWARD -m comment --comment "default forward drop" -j LOG_DROP
 
 -A OUTPUT -m comment --comment "default output accept" -j ACCEPT
@@ -180,4 +184,18 @@ COMMIT
 {% endif %}
 COMMIT
 
+*nat
+:PREROUTING ACCEPT -
+:INPUT ACCEPT -
+:OUTPUT ACCEPT -
+:POSTROUTING ACCEPT -
+
+{% if "wireguard" in ansible_play_role_names %}
+{%   for name, conf in wireguard_iptables.items() %}
+{%     if "nat" in conf %}
+-A POSTROUTING -o {{ conf.nat.out_iface }} -s {{ conf.nat.source }} -j MASQUERADE
+{%     endif %}
+{%   endfor %}
+{% endif %}
+COMMIT
 # vim: tw=0

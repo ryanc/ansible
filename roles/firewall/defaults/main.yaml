@@ -2,6 +2,7 @@
 firewall_iptables_rules_v4: /etc/iptables/rules.v4-tmp
 firewall_iptables_rules_v6: /etc/iptables/rules.v6-tmp
 
+firewall_ipset: /etc/iptables/ipset-tmp
 firewall_ipset_v4: /etc/iptables/ipset.v4-tmp
 firewall_ipset_v6: /etc/iptables/ipset.v6-tmp
 
@@ -68,7 +69,7 @@ firewall_log_limit: 3/min
 firewall_log_limit_burst: 10
 
 firewall_limit_ssh: true
-firewall_limit_ssh_seconds: 60
+firewall_limit_ssh_seconds: 600
 firewall_limit_ssh_hitcount: 10
 
 firewall_bogon_interface: "{{ ansible_default_ipv4.interface }}"

@@ -8,10 +8,30 @@ add {{ name }} {{ ip_or_net }}
 {% endif %}
 {% endmacro %}
 
-{{ render_ipset(firewall_ipset_mgmt, 'mgmt_v4') }}
+{{ render_ipset(firewall_ipset_mgmt, 'mgmt4') }}
 
-{{ render_ipset(firewall_ipset_blacklist, 'blacklist_v4') }}
+{{ render_ipset([], 'blacklist4') }}
+{{ render_ipset([], 'graylist4', type="hash:ip", timeout=600) }}
 
-{{ render_ipset(firewall_ipset_bogons, 'bogons_v4') }}
+{{ render_ipset(firewall_ipset_bogons, 'bogons4') }}
 
-{{ render_ipset([], 'cooloff_v4', type="hash:ip", timeout=firewall_ipset_cooloff_timeout) }}
+{{ render_ipset([], 'cooloff4', type="hash:ip", timeout=firewall_ipset_cooloff_timeout) }}
+
+{% if firewall_ipset_node_exporter is defined %}
+{{ render_ipset(firewall_ipset_node_exporter, 'node_exporter4') }}
+{% endif %}
+{% if firewall_ipset_blackbox_exporter is defined %}
+{{ render_ipset(firewall_ipset_blackbox_exporter, 'blackbox_exporter4') }}
+{% endif %}
+{% if firewall_ipset_mtail is defined %}
+{{ render_ipset(firewall_ipset_mtail, 'mtail4') }}
+{% endif %}
+{% if firewall_ipset_syslog is defined %}
+{{ render_ipset(firewall_ipset_syslog, 'syslog4') }}
+{% endif %}
+{% if firewall_ipset_influxdb is defined %}
+{{ render_ipset(firewall_ipset_influxdb, 'influxdb4') }}
+{% endif %}
+{% if firewall_ipset_dns is defined %}
+{{ render_ipset(firewall_ipset_dns, 'dns4') }}
+{% endif %}

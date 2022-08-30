@@ -1,0 +1,48 @@
+{% macro render_ipset(ipset, name, type="hash:net", family="inet", timeout=None) %}
+create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters {% if timeout %}timeout {{ timeout }}{% endif %} -exist
+flush {{ name }}
+{%   if ipset is iterable %}
+{%     for ip_or_net in ipset %}
+add {{ name }} {{ ip_or_net }}
+{%     endfor %}
+{%   endif %}
+{% endmacro %}
+
+{% macro render_dual_stack_ipset(ipset, name, type="hash:net", family="inet", timeout=None) %}
+{{ render_ipset(ipset | ipv4, name + "4", type=type, family=family, timeout=timeout) }}
+{{ render_ipset(ipset | ipv6, name + "6", type=type, family="inet6", timeout=timeout) }}
+{% endmacro %}
+
+{{ render_dual_stack_ipset([], 'block') }}
+{{ render_dual_stack_ipset([], 'gray', type="hash:ip", timeout=600) }}
+{{ render_dual_stack_ipset([], 'cooloff', type="hash:ip", timeout=firewall_ipset_cooloff_timeout) }}
+{% if firewall_ipset_mgmt is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_mgmt, 'mgmt') }}
+{% endif %}
+{% if firewall_ipset_bogons is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_bogons, 'bogons') }}
+{% endif %}
+{% if firewall_ipset_node_exporter is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_node_exporter, 'node_exporter') }}
+{% endif %}
+{% if firewall_ipset_blackbox_exporter is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_blackbox_exporter, 'blackbox_exporter') }}
+{% endif %}
+{% if firewall_ipset_mtail is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_mtail, 'mtail') }}
+{% endif %}
+{% if firewall_ipset_syslog is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_syslog, 'syslog') }}
+{% endif %}
+{% if firewall_ipset_influxdb is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_influxdb, 'influxdb') }}
+{% endif %}
+{% if firewall_ipset_dns is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_dns, 'dns') }}
+{% endif %}
+{% if firewall_ipset_loki is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_loki, 'loki') }}
+{% endif %}
+{% if firewall_ipset_promtail is defined %}
+{{ render_dual_stack_ipset(firewall_ipset_promtail, 'promtail') }}
+{% endif %}

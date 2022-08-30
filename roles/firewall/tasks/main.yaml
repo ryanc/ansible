@@ -63,15 +63,15 @@
     - clear.v4
     - clear.v6
 
-- name: configure IPv4 ipsets
+- name: configure ipsets
   template:
-    src: ipset.v4.j2
-    dest: "{{ firewall_ipset_v4 }}"
+    src: ipset.j2
+    dest: "{{ firewall_ipset }}"
     owner: root
     group: root
     mode: 0600
   notify:
-    - restart firewall v4
+    - reload ipset
     - iptables-persistent
 
 - name: configure IPv4 firewall
@@ -83,17 +83,6 @@
     mode: 0600
   notify:
     - restart firewall v4
-    - iptables-persistent
-
-- name: configure IPv6 ipsets
-  template:
-    src: ipset.v6.j2
-    dest: "{{ firewall_ipset_v6 }}"
-    owner: root
-    group: root
-    mode: 0600
-  notify:
-    - restart firewall v6
     - iptables-persistent
 
 - name: configure IPv6 firewall
