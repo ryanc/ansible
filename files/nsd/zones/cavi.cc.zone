@@ -1,0 +1,18 @@
+; cavi.cc [320470]
+$TTL 86400
+@	IN	SOA	ns1.linode.com. hostmaster.kill0.net. 2022020501 14400 14400 1209600 86400
+@		NS	ns1.linode.com.
+@		NS	ns2.linode.com.
+@		NS	ns3.linode.com.
+@		NS	ns4.linode.com.
+@		NS	ns5.linode.com.
+@			MX	10	in1-smtp.messagingengine.com.
+@			MX	20	in2-smtp.messagingengine.com.
+@			TXT	"v=spf1 include:spf.messagingengine.com -all"
+default._domainkey			TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDY8s2MeBFqZIwItrdDo4J0N0AIoNtf7Ui6jtyIqqs2if2D1h3Ee37McBxZhJ79TX3TZyXci/G0+DZm/F9w2Ye703JNmgjSo6V1fx3MMZicohnTwYs3yQScdWNjJ8ML6SEJtveIjIws2CQ4/Y8J3f6ilWh2OAUrRIAg2u/BV5odgwIDAQAB"
+mesmtp._domainkey			TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUDHvhiTIEgdxTfvcrL1znWbMBWC10L8enkWJmatLs1vGkEQkNbaK55aO3wDwuVZq9f2KmcEUA/GRUOJQy3XGu1xgPjVmR6Hqbx4ygjoAcMm8UfNc7UA8deKV8qCGEF2ag82n9LpDYcEQSehC/kE4bbUFaZk3FMUdTwMu5vB0vVQIDAQAB"
+_dmarc			TXT	"v=DMARC1; p=reject; adkim=s; aspf=s"
+@   A   45.33.21.121
+@   AAAA    2600:3c00::f03c:92ff:feb0:e05c
+www   A   45.33.21.121
+www   AAAA    2600:3c00::f03c:92ff:feb0:e05c
