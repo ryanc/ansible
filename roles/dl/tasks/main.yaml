@@ -1,0 +1,31 @@
+---
+- name: check if SSL key exists
+  stat:
+    path: "{{ dl_ssl_certificate_key }}"
+  register: key_st
+
+- name: check if SSL certificate exists
+  stat:
+    path: "{{ dl_ssl_certificate }}"
+  register: crt_st
+
+- name: ssl enabled
+  set_fact:
+    dl_ssl_enabled: true
+  when:
+    - key_st.stat.exists
+    - crt_st.stat.exists
+
+- name: configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/conf.d/dl.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
+
+- name: create web root
+  file:
+    path: "{{ dl_server_root }}"
+    state: directory

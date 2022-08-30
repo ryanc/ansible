@@ -1,0 +1,8 @@
+---
+dl_server_name: dl.kill0.net
+dl_server_root: /var/www/dl
+dl_access_log: /var/log/nginx/dl.access.log
+dl_error_log: /var/log/nginx/dl.error.log
+dl_ssl_enabled: false
+dl_ssl_certificate: "/etc/letsencrypt/live/{{ dl_server_name }}/fullchain.pem"
+dl_ssl_certificate_key: "/etc/letsencrypt/live/{{ dl_server_name }}/privkey.pem"
