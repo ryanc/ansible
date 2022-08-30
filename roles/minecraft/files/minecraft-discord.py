@@ -9,15 +9,14 @@ import argparse
 
 from urlparse import urljoin
 
-PATTERN = re.compile(r"(\S+) (joined|left) the game")
-
 PATTERNS = (
-    (re.compile(r": (\S+)\[.+logged in"), "{0} joined the game"),
+    #(re.compile(r": (\S+)\[.+logged in"), "{0} joined the game"),
     (re.compile(r"(\S+) (joined|left) the game"), "{0} {1} the game"),
-    (re.compile(r"\[(\S+): Gave (\d+) \[(.+)\] to (\S+)\]"), "{0} gave {1} \"{2}\" to {3}"), 
+    (re.compile(r"\[(\S+): Gave (\d+) \[(.+)\] to (\S+)\]"), ":police_officer: {0} gave {1} \"{2}\" to {3}"),
     (re.compile(r"(\S+) was (\S+) by (\S+)"), ":skull: {0} was {1} by {2}"),
     (re.compile(r"(\S+) tried to swim in lava"), ":skull: {0} tried to swim in lava"),
     (re.compile(r"(\S+) fell from a high place"), ":skull: {0} fell from a high place"),
+    (re.compile(r"\[(\S+): Set own game mode to (.+) Mode\]"), ":police_officer: {0} set game mode to '{1}' mode"),
 )
 
 
