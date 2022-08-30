@@ -70,3 +70,7 @@ util_packages:
   fun:
     - cmatrix
     - cowsay
+  www:
+    - elinks
+    - links
+    - lynx
