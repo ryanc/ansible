@@ -1,0 +1,31 @@
+---
+- block:
+  - name: download archive
+    get_url:
+      url: "{{ pushgateway_release_url }}"
+      dest: "{{ pushgateway_download_path }}"
+      checksum: "{{ pushgateway_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract archive
+    unarchive:
+      src: "{{ pushgateway_download_path }}"
+      dest: "{{ pushgateway_unarchive_dest_path }}"
+      creates: "{{ pushgateway_extracted_path }}/pushgateway"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ pushgateway_extracted_path }}/{{ item }}"
+      dest: "{{ pushgateway_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - pushgateway
+    notify: restart pushgateway
+  when: pushgateway_version != pushgateway_local_version

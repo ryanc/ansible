@@ -1,0 +1,42 @@
+---
+pushgateway_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+pushgateway_go_arch: "{{ pushgateway_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+pushgateway_service_name: pushgateway.service
+pushgateway_service_enabled: true
+pushgateway_service_state: started
+
+pushgateway_version_regex: ^pushgateway, version ([\d.]+)
+
+pushgateway_github_project_url: https://github.com/prometheus/pushgateway
+pushgateway_release_file: "pushgateway-{{ pushgateway_version }}.{{ ansible_system | lower }}-{{ pushgateway_go_arch }}.tar.gz"
+pushgateway_release_url: "{{ pushgateway_github_project_url }}/releases/download/v{{ pushgateway_version }}/{{ pushgateway_release_file }}"
+pushgateway_checksum_url: "{{ pushgateway_github_project_url }}/releases/download/v{{ pushgateway_version }}/sha256sums.txt"
+pushgateway_download_path: "/tmp/{{ pushgateway_release_file }}"
+pushgateway_unarchive_dest_path: /tmp
+pushgateway_extracted_path: "{{ pushgateway_download_path | replace('.tar.gz', '') }}"
+
+pushgateway_user: pushgateway
+pushgateway_user_state: present
+pushgateway_user_shell: /usr/sbin/nologin
+
+pushgateway_group: pushgateway
+pushgateway_group_state: "{{ pushgateway_user_state | default('present') }}"
+
+pushgateway_etc_path: /etc/pushgateway
+pushgateway_etc_owner: root
+pushgateway_etc_group: root
+pushgateway_etc_mode: "0755"
+
+pushgateway_var_path: /var/lib/pushgateway
+pushgateway_var_owner: "{{ pushgateway_user }}"
+pushgateway_var_group: "{{ pushgateway_group }}"
+pushgateway_var_mode: "0755"
+
+pushgateway_bin_path: /usr/local/bin
+
+pushgateway_web_listen_address: 0.0.0.0:9091
+pushgateway_port: "{{ pushgateway_web_listen_address.split(':')[1] }}"

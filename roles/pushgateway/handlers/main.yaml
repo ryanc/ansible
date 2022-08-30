@@ -1,0 +1,11 @@
+---
+- name: restart pushgateway
+  systemd:
+    name: pushgateway.service
+    daemon_reload: true
+    state: restarted
+
+- name: reload pushgateway
+  service:
+    name: pushgateway.service
+    state: reloaded

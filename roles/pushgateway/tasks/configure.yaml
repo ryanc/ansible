@@ -1,0 +1,47 @@
+---
+- name: create group
+  group:
+    name: "{{ pushgateway_group }}"
+    system: true
+    state: "{{ pushgateway_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ pushgateway_user }}"
+    system: true
+    shell: "{{ pushgateway_user_shell }}"
+    group: "{{ pushgateway_group }}"
+    createhome: false
+    home: "{{ pushgateway_var_path }}"
+    state: "{{ pushgateway_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ pushgateway_etc_path }}"
+    state: directory
+    owner: "{{ pushgateway_etc_owner }}"
+    group: "{{ pushgateway_etc_group }}"
+    mode: "{{ pushgateway_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ pushgateway_var_path }}"
+    state: directory
+    owner: "{{ pushgateway_var_owner }}"
+    group: "{{ pushgateway_var_group }}"
+    mode: "{{ pushgateway_var_mode }}"
+
+- name: configure systemd template
+  template:
+    src: pushgateway.service.j2
+    dest: /etc/systemd/system/pushgateway.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart pushgateway
+
+- name: manage service
+  service:
+    name: "{{ pushgateway_service_name }}"
+    enabled: "{{ pushgateway_service_enabled }}"
+    state: "{{ pushgateway_service_state }}"

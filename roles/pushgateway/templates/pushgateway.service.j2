@@ -1,0 +1,34 @@
+[Unit]
+Description=Pushgateway
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ pushgateway_user }}
+Group={{ pushgateway_group }}
+ExecStart={{ pushgateway_bin_path }}/pushgateway \
+{% if pushgateway_web_external_url is defined %}
+  --web.external-url={{ pushgateway_web_external_url }} \
+{% endif %}
+{% if pushgateway_web_route_prefix is defined %}
+  --web.route-prefix={{ pushgateway_web_route_prefix }} \
+{% endif %}
+{% if pushgateway_web_listen_address is defined %}
+  --web.listen-address={{ pushgateway_web_listen_address }} \
+{% endif %}
+{% if pushgateway_web_admin_api is defined %}
+  --web.enable-admin-api={{ pushgateway_web_admin_api }} \
+{% endif %}
+{% if pushgateway_persistence_file is defined %}
+  --persistence.file={{ pushgateway_persistence_file }} \
+{% endif %}
+{% if pushgateway_persistence_interval is defined %}
+  --persistence.interval={{ pushgateway_persistence_interval }} \
+{% endif %}
+
+
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
