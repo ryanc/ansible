@@ -10,3 +10,4 @@
   notify:
     - restart gitea
   retries: 3
+  when: gitea_version != gitea_local_version

@@ -6,7 +6,7 @@
 
 - name: set gitea_installed
   set_fact:
-    gitea_installed: st.stat.exists
+    gitea_installed: "{{ st.stat.exists | bool }}"
 
 - block:
   - name: determine latest version
@@ -36,7 +36,7 @@
 - name: set gitea_local_version to 0
   set_fact:
     gitea_local_version: "0"
-  when: not gitea_installed | bool
+  when: not (gitea_installed | bool)
 
 - block:
   - name: get checksums
