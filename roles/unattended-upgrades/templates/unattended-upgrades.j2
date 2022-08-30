@@ -26,7 +26,7 @@ Unattended-Upgrade::MinimalSteps "{{ unattended_upgrades_minimal_steps | lower }
 {% if unattended_upgrades_install_on_shutdown is defined %}
 Unattended-Upgrade::InstallOnShutdown "{{ unattended_upgrades_install_on_shutdown | lower }}";
 {% endif %}
-{% if unattended_upgrades_mail is defined %}
+{% if unattended_upgrades_mail %}
 Unattended-Upgrade::Mail "{{ unattended_upgrades_mail }}";
 {% endif %}
 {% if unattended_upgrades_mail_only_on_error is defined %}

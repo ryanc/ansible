@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 
-{% if unattended_upgrades_apticron_email is defined %}
+{% if unattended_upgrades_apticron_email %}
 EMAIL="{{ unattended_upgrades_apticron_email | default('root') }}"
 SYSTEM="{{ ansible_hostname }}"
 {% endif %}
