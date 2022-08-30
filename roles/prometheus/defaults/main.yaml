@@ -1,0 +1,70 @@
+---
+prometheus_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+prometheus_go_arch: "{{ prometheus_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+prometheus_service_name: prometheus.service
+prometheus_service_enabled: true
+prometheus_service_state: started
+
+prometheus_version_regex: ^prometheus, version ([\d.]+)
+
+prometheus_release_file: "prometheus-{{ prometheus_version }}.{{ ansible_system | lower }}-{{ prometheus_go_arch }}.tar.gz"
+prometheus_release_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/{{ prometheus_release_file }}"
+prometheus_checksum_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/sha256sums.txt"
+prometheus_download_path: "/tmp/{{ prometheus_release_file }}"
+prometheus_unarchive_dest_path: /tmp
+prometheus_extracted_path: "{{ prometheus_download_path | replace('.tar.gz', '') }}"
+
+prometheus_user: prometheus
+prometheus_user_state: present
+prometheus_user_shell: /usr/sbin/nologin
+
+prometheus_group: prometheus
+prometheus_group_state: "{{ prometheus_user_state | default('present') }}"
+
+prometheus_etc_path: /etc/prometheus
+prometheus_etc_owner: root
+prometheus_etc_group: root
+prometheus_etc_mode: "0755"
+
+prometheus_var_path: /var/lib/prometheus
+prometheus_var_owner: "{{ prometheus_user }}"
+prometheus_var_group: "{{ prometheus_group }}"
+prometheus_var_mode: "0775"
+
+prometheus_bin_path: /usr/local/bin
+
+prometheus_ssl_enabled: true
+prometheus_hostname: "{{ prometheus_web_external_url | urlsplit('hostname') }}"
+prometheus_ssl_certificate: "/etc/letsencrypt/live/{{ prometheus_hostname }}/fullchain.pem"
+prometheus_ssl_certificate_key: "/etc/letsencrypt/live/{{ prometheus_hostname }}/privkey.pem"
+
+prometheus_alertmanager_enabled: true
+
+prometheus_web_listen_address: 0.0.0.0:9090
+prometheus_port: "{{ prometheus_web_listen_address.split(':')[1] }}"
+prometheus_web_external_url:
+prometheus_web_route_prefix:
+prometheus_web_enable_lifecycle: true
+prometheus_storage_tsdb_min_block_duration: 2h
+prometheus_storage_tsdb_max_block_duration: 2h
+
+prometheus_htpasswd_path: "{{ nginx_etc_path }}/prometheus.htpasswd"
+
+prometheus_config:
+  global:
+    scrape_interval: 15s
+  scrape_configs:
+    - job_name: prometheus
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+          - localhost:9090
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: instance
+          regex: (.+):\d+
+          replacement: $1

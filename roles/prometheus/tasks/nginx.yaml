@@ -1,0 +1,9 @@
+---
+- name: configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_conf_d_path }}/prometheus.conf"
+    owner: root
+    group: root
+    mode: 0444
+  notify: reload nginx

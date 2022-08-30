@@ -1,0 +1,50 @@
+---
+- name: determine if installed
+  stat:
+    path: "{{ prometheus_bin_path }}/prometheus"
+  register: st
+
+- name: set prometheus_installed
+  set_fact:
+    prometheus_installed: "{{ st.stat.exists | bool }}"
+
+- block:
+  - name: determine latest version
+    uri:
+      url: https://api.github.com/repos/prometheus/prometheus/releases/latest
+      return_content: true
+      body_format: json
+    register: _latest_version
+    until: _latest_version.status == 200
+    retries: 3
+
+  - name: set prometheus_version
+    set_fact:
+      prometheus_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+
+- block:
+  - name: determine installed version
+    command: "{{ prometheus_bin_path }}/prometheus --version"
+    register: _installed_version_string
+    changed_when: false
+
+  - name: set prometheus_local_version
+    set_fact:
+      prometheus_local_version: "{{ _installed_version_string.stdout | regex_search(prometheus_version_regex, '\\1') | first }}"
+  when: prometheus_installed
+
+- name: set prometheus_local_version to 0
+  set_fact:
+    prometheus_local_version: "0"
+  when: not prometheus_installed
+
+- block:
+  - name: get checksums
+    set_fact:
+      _checksums: "{{ lookup('url', prometheus_checksum_url, wantlist=True) }}"
+
+  - name: set prometheus_checksum
+    set_fact:
+      prometheus_checksum: "sha256:{{ item.split(' ') | first }}"
+    loop: "{{ _checksums }}"
+    when: "prometheus_release_file in item"

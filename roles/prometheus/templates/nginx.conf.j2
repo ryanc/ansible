@@ -1,0 +1,79 @@
+# {{ ansible_managed }}
+
+upstream prometheus_backend {
+    server 127.0.0.1:{{ prometheus_port }};
+}
+
+upstream alertmanager_backend {
+    server 127.0.0.1:{{ alertmanager_port }};
+}
+
+upstream karma_backend {
+    server 127.0.0.1:{{ karma_port }};
+}
+
+server {
+    listen 80;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:80;
+{% endif %}
+    server_name {{ prometheus_hostname }};
+
+    access_log /var/log/nginx/prometheus.access.log main;
+    error_log /var/log/nginx/prometheus.error.log warn;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+        try_files $uri =404;
+    }
+
+{% if prometheus_ssl_enabled is defined and
+      prometheus_ssl_enabled %}
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+{% endif %}
+}
+
+{% if prometheus_ssl_enabled is defined and
+      prometheus_ssl_enabled %}
+server {
+    listen 443 ssl http2;
+{% if ansible_all_ipv6_addresses | length %}
+    listen [::]:443 ssl http2;
+{% endif %}
+    server_name {{ prometheus_hostname }};
+
+    auth_basic           "Prometheus";
+    auth_basic_user_file {{ prometheus_htpasswd_path }};
+
+    access_log /var/log/nginx/prometheus.access.log main;
+    error_log /var/log/nginx/prometheus.error.log warn;
+
+{% if prometheus_ssl_certificate is defined %}
+    ssl_certificate {{ prometheus_ssl_certificate }};
+{% endif %}
+{% if prometheus_ssl_certificate_key is defined %}
+    ssl_certificate_key {{ prometheus_ssl_certificate_key }};
+{% endif %}
+{% if prometheus_ssl_dhparam is defined %}
+    ssl_dhparam {{ prometheus_ssl_dhparam }};
+{% endif %}
+
+    location /prometheus/ {
+        proxy_pass http://prometheus_backend/;
+    }
+
+    location /alertmanager/ {
+        proxy_pass http://alertmanager_backend/;
+    }
+
+    location /karma/ {
+        proxy_pass http://karma_backend/;
+    }
+
+    location / {
+        return 301 /prometheus/;
+    }
+}
+{% endif %}

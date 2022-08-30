@@ -1,0 +1,35 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Prometheus
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ prometheus_user }}
+Group={{ prometheus_group }}
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ prometheus_bin_path }}/prometheus \
+  --config.file={{ prometheus_etc_path }}/prometheus.yaml \
+  --storage.tsdb.path={{ prometheus_var_path }} \
+{% if prometheus_web_external_url %}
+  --web.external-url={{ prometheus_web_external_url }} \
+{% endif %}
+{% if prometheus_web_route_prefix %}
+  --web.route-prefix={{ prometheus_web_route_prefix }} \
+{% endif %}
+{% if prometheus_web_listen_address %}
+  --web.listen-address={{ prometheus_web_listen_address }} \
+{% endif %}
+{% if prometheus_web_enable_lifecycle %}
+  --web.enable-lifecycle \
+{% endif %}
+{% if prometheus_storage_tsdb_min_block_duration %}
+  --storage.tsdb.min-block-duration={{ prometheus_storage_tsdb_min_block_duration }} \
+{% endif %}
+{% if prometheus_storage_tsdb_max_block_duration %}
+  --storage.tsdb.max-block-duration={{ prometheus_storage_tsdb_max_block_duration }} \
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

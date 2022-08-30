@@ -1,0 +1,32 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ prometheus_release_url }}"
+      dest: "{{ prometheus_download_path }}"
+      checksum: "{{ prometheus_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ prometheus_download_path }}"
+      dest: "{{ prometheus_unarchive_dest_path }}"
+      creates: "{{ prometheus_extracted_path }}/prometheus"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ prometheus_extracted_path }}/{{ item }}"
+      dest: "{{ prometheus_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - promtool
+      - prometheus
+    notify: restart prometheus
+  when: prometheus_version != prometheus_local_version

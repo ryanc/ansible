@@ -1,0 +1,65 @@
+---
+- name: create group
+  group:
+    name: "{{ prometheus_group }}"
+    system: true
+    state: "{{ prometheus_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ prometheus_user }}"
+    system: true
+    shell: "{{ prometheus_user_shell }}"
+    group: "{{ prometheus_group }}"
+    createhome: false
+    home: "{{ prometheus_var_path }}"
+    state: "{{ prometheus_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ prometheus_etc_path }}"
+    state: directory
+    owner: "{{ prometheus_etc_owner }}"
+    group: "{{ prometheus_etc_group }}"
+    mode: "{{ prometheus_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ prometheus_var_path }}"
+    state: directory
+    owner: "{{ prometheus_var_owner }}"
+    group: "{{ prometheus_var_group }}"
+    mode: "{{ prometheus_var_mode }}"
+
+- name: configure
+  copy:
+    dest: "{{ prometheus_etc_path }}/prometheus.yaml"
+    content: "{{ (prometheus_config | default({})) | to_yaml }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart prometheus
+
+- name: configure rules
+  copy:
+    dest: "{{ prometheus_etc_path }}/rules.yaml"
+    content: "{{ (prometheus_rules_config | default({})) | to_yaml }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: reload prometheus
+
+- name: configure systemd template
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart prometheus
+
+- name: manage service
+  service:
+    name: "{{ prometheus_service_name }}"
+    enabled: "{{ prometheus_service_enabled }}"
+    state: "{{ prometheus_service_state }}"
