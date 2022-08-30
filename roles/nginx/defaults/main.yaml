@@ -9,6 +9,7 @@ nginx_service_enabled: yes
 nginx_etc_path: /etc/nginx
 nginx_conf_d_path: "{{ nginx_etc_path }}/conf.d"
 nginx_mime_types_path: "{{ nginx_etc_path }}/mime.types"
+nginx_var_log_path: /var/log/nginx
 
 nginx_user: nginx
 nginx_worker_processes: auto
@@ -31,3 +32,4 @@ nginx_acme_challenge_enabled: yes
 nginx_acme_challenge_path: /var/www/.acme-challenge
 
 nginx_conf_d: {}
+nginx_vhosts: []

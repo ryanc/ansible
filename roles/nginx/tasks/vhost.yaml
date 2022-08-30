@@ -1,0 +1,20 @@
+---
+- name: configure virtual hosts
+  block:
+  - name: create webroot
+    file:
+      path: "{{ vhost.root }}"
+      state: directory
+    loop: "{{ item.value }}"
+    loop_control:
+      loop_var: vhost
+
+  - name: configure virtual host
+    template:
+      src: vhost.conf.j2
+      dest: "{{ nginx_conf_d_path }}/{{ item.key }}.conf"
+      owner: root
+      group: root
+      mode: 0444
+    notify: reload nginx
+    loop: "{{ nginx_vhosts | dict2items }}"

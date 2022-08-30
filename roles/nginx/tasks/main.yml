@@ -45,6 +45,10 @@
     mode: 0644
   notify: reload nginx
 
+- name: configure virtual hosts
+  include_tasks: vhost.yaml
+  loop: "{{ nginx_vhosts | dict2items }}"
+
 - name: manage service
   service:
     name: "{{ nginx_service_name }}"

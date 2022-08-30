@@ -1,0 +1,42 @@
+# {{ ansible_managed }}
+
+{% for vhost in item.value %}
+server {
+{% if vhost.listen is defined %}
+{% for listen in vhost.listen %}
+    listen {{ listen }};
+{% endfor %}
+
+{% if vhost.server_name is defined %}
+    server_name {{ vhost.server_name }};
+{% endif %}
+{% endif %}
+    access_log {{ vhost.access_log | default(nginx_var_log_path + '/' + vhost.server_name + '.access.log main') }};
+    error_log {{ vhost.error_log | default(nginx_var_log_path + '/' + vhost.server_name + '.error.log warn') }};
+
+{% if vhost.root is defined %}
+    root {{ vhost.root }};
+{% endif %}
+
+    index {{ vhost.index | default('index.html index.htm') }};
+
+{% if vhost.ssl_certificate is defined %}
+    ssl_certificate {{ vhost.ssl_certificate }};
+{% endif %}
+{% if vhost.ssl_certificate_key is defined %}
+    ssl_certificate_key {{ vhost.ssl_certificate_key }};
+{% endif %}
+{% if vhost.ssl_dhparam is defined %}
+    ssl_dhparam {{ vhost.ssl_dhparam }};
+{% endif %}
+
+    location /.well-known/acme-challenge/ {
+        root {{ nginx_root }};
+        try_files $uri =404;
+    }
+
+{% if vhost.raw is defined %}
+    {{ vhost.raw | indent(4) }}
+{% endif %}
+}
+{% endfor %}
