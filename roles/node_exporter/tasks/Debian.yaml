@@ -1,0 +1,25 @@
+---
+- name: reboot required cron
+  cron:
+    name: "prometheus reboot required"
+    minute: "0"
+    job: |
+      [ ! -f /var/run/reboot-required ] ; printf "node_reboot_required \%s\n" "$?" | {{ node_exporter_bin_path }}/promcat {{ node_exporter_spool_path }}/textfile_collector/node_reboot_required.prom
+    user: root
+    state: absent
+
+- name: copy apt-exporter
+  copy:
+    src: apt-exporter.pl
+    dest: "{{ node_exporter_bin_path }}/apt-exporter"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: apt metrics cron
+  cron:
+    name: prometheus apt exporter
+    minute: "0"
+    job: |
+      {{ node_exporter_bin_path }}/apt-exporter | {{ node_exporter_bin_path }}/promcat {{ node_exporter_spool_path }}/textfile_collector/apt.prom
+    user: root

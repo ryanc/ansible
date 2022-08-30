@@ -1,0 +1,5 @@
+{% if node_exporter_machine_roles is defined %}
+{% for role in node_exporter_machine_roles %}
+machine_role{role="{{ role }}"} 1
+{% endfor %}
+{% endif %}

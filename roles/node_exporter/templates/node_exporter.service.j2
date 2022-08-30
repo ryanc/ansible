@@ -1,0 +1,32 @@
+[Unit]
+Description=Node Exporter
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ node_exporter_user }}
+Group={{ node_exporter_group }}
+ExecStart={{ node_exporter_bin_path }}/node_exporter \
+{% if node_exporter_collectors_enabled %}
+{%     for collector in node_exporter_collectors_enabled %}
+{%         if collector is mapping %}
+{%             set name, opts = (collector.items() | list)[0] %}
+    --collector.{{ name }} \
+{%             for k, v in opts.items() %}
+{%                 if v is none %}
+    --collector.{{ name }}.{{ k }} \
+{%                 elif v is string %}
+    --collector.{{ name }}.{{ k }}={{ v }} \
+{%                 endif %}
+{%             endfor %}
+{%         else %}
+    --collector.{{ collector }} \
+{%         endif %}
+{%     endfor %}
+{% endif %}
+
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

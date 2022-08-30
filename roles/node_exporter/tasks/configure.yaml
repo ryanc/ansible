@@ -1,0 +1,87 @@
+---
+- name: create group
+  group:
+    name: "{{ node_exporter_group }}"
+    system: true
+    state: "{{ node_exporter_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ node_exporter_user }}"
+    system: true
+    shell: "{{ node_exporter_user_shell }}"
+    group: "{{ node_exporter_group }}"
+    createhome: false
+    home: "{{ node_exporter_var_path }}"
+    state: "{{ node_exporter_user_state | default('present') }}"
+
+      #- name: create etc path
+      #  file:
+      #    path: "{{ node_exporter_etc_path }}"
+      #    state: directory
+      #    owner: "{{ node_exporter_etc_owner }}"
+      #    group: "{{ node_exporter_etc_group }}"
+      #    mode: "{{ node_exporter_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ node_exporter_var_path }}"
+    state: directory
+    owner: "{{ node_exporter_var_owner }}"
+    group: "{{ node_exporter_var_group }}"
+    mode: "{{ node_exporter_var_mode }}"
+
+- name: create spool path
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ node_exporter_spool_owner }}"
+    group: "{{ node_exporter_spool_group }}"
+    mode: "{{ node_exporter_spool_mode }}"
+  loop:
+    - "{{ node_exporter_spool_path }}"
+    - "{{ node_exporter_spool_path }}/textfile_collector"
+
+- name: configure systemd template
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart node_exporter
+
+- name: manage service
+  service:
+    name: "{{ node_exporter_service_name }}"
+    enabled: "{{ node_exporter_service_enabled }}"
+    state: "{{ node_exporter_service_state }}"
+
+- name: install helper scripts
+  copy:
+    src: "{{ item }}.sh"
+    dest: "{{ node_exporter_bin_path }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - promcat
+
+- name: node_exporter directory size cron
+  cron:
+    name: node_exporter directory size
+    minute: "*/5"
+    job: >
+      du -sb {{ node_exporter_du_directories | join(' ') }} |
+      sed -ne 's/^\([0-9]\+\)\t\(.*\)$/node_directory_size_bytes{directory="\2"} \1/p' |
+      {{ node_exporter_bin_path }}/promcat {{ node_exporter_spool_path }}/textfile_collector/directory_size.prom
+    user: root
+    state: "{{ (node_exporter_du_directories | length > 0) | ternary('present', 'absent') }}"
+
+- name: configure roles
+  template:
+    src: roles.prom.j2
+    dest: "{{ node_exporter_spool_path }}/textfile_collector/roles.prom"
+    owner: root
+    group: root
+    mode: "0444"

@@ -1,0 +1,32 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ node_exporter_release_url }}"
+      dest: "{{ node_exporter_download_path }}"
+      checksum: "{{ node_exporter_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ node_exporter_download_path }}"
+      dest: "{{ node_exporter_unarchive_dest_path }}"
+      creates: "{{ node_exporter_extracted_path }}/node_exporter"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ node_exporter_extracted_path }}/{{ item }}"
+      dest: "{{ node_exporter_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop:
+      - node_exporter
+    notify: restart node_exporter
+  when: node_exporter_version != node_exporter_local_version
+

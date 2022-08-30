@@ -1,0 +1,51 @@
+---
+node_exporter_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+node_exporter_go_arch: "{{ node_exporter_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+node_exporter_service_name: node_exporter.service
+node_exporter_service_enabled: true
+node_exporter_service_state: started
+
+node_exporter_version_regex: ^node_exporter, version ([\d.]+)
+
+node_exporter_release_file: "node_exporter-{{ node_exporter_version }}.{{ ansible_system | lower }}-{{ node_exporter_go_arch }}.tar.gz"
+node_exporter_release_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_release_file }}"
+node_exporter_checksum_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/sha256sums.txt"
+node_exporter_download_path: "/tmp/{{ node_exporter_release_file }}"
+node_exporter_unarchive_dest_path: /tmp
+node_exporter_extracted_path: "{{ node_exporter_download_path | replace('.tar.gz', '') }}"
+
+node_exporter_user: node_exporter
+node_exporter_user_state: present
+node_exporter_user_shell: /usr/sbin/nologin
+
+node_exporter_group: node_exporter
+node_exporter_group_state: "{{ node_exporter_user_state | default('present') }}"
+
+node_exporter_var_path: /var/lib/node_exporter
+node_exporter_var_owner: "{{ node_exporter_user }}"
+node_exporter_var_group: "{{ node_exporter_group }}"
+node_exporter_var_mode: "0755"
+
+node_exporter_spool_path: /var/spool/node_exporter
+node_exporter_spool_owner: "{{ node_exporter_user }}"
+node_exporter_spool_group: "{{ node_exporter_group }}"
+node_exporter_spool_mode: "0755"
+
+node_exporter_bin_path: /usr/local/bin
+
+node_exporter_collectors_enabled:
+  - textfile:
+      directory: "{{ node_exporter_spool_path }}/textfile_collector"
+  - processes
+  - tcpstat
+  - ntp
+  - supervisord:
+      url: unix:///var/run/supervisor.sock
+  - systemd:
+      enable-task-metrics:
+      enable-restarts-metrics:
+      enable-start-time-metrics:
