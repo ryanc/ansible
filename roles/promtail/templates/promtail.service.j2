@@ -1,0 +1,19 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Loki
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ promtail_user }}
+Group={{ promtail_group }}
+ExecStart={{ promtail_bin_path }}/promtail \
+  -config.file {{ promtail_config_path }}
+WorkingDirectory={{ promtail_var_path }}
+
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

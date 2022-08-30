@@ -1,0 +1,50 @@
+---
+- name: determine if installed
+  stat:
+    path: "{{ promtail_bin_path }}/promtail"
+  register: st
+
+- name: set promtail_installed
+  set_fact:
+    promtail_installed: "{{ st.stat.exists | bool }}"
+
+- block:
+  - name: determine latest version
+    uri:
+      url: https://api.github.com/repos/grafana/loki/releases/latest
+      return_content: true
+      body_format: json
+    register: _latest_version
+    until: _latest_version.status == 200
+    retries: 3
+
+  - name: set promtail_version
+    set_fact:
+      promtail_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+
+- block:
+  - name: determine installed version
+    command: "{{ promtail_bin_path }}/promtail --version"
+    register: _installed_version_string
+    changed_when: false
+
+  - name: set promtail_local_version
+    set_fact:
+      promtail_local_version: "{{ _installed_version_string.stdout | regex_search(promtail_version_regex, '\\1') | first }}"
+  when: promtail_installed
+
+- name: set promtail_local_version to 0
+  set_fact:
+    promtail_local_version: "0"
+  when: not promtail_installed
+
+- block:
+  - name: get checksums
+    set_fact:
+      _checksums: "{{ lookup('url', promtail_checksum_url, wantlist=True) }}"
+
+  - name: set promtail_checksum
+    set_fact:
+      promtail_checksum: "sha256:{{ item.split(' ') | first }}"
+    loop: "{{ _checksums }}"
+    when: "promtail_release_file in item"

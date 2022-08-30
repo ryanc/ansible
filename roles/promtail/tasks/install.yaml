@@ -1,0 +1,29 @@
+---
+- block:
+  - name: download archive
+    get_url:
+      url: "{{ promtail_release_url }}"
+      dest: "{{ promtail_download_path }}"
+      checksum: "{{ promtail_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract archive
+    unarchive:
+      src: "{{ promtail_download_path }}"
+      dest: "{{ promtail_unarchive_dest_path }}"
+      creates: "{{ promtail_extracted_path }}/promtail"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ promtail_extracted_path }}"
+      dest: "{{ promtail_bin_path }}/promtail"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    notify: restart promtail
+  when: promtail_version != promtail_local_version

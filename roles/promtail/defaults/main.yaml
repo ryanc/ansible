@@ -1,0 +1,51 @@
+---
+promtail_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+promtail_go_arch: "{{ promtail_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+promtail_service_name: promtail.service
+promtail_service_enabled: true
+promtail_service_state: started
+
+promtail_version_regex: ^promtail, version ([\d.]+)
+
+promtail_github_project_url: https://github.com/grafana/loki
+promtail_release_file: "promtail-{{ ansible_system | lower }}-{{ promtail_go_arch }}.zip"
+promtail_release_url: "{{ promtail_github_project_url }}/releases/download/v{{ promtail_version }}/{{ promtail_release_file }}"
+promtail_checksum_url: "{{ promtail_github_project_url }}/releases/download/v{{ promtail_version }}/SHA256SUMS"
+promtail_download_path: "/tmp/{{ promtail_release_file }}"
+promtail_unarchive_dest_path: /tmp
+promtail_extracted_path: "{{ promtail_download_path | replace('.zip', '') }}"
+
+promtail_user: promtail
+promtail_user_state: present
+promtail_user_shell: /usr/sbin/nologin
+
+promtail_group: promtail
+promtail_groups: adm
+promtail_group_state: "{{ promtail_user_state | default('present') }}"
+
+promtail_config_path: /etc/promtail.yaml
+
+promtail_var_path: /var/lib/promtail
+promtail_var_owner: "{{ promtail_user }}"
+promtail_var_group: "{{ promtail_group }}"
+promtail_var_mode: "0755"
+
+promtail_bin_path: /usr/local/bin
+
+promtail_auth_enabled: false
+
+promtail_server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+promtail_positions:
+  filename: "{{ promtail_var_path }}/positions.yaml"
+
+promtail_clients:
+  - url: http://localhost:3100/loki/api/v1/push
+
+# promtail_scrape_configs: []

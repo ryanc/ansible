@@ -1,0 +1,49 @@
+---
+- name: create group
+  group:
+    name: "{{ promtail_group }}"
+    system: true
+    state: "{{ promtail_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ promtail_user }}"
+    system: true
+    shell: "{{ promtail_user_shell }}"
+    group: "{{ promtail_group }}"
+    groups: "{{ promtail_groups }}"
+    createhome: false
+    home: "{{ promtail_var_path }}"
+    state: "{{ promtail_user_state | default('present') }}"
+
+- name: configure
+  template:
+    src: promtail.yaml.j2
+    dest: "{{ promtail_config_path }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart promtail
+
+- name: create var path
+  file:
+    path: "{{ promtail_var_path }}"
+    state: directory
+    owner: "{{ promtail_var_owner }}"
+    group: "{{ promtail_var_group }}"
+    mode: "{{ promtail_var_mode }}"
+
+- name: configure systemd template
+  template:
+    src: "{{ promtail_service_name }}.j2"
+    dest: "/etc/systemd/system/{{ promtail_service_name }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart promtail
+
+- name: manage service
+  service:
+    name: "{{ promtail_service_name }}"
+    enabled: "{{ promtail_service_enabled }}"
+    state: "{{ promtail_service_state }}"
