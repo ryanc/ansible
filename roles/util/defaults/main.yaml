@@ -30,6 +30,7 @@ util_packages:
     - iperf
     - iperf3
     - smem
+    - hping3
   math:
     - bc
   misc:
