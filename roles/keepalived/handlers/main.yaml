@@ -1,0 +1,12 @@
+---
+- name: reload keepalived
+  service:
+    name: "{{ keepalived_service_name }}"
+    state: reloaded
+  when: keepalived_service_enabled
+
+- name: restart keepalived
+  service:
+    name: "{{ keepalived_service_name }}"
+    state: restarted
+  when: keepalived_service_enabled

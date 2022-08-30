@@ -1,0 +1,20 @@
+---
+- name: install
+  package:
+    name: "{{ keepalived_package_name }}"
+    state: "{{ keepalived_package_state }}"
+
+- name: configure
+  template:
+    src: keepalived.conf.j2
+    dest: "{{ keepalived_config_path }}"
+    owner: "{{ keepalived_config_owner }}"
+    group: "{{ keepalived_config_group }}"
+    mode: "{{ keepalived_config_mode }}"
+  notify: reload keepalived
+
+- name: service
+  service:
+    name: "{{ keepalived_service_name }}"
+    state: "{{ keepalived_service_state }}"
+    enabled: "{{ keepalived_service_enabled }}"

@@ -1,0 +1,78 @@
+{{ ansible_managed | comment }}
+
+{% if keepalived_global_defs is defined %}
+global_defs {
+{% for k in keepalived_global_defs %}
+{{ k }} {{ v }}
+{% endfor %}
+}
+{% endif %}
+
+{% if keepalived_vrrp_scripts is defined %}
+{% for name, conf in keepalived_vrrp_scripts.items() %}
+vrrp_script {{ name }} {
+{% if conf.script is defined %}
+    script "{{ conf.script }}"
+{% endif %}
+{% if conf.interval is defined %}
+    interval {{ conf.interval | default(1) }}
+{% endif %}
+{% if conf.weight is defined %}
+    weight {{ conf.weight }}
+{% endif %}
+}
+{% endfor %}
+{% endif %}
+
+{% if keepalived_vrrp_instances is defined %}
+{% for name, conf in keepalived_vrrp_instances.items() %}
+vrrp_instance {{ name }} {
+{% if conf.state is defined %}
+    state {{ conf.state | default("MASTER") }}
+{% endif %}
+{% if conf.interface is defined %}
+    interface {{ conf.interface | default("eth0") }}
+{% endif %}
+{% if conf.virtual_router_id is defined %}
+    virtual_router_id {{ conf.virtual_router_id }}
+{% endif %}
+{% if conf.priority is defined %}
+    priority {{ conf.priority }}
+{% endif %}
+{% if conf.advert_int is defined %}
+    advert_int {{ conf.advert_int }}
+{% endif %}
+{% if conf.authentication is defined %}
+    authentication {
+{% if conf.authentication.auth_type is defined %}
+        auth_type {{ conf.authentication.auth_type }}
+{% endif %}
+{% if conf.authentication.auth_pass is defined %}
+        auth_pass {{ conf.authentication.auth_pass }}
+{% endif %}
+    }
+{% if conf.unicast_peer is defined %}
+    unicast_peer {
+{% for x in conf.unicast_peer %}
+        {{ x }}
+{% endfor %}
+    }
+{% endif %}
+{% if conf.virtual_ipaddress is defined %}
+    virtual_ipaddress {
+{% for x in conf.virtual_ipaddress %}
+        {{ x }}
+{% endfor %}
+    }
+{% endif %}
+{% if conf.track_script is defined %}
+    track_script {
+{% for x in conf.track_script %}
+        {{ x }}
+{% endfor %}
+    }
+{% endif %}
+{% endif %}
+}
+{% endfor %}
+{% endif %}

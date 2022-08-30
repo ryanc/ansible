@@ -1,0 +1,14 @@
+---
+keepalived_package_name: keepalived
+keepalived_package_state: present
+
+keepalived_service_name: keepalived
+keepalived_service_state: started
+keepalived_service_enabled: true
+
+keepalived_etc_path: /etc/keepalived
+
+keepalived_config_path: "{{ keepalived_etc_path }}/keepalived.conf"
+keepalived_config_owner: root
+keepalived_config_group: root
+keepalived_config_mode: "0600"
