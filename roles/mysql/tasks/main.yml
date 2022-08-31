@@ -1,12 +1,12 @@
 ---
 - name: gather OS distribution version specific variables
-  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
 
 - name: gather OS distribution specific variables
-  include_vars: "{{ ansible_distribution }}.yaml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yaml"
 
 - name: gather OS family specific variables
-  include_vars: "{{ ansible_os_family }}.yaml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yaml"
 
 - name: manage mysql package
   package:

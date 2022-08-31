@@ -1,5 +1,5 @@
 - name: gather OS specific variables
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
     - "{{ ansible_distribution }}.yaml"
@@ -21,7 +21,7 @@
   notify: restart rsyslog
 
 - name: configure archival format
-  include: archival.yaml
+  ansible.builtin.include_tasks: archival.yaml
 
 - name: configure default rules
   template:

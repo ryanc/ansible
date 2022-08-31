@@ -12,7 +12,7 @@
     skeleton: /dev/null
 
 - name: "manage keys {{ item }}"
-  include: keys.yaml
+  ansible.builtin.include_tasks: keys.yaml
   loop:
     - id_dsa
     - id_ecdsa
@@ -33,7 +33,7 @@
     state: "{{ autossh_package_state }}"
 
 - name: manage keys "{{ item }}"
-  include: keys.yaml
+  ansible.builtin.include_tasks: keys.yaml
   loop:
     - id_dsa
     - id_ecdsa

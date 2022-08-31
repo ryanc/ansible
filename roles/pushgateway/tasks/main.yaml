@@ -1,8 +1,8 @@
 ---
 - name: gather os specific variables
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
@@ -12,9 +12,9 @@
         - vars
 
 - name: include os specific tasks
-  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_tasks: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
@@ -23,11 +23,11 @@
       paths:
         - tasks
 
-- include: pre.yaml
+- ansible.builtin.include_tasks: pre.yaml
 
-- include: install.yaml
+- ansible.builtin.include_tasks: install.yaml
 
-- include: configure.yaml
+- ansible.builtin.include_tasks: configure.yaml
 
-  #- include: nginx.yaml
+  #- ansible.builtin.include_tasks: nginx.yaml
   #  when: '"nginx" in ansible_play_role_names'

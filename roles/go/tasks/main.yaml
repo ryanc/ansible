@@ -1,8 +1,8 @@
 ---
 - name: gather architecture specific variables
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_userspace_architecture }}.yaml"
         - "default.yaml"
@@ -21,9 +21,9 @@
   when: st.stat.exists is defined and st.stat.exists
 
 - name: gather os specific variables
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"

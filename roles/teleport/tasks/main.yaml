@@ -1,8 +1,8 @@
 ---
 - name: gather architecture specific variables
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_userspace_architecture }}.yaml"
         - "default.yaml"
@@ -10,9 +10,9 @@
         - vars
 
 - name: gather os specific variables
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
@@ -22,9 +22,9 @@
         - vars
 
 - name: include os specific tasks
-  include_tasks: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_tasks: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
+    params:
       files:
         - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
         - "{{ ansible_distribution }}.yaml"
