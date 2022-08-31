@@ -33,19 +33,19 @@
         - tasks
 
 - name: install package
-  package:
+  ansible.builtin.package:
     name: "{{ grafana_package_name }}"
     state: "{{ grafana_package_state }}"
 
 - name: "create {{ grafana_etc_path }}"
-  file:
+  ansible.builtin.file:
     path: "{{ grafana_etc_path }}"
     owner: root
     group: root
     mode: 0755
 
 - name: configure
-  template:
+  ansible.builtin.template:
     src: grafana.ini.j2
     dest: "{{ grafana_config_path }}"
     owner: root
@@ -54,7 +54,7 @@
   notify: restart grafana
 
 - name: provision datasources
-  copy:
+  ansible.builtin.copy:
     dest: "{{ grafana_provisioning_path }}/datasources/datasource.yaml"
     content: "{{ grafana_datasources | to_nice_yaml }}"
     owner: root
@@ -62,7 +62,7 @@
     mode: 0640
 
 - name: create dashboard directory
-  file:
+  ansible.builtin.file:
     path: /var/lib/grafana/dashboards
     state: directory
     owner: "{{ grafana_user }}"
@@ -70,7 +70,7 @@
     mode: 0755
 
 - name: provision dashboards
-  copy:
+  ansible.builtin.copy:
     dest: "{{ grafana_provisioning_path }}/dashboards/dashboards.yaml"
     content: "{{ grafana_dashboards | to_nice_yaml }}"
     owner: root
@@ -78,7 +78,7 @@
     mode: 0640
 
 - name: upload user dashboards
-  copy:
+  ansible.builtin.copy:
     src: "files/grafana/dashboards/{{ item }}"
     dest: "/var/lib/grafana/dashboards/{{ item | basename }}"
     owner: "{{ grafana_user }}"
@@ -87,7 +87,7 @@
   loop: "{{ grafana_dashboard_files | default([]) }}"
 
 - name: manage service
-  service:
+  ansible.builtin.service:
     name: "{{ grafana_service_name }}"
     state: "{{ grafana_service_state }}"
     enabled: "{{ grafana_service_enabled }}"

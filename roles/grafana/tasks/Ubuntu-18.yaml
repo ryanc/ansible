@@ -1,6 +1,6 @@
 ---
 - name: create grafana-server.service.d
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/grafana-server.service.d
     owner: root
     group: root
@@ -8,7 +8,7 @@
     state: directory
 
 - name: configure systemd override
-  copy:
+  ansible.builtin.copy:
     src: Ubuntu-18-override.conf
     dest: /etc/systemd/system/grafana-server.service.d/10-override.conf
     owner: root

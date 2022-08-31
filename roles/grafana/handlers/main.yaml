@@ -1,11 +1,11 @@
 ---
 - name: grafana daemon-reload
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ grafana_service_name }}"
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted
 
 - name: restart grafana
-  service:
+  ansible.builtin.service:
     name: "{{ grafana_service_name }}"
     state: restarted
