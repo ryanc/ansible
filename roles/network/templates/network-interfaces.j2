@@ -1,8 +1,0 @@
-# {{ ansible_managed }}
-
-{% if _network_ifupdown_enabled %}
-{% elif _network_netplan_enabled %}
-# netplan is in use.
-{% elif _network_systemd_networkd_enabled %}
-# systemd-networkd is in use.
-{% endif %}

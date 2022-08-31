@@ -1,15 +1,9 @@
 ---
-# netplan.io
-
-- name: manage netplan package
-  package:
-    name: "{{ _network_netplan_package_name }}"
-    state: "{{ _network_netplan_enabled | ternary('present', 'absent') }}"
-
-- name: manage netplan
-  template:
-    src: netcfg.yaml.j2
+- name: Configure netplan
+  copy:
     dest: /etc/netplan/01-netcfg.yaml
+    owner: root
+    group: root
+    mode: '0644'
+    content: "{{ network_netplan_config | to_nice_yaml }}"
   notify: netplan apply
-  when: _network_netplan_enabled | bool
-

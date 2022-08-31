@@ -1,0 +1,6 @@
+---
+- name: Include netplan vars
+  include_vars: netplan.yaml
+
+- name: Include netplan tasks
+  include_tasks: netplan.yml
