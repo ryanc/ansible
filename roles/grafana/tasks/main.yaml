@@ -60,6 +60,7 @@
     owner: root
     group: "{{ grafana_group }}"
     mode: 0640
+  notify: restart grafana
 
 - name: create dashboard directory
   ansible.builtin.file:
@@ -76,6 +77,7 @@
     owner: root
     group: "{{ grafana_group }}"
     mode: 0640
+  notify: restart grafana
 
 - name: upload user dashboards
   ansible.builtin.copy:
@@ -85,6 +87,7 @@
     group: "{{ grafana_group }}"
     mode: 0644
   loop: "{{ grafana_dashboard_files | default([]) }}"
+  notify: restart grafana
 
 - name: manage service
   ansible.builtin.service:
