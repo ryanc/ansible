@@ -13,7 +13,7 @@ LOCK="${LOCK_PATH}/tidy.lock"
 KEEP_LOCK=
 
 function finish {
-    if [ -z $KEEP_LOCK ]; then
+    if [ -z "$KEEP_LOCK" ]; then
         rm -f "$LOCK"
     fi
 }
@@ -109,7 +109,7 @@ until [ $counter -eq "$MAX_ATTEMPTS" ] || [ $rc -eq 0 ]; do
     (( counter++ ))
 done
 
-if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
+if [ $rc -ne 0 ] && [ "$counter" -eq "$MAX_ATTEMPTS" ]; then
     printf "tidy timed out, exiting\n"
 else
     printf "complete\n"

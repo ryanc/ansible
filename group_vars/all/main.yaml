@@ -135,7 +135,7 @@ sudo_rules:
 
 restic_repos:
   - name: b2
-    repo: "b2:kill0-infra-backup:"
+    repo: "b2:kill0-infra-backup:/{{ inventory_hostname_short }}"
     environment:
       RESTIC_PASSWORD: "{{ vault_restic_repo_b2_password }}"
       B2_ACCOUNT_ID: "{{ vault_restic_repo_b2_account_id }}"

@@ -33,7 +33,7 @@ main() {
             gitea dump \
             --config "$GITEA_CONFIG" \
             --work-path "$GITEA_WORK_PATH" \
-            --custom-path "$GITEA_CUSTOM_PATH" > /dev/null
+            --custom-path "$GITEA_CUSTOM_PATH" >/dev/null 2>&1
         printf "gitea dump complete\n"
         popd > /dev/null || printf "could not chdir to %s\n" "$OLDPWD"
     elif [ "$1" == "post" ]; then

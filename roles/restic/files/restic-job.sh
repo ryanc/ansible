@@ -19,8 +19,14 @@ NICE="ionice -c2 nice -n19"
 JOB=$1
 LOCK="/run/restic/${JOB}.lock"
 
+KEEP_HOURLY=${KEEP_HOURLY:-24}
+KEEP_DAILY=${KEEP_DAILY:-7}
+KEEP_WEEKLY=${KEEP_WEEKLY:-5}
+KEEP_MONTHLY=${KEEP_MONTHLY:-12}
+KEEP_YEARLY=${KEEP_YEARLY:-10}
+
 function finish {
-    if [ -z $KEEP_LOCK ]; then
+    if [ -z "$KEEP_LOCK" ]; then
         rm -f "$LOCK"
     fi
 }
@@ -90,6 +96,25 @@ echo $$ > "$LOCK"
 
 LOCKED=$(($(date +%s) - START))
 
+printf "prune: started, keep hourly:%d daily:%d weekly:%d monthly:%d year:%d\n" \
+    "$KEEP_HOURLY" \
+    "$KEEP_DAILY" \
+    "$KEEP_WEEKLY" \
+    "$KEEP_MONTHLY" \
+    "$KEEP_YEARLY"
+
+$RESTIC_PATH forget \
+    --quiet \
+    --host "$(hostname -f)" \
+    --keep-hourly "$KEEP_HOURLY" \
+    --keep-daily "$KEEP_DAILY" \
+    --keep-weekly "$KEEP_WEEKLY" \
+    --keep-monthly "$KEEP_MONTHLY" \
+    --keep-yearly "$KEEP_YEARLY" \
+    --prune
+
+printf "prune: complete\n"
+
 printf "job '%s' started\n" "$JOB"
 
 if [ -d "${HOOKS_PATH}" ]; then
@@ -127,7 +152,7 @@ until [ $counter -eq "$MAX_ATTEMPTS" ] || [ $rc -eq 0 ]; do
 done
 printf "restic complete\n"
 
-if [ $rc -ne 0 ] && [ $counter -eq "$MAX_ATTEMPTS" ]; then
+if [ $rc -ne 0 ] && [ "$counter" -eq "$MAX_ATTEMPTS" ]; then
   printf "restic job timed out, exiting\n"
 else
     printf "job '%s' complete\n" "$JOB"
