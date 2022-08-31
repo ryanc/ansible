@@ -1,9 +1,18 @@
 ---
+- name: Remove default netplan configuration
+  ansible.builtin.file:
+    path: "{{ network_netplan_default_config_path }}"
+    state: "{{ network_netplan_default_config_state | default('absent') }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: netplan apply
+
 - name: Configure netplan
-  copy:
-    dest: /etc/netplan/01-netcfg.yaml
+  ansible.builtin.template:
+    dest: "{{ network_netplan_config_path }}"
+    src: netplan.yaml.j2
     owner: root
     group: root
     mode: '0644'
-    content: "{{ network_netplan_config | to_nice_yaml }}"
   notify: netplan apply
