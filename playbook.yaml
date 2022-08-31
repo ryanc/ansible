@@ -6,8 +6,6 @@
     - util
     - sudo
     - hostsfile
-    - { role:  vm_guest, when: "ansible_virtualization_type is defined" }
-    - grub
     - certs
     - rsyslog
     - users
@@ -19,8 +17,6 @@
     - chrony
     - unattended-upgrades
     - postfix
-    - aide
-    - telegraf
     - restic
     - node_exporter
     - blackbox_exporter

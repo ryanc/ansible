@@ -111,8 +111,6 @@
         network_config:
           address: 172.17.10.53/24
           gateway: 172.17.10.1
-  roles:
-  - libvirt
 - hosts: rabbitmq_servers
   become: true
   vars:
