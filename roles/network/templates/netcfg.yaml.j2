@@ -31,7 +31,7 @@ network:
 {% if ansible_default_ipv4.address is defined or ansible_default_ipv6.address is defined %}
       addresses:
 {% if ansible_default_ipv4.address is defined %}
-        - {{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.network + "/" + ansible_default_ipv4.netmask) | ipaddr('prefix') }}
+        - {{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.network + "/" + ansible_default_ipv4.netmask) | ansible.utils.ipaddr('prefix') }}
 {% endif %}
 {% if ansible_default_ipv6.address is defined %}
         - {{ ansible_default_ipv6.address }}/{{ ansible_default_ipv6.prefix }}

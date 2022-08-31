@@ -2,7 +2,7 @@
 create {{ name }} {{ type | default('hash:net') }} family {{ family }} counters {% if timeout %}timeout {{ timeout }}{% endif %} -exist
 flush {{ name }}
 {% if ipset | length %}
-{% for ip_or_net in ipset | ipv6 %}
+{% for ip_or_net in ipset | ansible.utils.ipv6 %}
 add {{ name }} {{ ip_or_net }}
 {% endfor %}
 {% endif %}

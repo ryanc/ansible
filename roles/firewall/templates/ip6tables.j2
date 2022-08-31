@@ -66,7 +66,7 @@
 -A INPUT -i lo -m comment --comment "lo accept all inet6" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
-{% for ip in firewall_ssh_whitelist | ipv6 %}
+{% for ip in firewall_ssh_whitelist | ansible.utils.ipv6 %}
 -A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp6" -j ACCEPT
 {% endfor %}
 {% endif %}

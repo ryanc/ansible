@@ -9,8 +9,8 @@ add {{ name }} {{ ip_or_net }}
 {% endmacro %}
 
 {% macro render_dual_stack_ipset(ipset, name, type="hash:net", family="inet", timeout=None) %}
-{{ render_ipset(ipset | ipv4, name + "4", type=type, family=family, timeout=timeout) }}
-{{ render_ipset(ipset | ipv6, name + "6", type=type, family="inet6", timeout=timeout) }}
+{{ render_ipset(ipset | ansible.utils.ipv4, name + "4", type=type, family=family, timeout=timeout) }}
+{{ render_ipset(ipset | ansible.utils.ipv6, name + "6", type=type, family="inet6", timeout=timeout) }}
 {% endmacro %}
 
 {{ render_dual_stack_ipset([], 'block') }}

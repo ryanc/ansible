@@ -66,7 +66,7 @@
 -A INPUT -i lo -m comment --comment "lo accept all" -j ACCEPT
 
 {% if firewall_ssh_whitelist | length %}
-{% for ip in firewall_ssh_whitelist | ipv4 %}
+{% for ip in firewall_ssh_whitelist | ansible.utils.ipv4 %}
 -A INPUT -p tcp -m tcp --dport 22 --source {{ ip }} -m comment --comment "accept {{ ip }} ssh 22/tcp" -j ACCEPT
 {% endfor %}
 {% endif %}
@@ -94,7 +94,7 @@
 -A INPUT -p icmp -m icmp --icmp-type echo-reply -m comment --comment "accept icmp echo-reply" -j ACCEPT
 
 {% if firewall_allowed_icmp_types | length %}
-{% for type in firewall_allowed_icmp_types | ipv4 %}
+{% for type in firewall_allowed_icmp_types | ansible.utils.ipv4 %}
 -A INPUT -p icmp -m icmp --icmp-type {{ type }} -m comment --comment "accept icmp {{ type }}" -j ACCEPT
 {% endfor %}
 {% endif %}
