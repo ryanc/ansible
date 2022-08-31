@@ -29,31 +29,10 @@ grafana_ssl_certificate_key: "/etc/letsencrypt/live/{{ grafana_domain }}/privkey
 # grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
 
 grafana_datasources:
-  apiVersion: 1
-  datasources:
-    - name: influxdb
-      type: influxdb
-      access: proxy
-      url: http://localhost:8086
-      database: telegraf
-      isDefault: true
-      version: 1
+  {}
 
 grafana_dashboards:
-  apiVersion: 1
-  providers:
-    - name: ansible
-      folder: Built-in
-      type: file
-      options:
-        path: /var/lib/grafana/dashboards
+  {}
 
 grafana_dashboard_files:
-  - connectivity.json
-  - home-networking.json
-  - iptables.json
-  - nginx.json
-  - processes.json
-  - switching.json
-  - system.json
-  - ups.json
+  []

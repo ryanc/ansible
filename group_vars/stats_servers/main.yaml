@@ -5,7 +5,7 @@ grafana_package_state: present
 
 grafana_service_name: grafana-server.service
 grafana_service_state: started
-grafana_service_enabled: yes
+grafana_service_enabled: true
 
 grafana_etc_path: /etc/grafana
 grafana_config_path: "{{ grafana_etc_path }}/grafana.ini"
@@ -23,20 +23,29 @@ grafana_config:
     http_addr: localhost
     http_port: "{{ grafana_port }}"
 
-grafana_ssl_enabled: yes
+grafana_ssl_enabled: true
 grafana_ssl_certificate: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
 grafana_ssl_certificate_key: "/etc/letsencrypt/live/{{ grafana_domain }}/privkey.pem"
-#grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
+# grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
 
 grafana_datasources:
   apiVersion: 1
-  datasources:
+  deleteDatasources:
     - name: influxdb
-      type: influxdb
+      orgId: 1
+  datasources:
+    - name: Prometheus
+      type: prometheus
       access: proxy
-      url: http://localhost:8086
-      database: telegraf
-      isDefault: yes
+      orgId: 1
+      url: http://localhost:9090
+      isDefault: true
+      version: 1
+    - name: Thanos
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://localhost:10913
       version: 1
 
 grafana_dashboards:
