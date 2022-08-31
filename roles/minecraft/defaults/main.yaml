@@ -1,5 +1,5 @@
 ---
-minecraft_java_package_name: openjdk-8-jre-headless
+minecraft_java_package_name: openjdk-18-jre-headless
 minecraft_java_package_state: present
 
 minecraft_service_name: minecraft.service
