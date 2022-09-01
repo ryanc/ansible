@@ -81,7 +81,6 @@
     group: root
     mode: 0755
   loop:
-    - restic-tidy.sh
     - restic-repo.sh
     - restic-job.sh
 

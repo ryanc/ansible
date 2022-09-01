@@ -53,13 +53,3 @@
         state: link
         force: yes
       when: restic_repos | count == 1
-
-- name: create cron
-  cron:
-    name: "restic {{ item.name }} tidy"
-    hour: "0"
-    minute: "{{ 60 | random(seed=inventory_hostname) }}"
-    user: root
-    state: present
-    job: "( {{ restic_bin_path }}/restic-tidy {{ item.name }} | logger --id=$$ -t restic-tidy -p user.info ) 2>&1 | logger --id=$$ -t restic-tidy -p user.err"
-  when: restic_tidy_enabled
