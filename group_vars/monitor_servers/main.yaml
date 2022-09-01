@@ -169,6 +169,11 @@ prometheus_config:
       static_configs:
         - targets:
             - "localhost:10912"
+    - job_name: grafana
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - "localhost:3002"
   rule_files:
     - rules.yaml
 
