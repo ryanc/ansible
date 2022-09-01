@@ -24,12 +24,17 @@
         - tasks
 
 - name: set hostname
-  hostname:
-    name: "{{ hostname | default(inventory_hostname) }}"
+  ansible.builtin.hostname:
+    name: "{{ common_hostname | default(inventory_hostname) }}"
 
 - name: configure system timezone
-  timezone:
-    name: "{{ timezone }}"
+  ansible.builtin.timezone:
+    name: "{{ common_timezone | default('Etc/UTC') }}"
   notify: restart cron
+
+- name: configure system locale
+  ansible.builtin.command:
+    cmd: "localectl set-locale {{ common_locale | default('C.UTF-8') }}"
+  when: ansible_facts.env.LANG != (common_locale | default('C.UTF-8'))
 
 # vim:ft=yaml.ansible:

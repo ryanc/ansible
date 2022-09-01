@@ -1,6 +1,6 @@
 ---
-cron_service_name: cron
-
-timezone: UTC
-
-# vim:ft=yaml.ansible:
+# common_cron_service_name: cron.service
+# common_timezone: Etc/UTC
+# common_locale: C.UTF-8
+# common_apt_update_cache: true
+# common_apt_cache_valid_time: 3600

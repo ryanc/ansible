@@ -1,6 +1,6 @@
 ---
 - name: run apt-get update
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
+  ansible.builtin.apt:
+    update_cache: "{{ common_apt_update_cache | default(true) }}"
+    cache_valid_time: "{{ common_apt_cache_valid_time | default(3600) }}"
   changed_when: false

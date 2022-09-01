@@ -1,8 +1,5 @@
 ---
 - name: restart cron
-  service:
-    name: "{{ cron_service_name }}"
+  ansible.builtin.service:
+    name: "{{ common_cron_service_name | default('cron.service') }}"
     state: restarted
-  when: cron_service_name is defined
-
-# vim:ft=yaml.ansible:
