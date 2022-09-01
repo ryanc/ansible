@@ -1,0 +1,12 @@
+---
+kind: pipeline
+name: default
+
+steps:
+  - name: lint
+    image: python
+    commands:
+      - pip install yamllint
+      - pip install ansible-lint
+      - yamllint .
+      - ansible-lint .
