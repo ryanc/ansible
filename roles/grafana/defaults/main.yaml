@@ -38,6 +38,3 @@ grafana_datasources:
 
 grafana_dashboards:
   {}
-
-grafana_dashboard_files:
-  []

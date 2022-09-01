@@ -55,7 +55,7 @@
 
 - name: provision datasources
   ansible.builtin.copy:
-    dest: "{{ grafana_provisioning_path }}/datasources/datasource.yaml"
+    dest: "{{ grafana_provisioning_path }}/datasources/ansible.yaml"
     content: "{{ grafana_datasources | to_nice_yaml }}"
     owner: root
     group: "{{ grafana_group }}"
@@ -72,7 +72,7 @@
 
 - name: provision dashboards
   ansible.builtin.copy:
-    dest: "{{ grafana_provisioning_path }}/dashboards/dashboards.yaml"
+    dest: "{{ grafana_provisioning_path }}/dashboards/ansible.yaml"
     content: "{{ grafana_dashboards | to_nice_yaml }}"
     owner: root
     group: "{{ grafana_group }}"
@@ -80,13 +80,12 @@
   notify: restart grafana
 
 - name: upload user dashboards
-  ansible.builtin.copy:
-    src: "files/grafana/dashboards/{{ item }}"
-    dest: "/var/lib/grafana/dashboards/{{ item | basename }}"
-    owner: "{{ grafana_user }}"
-    group: "{{ grafana_group }}"
-    mode: 0644
-  loop: "{{ grafana_dashboard_files | default([]) }}"
+  ansible.posix.synchronize:
+    src: "{{ grafana_user_dashboard_path }}"
+    dest: "{{ grafana_dashboard_path }}/"
+    owner: false
+    group: false
+    delete: true
   notify: restart grafana
 
 - name: manage service
