@@ -21,9 +21,6 @@ all:
     monitor_servers:
       hosts:
         jump0.kill0.net
-    name_servers:
-      hosts:
-        jump0.kill0.net
     linode:
       hosts:
         mine0.kill0.net:

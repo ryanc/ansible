@@ -3,13 +3,13 @@
   become: true
   roles:
     - common
+    - network
     - util
     - sudo
     - hostsfile
     - certs
     - rsyslog
     - users
-    - network
     - dns
     - firewall
     - openssh
@@ -42,7 +42,6 @@
   roles:
     - nginx
     - certbot
-    - influxdb
     - grafana
 - hosts: monitor_servers
   become: true
@@ -65,9 +64,5 @@
       tags:
         - thanos
         - monitoring
-- hosts: name_servers
-  become: true
-  roles:
-    - nsd
 
 # vim:ft=yaml.ansible:
