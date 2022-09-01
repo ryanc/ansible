@@ -8,6 +8,8 @@ grafana_service_state: started
 grafana_service_enabled: true
 
 grafana_etc_path: /etc/grafana
+grafana_var_path: /var/lib/grafana
+grafana_dashboard_path: "{{ grafana_var_path }}/dashboards"
 grafana_config_path: "{{ grafana_etc_path }}/grafana.ini"
 grafana_provisioning_path: /etc/grafana/provisioning
 
@@ -27,6 +29,9 @@ grafana_ssl_enabled: true
 grafana_ssl_certificate: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
 grafana_ssl_certificate_key: "/etc/letsencrypt/live/{{ grafana_domain }}/privkey.pem"
 # grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
+
+
+grafana_user_dashboard_path: files/grafana/dashboards/
 
 grafana_datasources:
   {}
