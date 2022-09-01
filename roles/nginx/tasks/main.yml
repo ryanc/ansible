@@ -28,7 +28,6 @@
     name: "{{ item }}"
     state: present
   loop:
-    - python-passlib
     - python3-passlib
 
 - name: install package

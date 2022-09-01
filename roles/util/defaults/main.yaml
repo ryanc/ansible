@@ -67,9 +67,7 @@ util_packages:
   interpreters:
     - lua5.3
   python:
-    - python-pip
     - python3-pip
-    - python-requests
     - python3-requests
   fun:
     - cmatrix
