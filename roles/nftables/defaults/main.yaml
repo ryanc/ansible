@@ -1,0 +1,70 @@
+---
+# nftables_ufw_package_name: ufw
+# nftables_ufw_package_state: absent
+
+# nftables_package_name: nftables
+# nftables_package_state: present
+
+# nftables_service_name: nftables
+# nftables_service_state: started
+# nftables_service_enabled: true
+
+# nftables_config_path: /etc/nftables.conf
+
+nftables_builtin_defines:
+  REQUIRED_ICMPV6_TYPES:
+    - 1-4
+    - 130-136
+    - 141-143
+    - 148-149
+    - 151-153
+  TRACEROUTE_UDP_PORTS: 33434-33534
+
+nftables_builtin_sets:
+  blackhole4:
+    - type ipv4_addr
+    - flags interval
+  blackhole6:
+    - type ipv6_addr
+    - flags interval
+  tcp_input_accept:
+    - type inet_service
+    - flags interval
+    - elements = { ssh }
+  udp_input_accept:
+    - type inet_service
+    - flags interval
+
+nftables_input_builtin_rules:
+  - type filter hook input priority filter; policy drop;
+  - ip saddr @blackhole4 drop
+  - ip6 saddr @blackhole6 drop
+  - ct state established,related accept
+  - ct state invalid drop
+  - iifname "lo" accept
+  - icmpv6 type $REQUIRED_ICMPV6_TYPES accept
+  - icmpv6 type echo-request accept
+  - icmp type echo-request accept
+  - tcp dport @tcp_input_accept accept
+  - udp dport @udp_input_accept accept
+  # this should be last because these ports could be allowed
+  - udp dport $TRACEROUTE_UDP_PORTS reject
+
+nftables_forward_builtin_rules:
+  - type filter hook forward priority filter; policy drop;
+  - ct state { established, related } accept
+
+nftables_output_builtin_rules:
+  - type filter hook output priority filter; policy accept;
+  - ip daddr @blackhole4 drop
+  - ip6 daddr @blackhole6 drop
+  - ct state { established, related } accept
+
+# nftables_sets:
+#   {}
+#
+# nftables_input_rules:
+#   []
+#
+# nftables_output_rules:
+#   []

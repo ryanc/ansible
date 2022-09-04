@@ -1,0 +1,16 @@
+---
+- name: configure rules
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: "{{ nftables_config_path | default('/etc/nftables.conf') }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart nftables
+
+- name: manage service
+  ansible.builtin.service:
+    name: "{{ nftables_service_name | default('nftables') }}"
+    state: "{{ nftables_service_state | default('started') }}"
+    enabled: "{{ nftables_service_enabled | default(true) }}"

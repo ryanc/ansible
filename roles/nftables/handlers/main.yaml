@@ -1,0 +1,10 @@
+---
+- name: reload nftables
+  ansible.builtin.service:
+    name: "{{ nftables_service_name | default('nftables') }}"
+    state: reloaded
+
+- name: restart nftables
+  ansible.builtin.service:
+    name: "{{ nftables_service_name | default('nftables') }}"
+    state: restarted

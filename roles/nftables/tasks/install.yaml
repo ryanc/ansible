@@ -1,0 +1,5 @@
+---
+- name: remove ufw
+  ansible.builtin.package:
+    name: "{{ nftables_package_name | default('nftables') }}"
+    state: "{{ nftables_package_state | default('present') }}"

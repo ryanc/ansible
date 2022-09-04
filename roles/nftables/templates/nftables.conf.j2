@@ -1,0 +1,82 @@
+table inet filter {
+{% if nftables_builtin_defines is mapping %}
+{%   for name, cfg in nftables_builtin_defines.items() %}
+{%     if cfg is string %}
+  define {{ name }} = {{ cfg }}
+{%     elif cfg is sequence %} 
+  define {{ name }} = {
+{%     for elem in cfg %}
+    {{ elem }},
+{%     endfor %}
+  }
+{%     endif %}
+{%   endfor %}
+{% endif %}
+{% if nftables_defines is mapping %}
+{%   for name, cfg in nftables_defines.items() %}
+  define {{ name }} = {
+{%     for elem in cfg %}
+    {{ elem }},
+{%     endfor %}
+  }
+{%   endfor %}
+{% endif %}
+
+{% if nftables_builtin_sets is mapping %}
+{%   for name, cfg in nftables_builtin_sets.items() %}
+  set {{ name }} { 
+{%     for elem in cfg %}
+    {{ elem }}
+{%     endfor %}
+  }
+{%   endfor %}
+{% endif %}
+{% if nftables_sets is mapping %}
+{%   for name, cfg in nftables_sets.items() %}
+  set {{ name }} { 
+{%     for elem in cfg %}
+    {{ elem }}
+{%     endfor %}
+  }
+{%   endfor %}
+{% endif %}
+
+  chain input {
+{% if nftables_input_builtin_rules is sequence %}
+{%   for rule in nftables_input_builtin_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+{% if nftables_input_rules is sequence %}
+{%   for rule in nftables_input_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+  }
+
+  chain forward {
+{% if nftables_forward_builtin_rules is sequence %}
+{%   for rule in nftables_forward_builtin_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+{% if nftables_forward_rules is sequence %}
+{%   for rule in nftables_forward_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+  }
+
+  chain output {
+{% if nftables_output_builtin_rules is sequence %}
+{%   for rule in nftables_output_builtin_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+{% if nftables_output_rules is sequence %}
+{%   for rule in nftables_output_rules %}
+    {{ rule }}
+{%   endfor %}
+{% endif %}
+  }
+}
