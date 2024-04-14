@@ -39,8 +39,8 @@ prometheus_bin_path: /usr/local/bin
 
 prometheus_ssl_enabled: true
 prometheus_hostname: "{{ prometheus_web_external_url | urlsplit('hostname') }}"
-prometheus_ssl_certificate: "/etc/letsencrypt/live/{{ prometheus_hostname }}/fullchain.pem"
-prometheus_ssl_certificate_key: "/etc/letsencrypt/live/{{ prometheus_hostname }}/privkey.pem"
+prometheus_ssl_certificate: "/var/lib/lego/certificates/{{ prometheus_hostname }}.crt"
+prometheus_ssl_certificate_key: "/var/lib/lego/certificates/{{ prometheus_hostname }}.key"
 
 prometheus_alertmanager_enabled: true
 

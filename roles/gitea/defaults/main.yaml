@@ -53,6 +53,8 @@ gitea_config:
     colorize: no
   service:
     register_manual_confirm: true
+  metrics:
+    enabled: true
 
 gitea_var_tree:
   - "{{ gitea_var_path }}"
@@ -62,6 +64,6 @@ gitea_var_tree:
   - "{{ gitea_var_path }}/backup"
 
 gitea_ssl_enabled: yes
-gitea_ssl_certificate: "/etc/letsencrypt/live/{{ gitea_domain }}/fullchain.pem"
-gitea_ssl_certificate_key: "/etc/letsencrypt/live/{{ gitea_domain }}/privkey.pem"
+gitea_ssl_certificate: "/var/lib/lego/certificates/{{ gitea_domain }}.crt"
+gitea_ssl_certificate_key: "/var/lib/lego/certificates/{{ gitea_domain }}.key"
 #gitea_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"

@@ -26,8 +26,8 @@ grafana_config:
     http_port: "{{ grafana_port }}"
 
 grafana_ssl_enabled: true
-grafana_ssl_certificate: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
-grafana_ssl_certificate_key: "/etc/letsencrypt/live/{{ grafana_domain }}/privkey.pem"
+grafana_ssl_certificate: "/var/lib/lego/certificates/{{ grafana_domain }}.crt"
+grafana_ssl_certificate_key: "/var/lib/lego/certificates/{{ grafana_domain }}.key"
 # grafana_ssl_dhparam: "/etc/letsencrypt/ssl-dhparams.pem"
 
 
