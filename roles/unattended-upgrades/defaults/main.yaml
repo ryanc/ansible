@@ -21,10 +21,10 @@ unattended_upgrades_unattended_upgrade: true
 unattended_upgrades_allowed_origins:
   - "${distro_id}:${distro_codename}"
   - "${distro_id}:${distro_codename}-security"
-  - "${distro_id}ESM:${distro_codename}"
-  # - "${distro_id}:${distro_codename}-updates"
-  # - "${distro_id}:${distro_codename}-proposed"
+  - "${distro_id}:${distro_codename}-updates"
   # - "${distro_id}:${distro_codename}-backports"
+  # - "${distro_id}:${distro_codename}-proposed"
+  # - "${distro_id}ESM:${distro_codename}"
 
 # List of packages to not update (regexp are supported)
 # unattended_upgrades_package_blacklist: []
