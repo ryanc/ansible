@@ -1,33 +1,59 @@
 # {{ ansible_managed }}
 
-{% for vhost in item.value %}
+{% if item.value.upstream is defined %}
+{% for upstream in item.value.upstream %}
+upstream {{ upstream.name }} {
+{% for server in upstream.server %}
+    server {{ server }};
+{% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% if item.value.map is defined %}
+{% for map in item.value.map %}
+map {{ map.name }} {{ map.variable }} {
+{% for k, v in map.content.items() %}
+{% if k is string and k == "" %}
+    "" {{ v }};
+{% else %}
+    {{ k }} {{ v }};
+{% endif %}
+{% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% for server in item.value.server %}
 server {
-{% if vhost.listen is defined %}
-{% for listen in vhost.listen %}
+{% if server.listen is defined %}
+{% for listen in server.listen %}
     listen {{ listen }};
 {% endfor %}
-
-{% if vhost.server_name is defined %}
-    server_name {{ vhost.server_name }};
-{% endif %}
-{% endif %}
-    access_log {{ vhost.access_log | default(nginx_var_log_path + '/' + vhost.server_name + '.access.log main') }};
-    error_log {{ vhost.error_log | default(nginx_var_log_path + '/' + vhost.server_name + '.error.log warn') }};
-
-{% if vhost.root is defined %}
-    root {{ vhost.root }};
 {% endif %}
 
-    index {{ vhost.index | default('index.html index.htm') }};
+    http2 {{ server.http2 | default("on") }};
 
-{% if vhost.ssl_certificate is defined %}
-    ssl_certificate {{ vhost.ssl_certificate }};
+{% if server.server_name is defined %}
+    server_name {{ server.server_name }};
 {% endif %}
-{% if vhost.ssl_certificate_key is defined %}
-    ssl_certificate_key {{ vhost.ssl_certificate_key }};
+    access_log {{ server.access_log | default(nginx_var_log_path + '/' + server.server_name + '.access.log main') }};
+    error_log {{ server.error_log | default(nginx_var_log_path + '/' + server.server_name + '.error.log warn') }};
+
+{% if server.root is defined %}
+    root {{ server.root }};
 {% endif %}
-{% if vhost.ssl_dhparam is defined %}
-    ssl_dhparam {{ vhost.ssl_dhparam }};
+
+    index {{ server.index | default('index.html index.htm') }};
+
+{% if server.ssl_certificate is defined %}
+    ssl_certificate {{ server.ssl_certificate }};
+{% endif %}
+{% if server.ssl_certificate_key is defined %}
+    ssl_certificate_key {{ server.ssl_certificate_key }};
+{% endif %}
+{% if server.ssl_dhparam is defined %}
+    ssl_dhparam {{ server.ssl_dhparam }};
 {% endif %}
 
     location /.well-known/acme-challenge/ {
@@ -35,8 +61,8 @@ server {
         try_files $uri =404;
     }
 
-{% if vhost.raw is defined %}
-    {{ vhost.raw | indent(4) }}
+{% if server.raw is defined %}
+    {{ server.raw | indent(4) }}
 {% endif %}
 }
 {% endfor %}

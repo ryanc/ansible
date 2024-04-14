@@ -44,6 +44,19 @@
     mode: 0644
   notify: reload nginx
 
+- name: configure htpasswd files
+  ansible.builtin.copy:
+    dest: "{{ nginx_etc_path }}/{{ item.key }}.htpasswd"
+    owner: root
+    group: nginx
+    mode: 0640
+    content: |
+      {% for u, h in item.value.items() %}
+      {{ u }}:{{ h }}
+      {% endfor %}
+  loop: "{{ nginx_htpasswd_files | dict2items }}"
+  notify: reload nginx
+
 - name: configure virtual hosts
   ansible.builtin.include_tasks: vhost.yaml
   loop: "{{ nginx_vhosts | dict2items }}"

@@ -3,11 +3,11 @@
   block:
   - name: create webroot
     file:
-      path: "{{ vhost.root }}"
+      path: "{{ server.root }}"
       state: directory
-    loop: "{{ item.value }}"
+    loop: "{{ item.value.server }}"
     loop_control:
-      loop_var: vhost
+      loop_var: server
 
   - name: configure virtual host
     template:
