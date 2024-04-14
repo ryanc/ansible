@@ -255,51 +255,111 @@ promtail_clients:
       provider: linode
 
 promtail_scrape_configs:
-- job_name: system
+- job_name: journal
+  journal:
+    json: false
+    max_age: 12h
+    path: /var/log/journal
+    labels:
+      job: systemd-journal
+  relabel_configs:
+    - source_labels:
+      - __journal__systemd_unit
+      target_label: systemd_unit
+    - source_labels:
+      - __journal_unit
+      target_label: unit
+    - source_labels:
+      - __journal_priority_keyword
+      target_label: priority
+    - source_labels:
+      - __journal_syslog_identifier
+      target_label: syslog_identifier
+  pipeline_stages:
+    - match:
+        selector: '{systemd_unit=~"(alertmanager|blackbox_exporter|grafana|karma|kthxbye|loki|mimir|node_exporter|prometheus|promtail|pushgateway|thanos).+"}'
+        stages:
+          - logfmt:
+              mapping:
+                level:
+                ts:
+          - timestamp:
+              source: ts
+              format: RFC3339Nano
+          - timestamp:
+              source: t
+              format: RFC3339Nano
+          - labels:
+              priority: level
+- job_name: nginx-access
   static_configs:
-  - targets:
-      - localhost
+    - targets:
+        - localhost
+      labels:
+        job: nginx-access
+        __path__: /var/log/nginx/*.access.log
+  pipeline_stages:
+    - match:
+        selector: '{job="nginx-access"}'
+        stages:
+          - regex:
+              expression: ^(?P<hostname>[0-9A-Za-z\.:-]+) (?P<remote_addr>[0-9A-Za-z\.:-]+) (?P<remote_logname>[0-9A-Za-z-]+) (?P<remote_username>[0-9A-Za-z-]+) \[(?P<timestamp>\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2} (\+|-)\d{4})\] "(?P<request_method>[A-Z]+) (?P<URI>\S+) (?P<http_version>HTTP\/[0-9\.]+)" (?P<request_status>\d{3})
+          - timestamp:
+              source: timestamp
+              format: "02/Jan/2006:15:04:05 -0700"
+          - labels:
+              hostname:
+              method: request_method
+              status: request_status
+              version: http_version
+- job_name: nginx-error
+  static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: nginx-error
+        __path__: /var/log/nginx/*.error.log
+  pipeline_stages:
+    - match:
+        selector: '{job="nginx-error"}'
+        stages:
+          - regex:
+              expression: '^(?P<timestamp>\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<priority>\w+)\] (?P<pid>\d+)\#(?P<tid>\d+): (?:\*(?P<cid>\d+))?'
+          - labels:
+              priority:
+          - timestamp:
+              source: timestamp
+              format: "2023/08/16 02:43:32"
+          - regex:
+              expression: 'host: "(?P<hostname>[0-9A-Za-z\.:-]+)"'
+          - labels:
+              hostname:
+- job_name: syslog
+  syslog:
+    listen_address: 0.0.0.0:1514
+    listen_protocol: tcp
+    idle_timeout: 60s
+    label_structured_data: true
     labels:
       job: syslog
-      __path__: "/var/log/syslog/{{ ansible_hostname }}/**/*.log"
-- job_name: nginx
-  static_configs:
-  - targets:
-      - localhost
-    labels:
-      job: nginx
-      host: "{{ ansible_hostname }}"
-      __path__: /var/log/nginx/*.log
   pipeline_stages:
-  - match:
-      selector: '{job="nginx"}'
-      stages:
-      - regex:
-          expression: '^(?P<remote_addr>[^ ]+) - (?P<remote_user>[^ ]*) \[(?P<time_local>.*)\] "(?P<method>[^ ]*) (?P<request>[^ ]*) (?P<protocol>[^ ]*)" (?P<status>[\d]+) (?P<body_bytes_sent>[\d]+) "(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)"?'
-      - metrics:
-          nginx_requests_total:
-            type: Counter
-            description: requests in nginx access logs
-            source: method
-            config:
-              action: inc
-      - labels:
-          #remote_addr:
-          #remote_user:
-          #time_local:
-          method:
-          #request:
-          #protocol:
-          status:
-          body_bytes_sent:
-          #http_referer:
-          #http_user_agent:
+    - match:
+        selector: '{host=~"ap0|coresw0|fw0|power0|172\\."}'
+        stages:
+          - static_labels:
+              region: home
+              provider: home
 
-loki_service_enabled: false
-loki_service_state: stopped
-
-promtail_service_enabled: false
-promtail_service_state: stopped
+  relabel_configs:
+   - source_labels:
+       - __syslog_message_hostname
+     target_label: host
+   - source_labels:
+       - __syslog_message_severity
+     target_label: priority
+   - source_labels:
+       - __syslog_message_app_name
+     target_label: syslog_identifier
 
 influxdb_service_enabled: false
 influxdb_service_state: stopped
