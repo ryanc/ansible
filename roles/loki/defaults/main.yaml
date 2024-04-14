@@ -26,12 +26,17 @@ loki_user_shell: /usr/sbin/nologin
 loki_group: loki
 loki_group_state: "{{ loki_user_state | default('present') }}"
 
-loki_config_path: /etc/loki.yaml
-
 loki_var_path: /var/lib/loki
 loki_var_owner: "{{ loki_user }}"
 loki_var_group: "{{ loki_group }}"
-loki_var_mode: "0755"
+loki_var_mode: "0700"
+
+loki_etc_path: /etc/loki
+loki_etc_owner: "{{ loki_user }}"
+loki_etc_group: "{{ loki_group }}"
+loki_etc_mode: "0755"
+
+loki_config_path: "{{ loki_etc_path }}/config.yaml"
 
 loki_bin_path: /usr/local/bin
 
@@ -39,36 +44,51 @@ loki_auth_enabled: false
 
 loki_server:
   http_listen_port: 3100
+  grpc_listen_port: 9096
 
-loki_ingester:
-  lifecycler:
-    address: 127.0.0.1
-    ring:
-      kvstore:
-        store: inmemory
-      replication_factor: 1
-    final_sleep: 0s
-  chunk_idle_period: 5m
-  chunk_retain_period: 30s
+loki_common:
+  instance_addr: 127.0.0.1
+  path_prefix: "{{ loki_var_path }}"
+  storage:
+    filesystem:
+      chunks_directory: "{{ loki_var_path }}/chunks"
+      rules_directory: "{{ loki_var_path }}/rules"
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+loki_query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+# loki_storage_config:
+#   {}
 
 loki_schema_config:
   configs:
-  - from: 2020-05-15
-    store: boltdb
-    object_store: filesystem
+  - from: 2020-10-24
+    store: boltdb-shipper
+    object_store: gcs
     schema: v11
     index:
       prefix: index_
-      period: 168h
+      period: 24h
 
-loki_storage_config:
-  boltdb:
-    directory: "{{ loki_var_path }}/index"
-  filesystem:
-    directory: "{{ loki_var_path }}/chunks"
+loki_ruler:
+  alertmanager_url: http://localhost:9093
+
+# loki_query_scheduler:
+#   {}
+
+# loki_querier:
+#   {}
+
+# loki_compactor:
+#   {}
 
 loki_limits_config:
-  enforce_metric_name: false
-  reject_old_samples: true
-  reject_old_samples_max_age: 168h
-  ingestion_burst_size_mb: 16
+  retention_period: 744h

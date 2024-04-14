@@ -15,14 +15,13 @@
     home: "{{ loki_var_path }}"
     state: "{{ loki_user_state | default('present') }}"
 
-- name: configure
-  template:
-    src: loki.yaml.j2
-    dest: "{{ loki_config_path }}"
-    owner: root
-    group: root
-    mode: 0444
-  notify: restart loki
+- name: create etc path
+  file:
+    path: "{{ loki_etc_path }}"
+    state: directory
+    owner: "{{ loki_etc_owner }}"
+    group: "{{ loki_etc_group }}"
+    mode: "{{ loki_etc_mode }}"
 
 - name: create var path
   file:
@@ -31,6 +30,15 @@
     owner: "{{ loki_var_owner }}"
     group: "{{ loki_var_group }}"
     mode: "{{ loki_var_mode }}"
+
+- name: configure
+  template:
+    src: config.yaml.j2
+    dest: "{{ loki_config_path }}"
+    owner: "{{ loki_user }}"
+    group: "{{ loki_group }}"
+    mode: 0400
+  notify: restart loki
 
 - name: configure systemd template
   template:
