@@ -8,6 +8,8 @@ alertmanager_web_external_url: https://monitor.kill0.net/alertmanager
 prometheus_web_route_prefix: /
 alertmanager_web_route_prefix: /
 
+prometheus_file_sd_config_d_files: []
+
 prometheus_config:
   global:
     scrape_interval: 15s
@@ -16,6 +18,10 @@ prometheus_config:
       region: dallas
       provider: linode
       replica: A
+  remote_write:
+    - url: http://localhost:9009/api/v1/push
+      headers:
+        X-Scope-OrgID: kill0-net
   alerting:
     alertmanagers:
       - static_configs:
@@ -177,6 +183,77 @@ prometheus_config:
       static_configs:
         - targets:
             - "localhost:3002"
+#    - job_name: process-exporter
+#      scrape_interval: 5s
+#      static_configs:
+#        - targets:
+#            - "localhost:9256"
+    - job_name: loki
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - "localhost:3100"
+    - job_name: promtail
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - jump0.kill0.net:9080
+            - mine0.kill0.net:9080
+    - job_name: gitea
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - localhost:3001
+    - job_name: karma
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - localhost:8080
+    - job_name: kthxbye
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - localhost:8081
+    - job_name: smokeping
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - localhost:9374
+    - job_name: mimir
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - localhost:9009
+    - &snmp_job
+      job_name: snmp
+      static_configs:
+        - targets:
+          - 172.16.100.1
+          - 172.16.100.2
+      metrics_path: /snmp
+      params:
+        auth: [public_v2]
+        module:
+          - if_mib
+          - ip_mib
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: 127.0.0.1:9116
+    - job_name: snmp_exporter
+      static_configs:
+        - targets:
+          - localhost:9116
+    - <<: *snmp_job
+      job_name: snmp-long
+      scrape_interval: 30s
+      scrape_timeout: 30s
+      static_configs:
+        - targets: []
+
   rule_files:
     - rules.yaml
 
@@ -226,6 +303,10 @@ prometheus_rules_config:
           for: 1m
         - alert: ThanosServiceDown
           expr: up{job=~"thanos.+"} == 0
+          labels:
+            severity: critical
+        - alert: Down
+          expr: up == 0
           labels:
             severity: critical
         - alert: FileSystemUsage
@@ -280,6 +361,13 @@ prometheus_rules_config:
             # summary: Certificates expiring in < 14 days
             summary: "{% raw %}Blackbox SSL certificate will expire soon (instance {{ $labels.instance }}){% endraw %}"
             description: "{% raw %}SSL certificate expires in 14 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}"
+    - name: snmp.rules
+      rules:
+        - alert: PortDown
+          expr: ifAdminStatus{ifName=~"(Gi|eth).+", ifAlias!~".+laptop|notebook.+"} == 1 and ifOperStatus == 2
+          for: 1m
+        - alert: PortFlapping
+          expr: changes(ifOperStatus{ifName=~"(Gi|eth).+"}[5m]) > 2
 
 blackbox_exporter_config:
   modules:
@@ -309,34 +397,6 @@ blackbox_exporter_config:
       http:
         method: GET
 
-#  route:
-#    receiver: pushover-receiver
-#    mute_time_intervals:
-#      - quiet_hours
-#    routes:
-#      - receiver: blackhole
-#        match:
-#          alertname: MaintenanceMode
-#      #- receiver: blackhole
-#      #  match:
-#      #    alertname: QuietHours
-#  receivers:
-#    - name: blackhole
-#    - name: pushover-receiver
-#      pushover_configs:
-#        - token: "{{ vault_pushover_token }}"
-#          user_key: "{{ vault_pushover_user_key }}"
-#  inhibit_rules:
-#    - source_match:
-#        alertname: MaintenanceMode
-#    #- source_match:
-#    #    alertname: QuietHours
-#  time_intervals:
-#    - name: quiet_hours
-#      times:
-#        - start_time: 03:00
-#          end_time: 15:00
-
 alertmanager_config:
   inhibit_rules:
     - source_match:
@@ -345,9 +405,13 @@ alertmanager_config:
     - name: blackhole
     - name: pushover-receiver
       pushover_configs:
-        - token: agwd6wv7xveakykb8e5rz7rw3eg2v3
+        - token: "{{ vault_alertmanager_pushover_token }}"
           user_key: 28G1x3lT4oUtlck50R1H3e6j8kDHjb
+    - name: discord
+      discord_configs:
+        - webhook_url: "{{ vault_alertmanager_discord_webhook_url }}"
   route:
+    repeat_interval: 24h
     receiver: pushover-receiver
     routes:
       - match:
@@ -359,6 +423,8 @@ alertmanager_config:
       - receiver: pushover-receiver
         mute_time_intervals:
           - quiet_hours
+        continue: true
+      - receiver: discord
   time_intervals:
     - name: quiet_hours
       time_intervals:
@@ -419,3 +485,25 @@ karma_config:
 thanos_bucket_config: "{{ vault_thanos_bucket_config }}"
 
 kthxbye_listen: :8081
+
+smokeping_prober_config:
+  targets:
+    - hosts:
+      - dns.google
+      - vpn-home.kill0.net
+      - ping-home.kill0.net
+      - vpn1-sch.corp.nmi.com
+      - gp-chi.ops.nmi.com
+      - gp-ash.ops.nmi.com
+      - 169.254.0.2
+      - 172.16.100.1
+      - 172.16.100.2
+      - 172.16.10.16
+      network: ip4
+    - hosts:
+      - dns.google
+      - ping-home.kill0.net
+      - fc00::ffff:169.255.0.2
+      - fc00::ffff:169.255.0.16
+      network: ip6
+
