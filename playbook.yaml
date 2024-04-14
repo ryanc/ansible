@@ -3,25 +3,59 @@
   become: true
   roles:
     - common
-    - network
+    - role: network
+      tags:
+        - network
+        - netplan
     - util
     - sudo
     - hostsfile
     - certs
-    - rsyslog
+    - role: rsyslog
+      tags:
+        - rsyslog
+        - syslog
+        - logging
     - users
     - dns
-    - firewall
+    - role: firewall
+      tags:
+        - firewall
+        - iptables
     - openssh
-    - wireguard
+    - role: wireguard
+      tags:
+        - wireguard
+        - vpn
     - chrony
     - unattended-upgrades
     - postfix
     - restic
-    - node_exporter
-    - blackbox_exporter
-    - mtail
+    - role: node_exporter
+      tags:
+        - prometheus
+        - monitoring
+    - role: blackbox_exporter
+      tags:
+        - prometheus
+        - monitoring
+    - role: mtail
+      tags:
+        - prometheus
+        - monitoring
     - supervisor
+    # - vector
+    - role: promtail
+      tags:
+        - promtail
+        - loki
+        - logging
+    - role: cloudflared
+      tags:
+        - cloudflared
+        - zerotrust
+        - access
+        - vpn
 - hosts: minecraft_servers
   become: true
   roles:
@@ -34,35 +68,98 @@
 - hosts: git_servers
   become: true
   roles:
-    - nginx
-    - certbot
-    - gitea
+    - role: certbot
+      tags:
+        - tls
+    - role: nginx
+      tags:
+        - nginx
+    - role: gitea
+      tags:
+        - gitea
+        - git
 - hosts: stats_servers
   become: true
   roles:
-    - nginx
-    - certbot
-    - grafana
+    - role: certbot
+      tags:
+        - tls
+    - role: nginx
+      tags:
+        - nginx
+    - role: grafana
+      tags:
+        - grafana
+        - monitoring
+        - o11y
 - hosts: monitor_servers
   become: true
   roles:
-    - nginx
+    - certbot
+    - role: nginx
+      tags:
+        - nginx
     - role: prometheus
       tags:
         - prometheus
         - monitoring
-    - alertmanager
-    - blackbox_exporter
-    - pushgateway
+    - role: alertmanager
+      tags:
+        - prometheus
+        - monitoring
+    - role: blackbox_exporter
+      tags:
+        - prometheus
+        - monitoring
+    - role: pushgateway
+      tags:
+        - prometheus
+        - monitoring
     - role: karma
       tags:
+        - prometheus
         - monitoring
     - role: kthxbye
       tags:
+        - prometheus
         - monitoring
     - role: thanos
       tags:
+        - prometheus
         - thanos
         - monitoring
+    - role: loki
+      tags:
+        - loki
+        - logging
+    - role: logcli
+      tags:
+        - logcli
+        - loki
+        - logging
+    - role: smokeping_prober
+      tags:
+        - prometheus
+        - monitoring
+        - smokeping
+    - role: mimir
+      tags:
+        - prometheus
+        - mimir
+        - monitoring
+    - role: snmp_exporter
+      tags:
+        - prometheus
+        - snmp_exporter
+        - monitoring
+    - role: lego
+      tags:
+        - acme
+        - certificates
+        - lego
+        - letsencrypt
+        - pki
+        - tls
+
 
 # vim:ft=yaml.ansible:
