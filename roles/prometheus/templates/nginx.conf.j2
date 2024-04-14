@@ -38,10 +38,13 @@ server {
 {% if prometheus_ssl_enabled is defined and
       prometheus_ssl_enabled %}
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
 {% if ansible_all_ipv6_addresses | length %}
-    listen [::]:443 ssl http2;
+    listen [::]:443 ssl;
 {% endif %}
+
+    http2 on;
+
     server_name {{ prometheus_hostname }};
 
     auth_basic           "Prometheus";
@@ -73,6 +76,7 @@ server {
     }
 
     location / {
+        add_header Alt-Svc 'h3=":$server_port"; ma=86400';
         return 301 /prometheus/;
     }
 }
