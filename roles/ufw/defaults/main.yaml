@@ -1,0 +1,6 @@
+---
+# ufw_state: enabled
+# ufw_policy: allow
+ufw_rules:
+  - port: ssh
+    rule: allow

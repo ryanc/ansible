@@ -1,0 +1,12 @@
+---
+- name: set ufw state
+  community.general.ufw:
+    state: "{{ ufw_state | default('enabled') }}"
+    policy: "{{ ufw_policy | default('allow') }}"
+
+- name: configure rules
+  community.general.ufw:
+    port: "{{ item.port | default(omit) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    rule: "{{ item.rule | default(omit) }}"
+  loop: "{{ ufw_rules | default([]) }}"
