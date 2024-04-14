@@ -1,7 +1,0 @@
----
-#network_interfaces:
-#  - name: enp1s0
-#    address:
-#      - 192.168.124.124/24
-#    gateway4: 192.168.124.1
-#
