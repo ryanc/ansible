@@ -42,7 +42,7 @@ util_packages:
     - p7zip
     - p7zip-full
     - pigz
-    - pxz
+    - pixz
     - zstd
     - pbzip2
     - pv
