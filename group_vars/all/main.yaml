@@ -107,10 +107,12 @@ rsyslog_outputs:
       protocol: tcp
       action.resumeretrycount: -1
       queue.type: linkedlist
-      queue.size: 10000
+      queue.size: 1000000
       queue.filename: fwd
       queue.saveonshutdown: "on"
       keepalive: "on"
+      template: RSYSLOG_SyslogProtocol23Format
+      tcp_framing: octet-counted
 
 sudo_aliases:
   host:
