@@ -12,7 +12,7 @@ mtail_service_enabled: yes
 mtail_version_regex: ^mtail version (\S+)
 
 mtail_github_project_url: https://github.com/google/mtail
-mtail_release_file: "mtail_{{ mtail_version }}_{{ ansible_system | capitalize }}_{{ ansible_architecture }}.tar.gz"
+mtail_release_file: "mtail_{{ mtail_version }}_{{ ansible_system | lower }}_{{ mtail_go_arch }}.tar.gz"
 mtail_release_url: "{{ mtail_github_project_url }}/releases/download/v{{ mtail_version }}/{{ mtail_release_file }}"
 mtail_download_path: "/tmp/{{ mtail_release_file }}"
 mtail_checksum_url: "{{ mtail_github_project_url }}/releases/download/v{{ mtail_version }}/checksums.txt"
