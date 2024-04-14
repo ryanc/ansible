@@ -73,6 +73,10 @@ fi
 
 START="$(date +%s)"
 
+if [[ -n "$($RESTIC_PATH list locks -q)" ]]; then
+    error_exit "repo is locked"
+fi
+
 if [ -f "$LOCK" ]; then
     pid=$(cat "$LOCK")
     if ! kill -0 "$pid" 2> /dev/null; then

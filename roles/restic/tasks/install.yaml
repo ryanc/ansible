@@ -1,0 +1,25 @@
+---
+- block:
+  - name: download
+    get_url:
+      url: "{{ restic_release_url }}"
+      dest: "{{ restic_download_path }}"
+      checksum: "{{ restic_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract
+    command:
+      cmd: "bunzip2 -f -k {{ restic_download_path }}"
+
+  - name: install binaries
+    copy:
+      src: "{{ restic_extracted_path }}"
+      dest: "{{ restic_path }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+  when: restic_version != restic_local_version

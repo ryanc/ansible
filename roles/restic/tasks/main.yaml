@@ -23,35 +23,10 @@
       paths:
         - tasks
 
-- name: "download restic {{ restic_version }}"
-  get_url:
-    url: "{{ restic_url }}"
-    checksum: "{{ restic_checksum }}"
-    dest: "{{ restic_path }}.bz2"
-    owner: root
-    group: root
-    mode: 0400
-  register: dl
+- ansible.builtin.include_tasks: pre.yaml
 
-- name: determine if restic exists
-  stat:
-    path: "{{ restic_path }}"
-  register: st
+- ansible.builtin.include_tasks: install.yaml
 
-- name: decompress restic
-  command:
-    cmd: "bunzip2 -k {{ restic_path }}.bz2"
-    creates: "{{ restic_path }}"
-  when: dl.changed or not st.stat.exists
-  #notify:
-  #  - restart restic
-
-- name: manage restic attributes
-  file:
-    path: "{{ restic_path }}"
-    owner: root
-    group: root
-    mode:  0755
 
 - name: create etc tree
   file:
