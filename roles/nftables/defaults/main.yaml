@@ -36,35 +36,54 @@ nftables_builtin_sets:
     - flags interval
 
 nftables_input_builtin_rules:
-  - type filter hook input priority filter; policy drop;
-  - ip saddr @blackhole4 drop
-  - ip6 saddr @blackhole6 drop
-  - ct state established,related accept
-  - ct state invalid drop
-  - iifname "lo" accept
-  - icmpv6 type $REQUIRED_ICMPV6_TYPES accept
-  - icmpv6 type echo-request accept
-  - icmp type echo-request accept
-  - tcp dport @tcp_input_accept accept
-  - udp dport @udp_input_accept accept
-  # this should be last because these ports could be allowed
-  - udp dport $TRACEROUTE_UDP_PORTS reject
+  '000 policy':
+    - type filter hook input priority filter; policy drop;
+  '010 blackhole':
+    - ip saddr @blackhole4 drop
+    - ip6 saddr @blackhole6 drop
+  '020 related established':
+    - ct state established,related accept
+    - ct state invalid drop
+  '030 loopback':
+    - iifname "lo" accept
+  '040 icmp':
+    - icmpv6 type $REQUIRED_ICMPV6_TYPES accept
+    - icmpv6 type echo-request accept
+    - icmp type echo-request accept
+  '050 tcp accept':
+    - tcp dport @tcp_input_accept accept
+  '060 udp accept':
+    - udp dport @udp_input_accept accept
+  '999 traceroute':
+    # this should be last because these ports could be allowed
+    - udp dport $TRACEROUTE_UDP_PORTS reject
 
 nftables_forward_builtin_rules:
-  - type filter hook forward priority filter; policy drop;
-  - ct state { established, related } accept
+  '000 policy':
+    - type filter hook forward priority filter; policy drop;
+  '010 related established':
+    - ct state { established, related } accept
 
 nftables_output_builtin_rules:
-  - type filter hook output priority filter; policy accept;
-  - ip daddr @blackhole4 drop
-  - ip6 daddr @blackhole6 drop
-  - ct state { established, related } accept
+  '000 policy':
+    - type filter hook output priority filter; policy accept;
+  '010 blackhole':
+    - ip daddr @blackhole4 drop
+    - ip6 daddr @blackhole6 drop
+  '020 related established':
+    - ct state { established, related } accept
 
-# nftables_sets:
-#   {}
-#
-# nftables_input_rules:
-#   []
-#
-# nftables_output_rules:
-#   []
+nftables_defines:
+  {} 
+
+nftables_sets:
+  {}
+
+nftables_input_rules:
+  {}
+
+nftables_forward_rules:
+  {}
+
+nftables_output_rules:
+  {}
