@@ -1,0 +1,6 @@
+---
+- name: restart smokeping_prober
+  systemd:
+    name: "{{ smokeping_prober_service_name }}"
+    daemon_reload: true
+    state: restarted

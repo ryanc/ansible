@@ -1,0 +1,31 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Let's Encrypt client and ACME library written in Go
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+{% if lego_environ is defined %}
+{% for k, v in lego_environ.items() %}
+Environment={{ k | upper }}={{ v }}
+{% endfor %}
+{% endif %}
+Type=oneshot
+User={{ lego_user_name }}
+ExecStart={{ lego_bin_path }} \
+{% for arg in lego_bin_args | default([]) + lego_bin_user_args | default([]) %}
+  {{ arg }} \
+{% endfor %}
+  renew \
+{% for arg in lego_bin_renew_user_args | default([]) %}
+  {{ arg }} {% if not loop.last %}\{{ "\n"}}{% endif %}
+{% if loop.last %}
+
+{% endif %}
+{% endfor %}
+
+WorkingDirectory={{ lego_var_dir_path }}
+
+[Install]
+WantedBy=multi-user.target

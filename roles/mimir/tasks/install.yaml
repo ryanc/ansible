@@ -1,0 +1,5 @@
+---
+- name: install package
+  ansible.builtin.package:
+    name: "{{ mimir_package_name }}"
+    state: "{{ mimir_package_state | default('present') }}"

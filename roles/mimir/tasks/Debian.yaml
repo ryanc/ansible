@@ -1,0 +1,14 @@
+---
+- name: trust grafana apt respository key
+  ansible.builtin.copy:
+    src: "grafana.gpg"
+    dest: "/etc/apt/keyrings/grafana.gpg"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: configure grafana apt repository
+  ansible.builtin.apt_repository:
+    repo: "{{ mimir_apt_repository_repo }}"
+    state: "{{ mimir_apt_repository_state | default('present') }}"
+    filename: grafana

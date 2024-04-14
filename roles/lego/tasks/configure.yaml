@@ -1,0 +1,98 @@
+---
+- name: create group
+  ansible.builtin.group:
+    name: "{{ lego_group_name }}"
+    system: true
+
+- name: create user
+  ansible.builtin.user:
+    name: "{{ lego_user_name }}"
+    shell: "{{ lego_user_shell }}"
+    home: "{{ lego_user_home }}"
+    system: true
+    group: "{{ lego_group_name }}"
+
+- name: create var path
+  ansible.builtin.file:
+    path: "{{ lego_var_dir_path }}"
+    owner: "{{ lego_var_dir_path_owner }}"
+    group: "{{ lego_var_dir_path_group }}"
+    mode: "{{ lego_var_dir_path_mode }}"
+    state: "{{ lego_var_dir_path_state }}"
+
+- name: create etc path
+  ansible.builtin.file:
+    path: "{{ lego_etc_dir_path }}"
+    owner: "{{ lego_etc_dir_path_owner }}"
+    group: "{{ lego_etc_dir_path_group }}"
+    mode: "{{ lego_etc_dir_path_mode }}"
+    state: "{{ lego_etc_dir_path_state }}"
+
+- name: "create {{ lego_systemd_service_d_dir_path }}"
+  ansible.builtin.file:
+    path: "{{ lego_systemd_service_d_dir_path }}"
+    owner: "{{ lego_systemd_service_d_dir_path_owner }}"
+    group: "{{ lego_systemd_service_d_dir_path_group }}"
+    mode: "{{ lego_systemd_service_d_dir_path_mode }}"
+    state: "{{ lego_systemd_service_d_dir_path_state }}"
+
+- name: "create {{ lego_systemd_service_d_template_dest }}"
+  ansible.builtin.template:
+    src: "{{ lego_systemd_service_d_template_src }}"
+    dest: "{{ lego_systemd_service_d_template_dest }}"
+    owner: "{{ lego_systemd_service_d_template_path_owner }}"
+    group: "{{ lego_systemd_service_d_template_path_group }}"
+    mode: "{{ lego_systemd_service_d_template_path_mode }}"
+  notify:
+    - restart lego
+
+- name: create credential files
+  ansible.builtin.copy:
+    dest: "{{ lego_etc_dir_path }}/{{ item.name }}"
+    owner: "{{ item.owner | default(lego_credential_file_owner) }}"
+    group: "{{ item.group | default(lego_credential_file_group) }}"
+    mode: "{{ item.mode | default(lego_credential_file_mode) }}"
+    content: "{{ item.content }}"
+  loop: "{{ lego_credential_files | default([]) }}"
+  no_log: true
+
+#- name: configure
+#  ansible.builtin.template:
+#    src: "{{ lego_config_file_template_src }}"
+#    dest: "{{ lego_config_file_template_dest }}"
+#    owner: "{{ lego_config_file_template_owner }}"
+#    group: "{{ lego_config_file_template_group }}"
+#    mode: "{{ lego_config_file_template_mode }}"
+#  notify:
+#    - restart lego
+#
+- name: configure systemd unit
+  ansible.builtin.template:
+    src: "{{ lego_service_template_src }}"
+    dest: "{{ lego_service_template_dest }}"
+    owner: "{{ lego_service_template_owner }}"
+    group: "{{ lego_service_template_group }}"
+    mode: "{{ lego_service_template_mode }}"
+  notify:
+    - restart lego
+
+- name: configure timer
+  ansible.builtin.template:
+    src: "{{ lego_timer_template_src }}"
+    dest: "{{ lego_timer_template_dest }}"
+    owner: "{{ lego_timer_template_owner }}"
+    group: "{{ lego_timer_template_group }}"
+    mode: "{{ lego_timer_template_mode }}"
+#
+#- name: manage service
+#  ansible.builtin.service:
+#    name: "{{ lego_service_name }}"
+#    enabled: "{{ lego_service_enabled | default(true) }}"
+#    state: "{{ lego_service_state | default('started') }}"
+
+- name: manage timers
+  ansible.builtin.systemd:
+    name: "lego@{{ item.name }}.timer"
+    enabled: "{{ item.enabled | default(true) }}"
+    state: "{{ item.state | default('started') }}"
+  loop: "{{ lego_domains | default([]) }}"

@@ -1,0 +1,30 @@
+---
+- block:
+  - name: download tar
+    get_url:
+      url: "{{ process_exporter_release_url }}"
+      dest: "{{ process_exporter_download_path }}"
+      checksum: "{{ process_exporter_checksum }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract tar
+    unarchive:
+      src: "{{ process_exporter_download_path }}"
+      dest: "{{ process_exporter_unarchive_dest_path }}"
+      creates: "{{ process_exporter_extracted_path }}"
+      remote_src: true
+
+  - name: install binaries
+    copy:
+      src: "{{ process_exporter_extracted_path }}/{{ item }}"
+      dest: "{{ process_exporter_bin_path }}/{{ item }}"
+      owner: root
+      group: root
+      mode: 0755
+      remote_src: true
+    loop: "{{ process_exporter_binaries }}"
+    notify: restart process-exporter
+  when: process_exporter_version != process_exporter_local_version

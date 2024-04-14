@@ -1,0 +1,84 @@
+---
+- name: remove example files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ vector_etc_path }}/vector.toml"
+    - "{{ vector_etc_path }}/examples"
+  notify:
+    - restart vector
+
+- name: configure
+  ansible.builtin.copy:
+    dest: "{{ vector_etc_path }}/vector.yaml"
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: "{{ vector_config_file_mode }}"
+    content: "{{ vector_config | to_yaml }}"
+  notify:
+    - restart vector
+
+- name: configure sources
+  ansible.builtin.copy:
+    dest: "{{ vector_etc_path }}/sources.yaml"
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: "{{ vector_config_file_mode }}"
+    content: "{{ vector_sources | to_yaml }}"
+  notify:
+    - restart vector
+
+- name: configure transforms
+  ansible.builtin.copy:
+    dest: "{{ vector_etc_path }}/transforms.yaml"
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: "{{ vector_config_file_mode }}"
+    content: "{{ vector_transforms | to_yaml }}"
+  notify:
+    - restart vector
+
+- name: configure sinks
+  ansible.builtin.copy:
+    dest: "{{ vector_etc_path }}/sinks.yaml"
+    owner: "{{ vector_user }}"
+    group: "{{ vector_group }}"
+    mode: "{{ vector_config_file_mode }}"
+    content: "{{ vector_sinks | to_yaml }}"
+  notify:
+    - restart vector
+
+- name: systemd unit overrides
+  block:
+    - name: create /etc/systemd/system/vector.service.d
+      ansible.builtin.file:
+        dest: /etc/systemd/system/vector.service.d
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+    - name: vector systemd unit override
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/vector.service.d/ansible.conf
+        owner: root
+        group: root
+        mode: 0644
+        content: |
+          # Ansible managed
+
+          [Service]
+          Environment=VECTOR_CONFIG="{{ vector_etc_path }}/*.yaml"
+          RuntimeDirectory="vector"
+      notify:
+        - restart vector
+
+- name: flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: manage service
+  ansible.builtin.service:
+    name: "{{ vector_service_name }}"
+    state: "{{ vector_service_state }}"
+    enabled: "{{ vector_service_enabled }}"
+  

@@ -1,0 +1,57 @@
+---
+logcli_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+logcli_go_arch: "{{ logcli_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+logcli_version: 2.9.5
+logcli_checksums:
+  logcli-darwin-amd64.zip: sha256:b224dc8872167be0c5f07b1c22471b21604419b625b4a6e69b2c7751bc409d98
+  logcli-darwin-arm64.zip: sha256:ad93156ae1132038de7a6b42633bdc59aac1a04e816aeae2796bc6dddddff14a
+  logcli-freebsd-amd64.zip: sha256:952f48394a080b88a100001b9c454e8793071ba4cd8cc95811bd446b4215a9a3
+  logcli-linux-amd64.zip: sha256:a22f7e29bb9ef8f6f70e31926bbffc646b9e36b3265458e199c497b305d21cc2
+  logcli-linux-arm.zip: sha256:0ad5c86191916121acea30d44011d84d33e5ca27497691980de16f1508b209f5
+  logcli-linux-arm64.zip: sha256:06b6a6b961f5004c51eb7922509dbbb189701b1f3925ba1bb2289894fef7861e
+  logcli-windows-amd64.exe.zip: sha256:d1a37c56fa2a1dfa97855d2a26826ba89569d50846a6022be03936423f04e19b
+  loki-canary-darwin-amd64.zip: sha256:9f73e81666397e195ae092c518df32200bab71f72ff778c839abba0283f8f4b3
+  loki-canary-darwin-arm64.zip: sha256:fa3a96bec9b30ec06bf5271182646161ab8056c51b07e00da14ce21d53bbd871
+  loki-canary-freebsd-amd64.zip: sha256:170c0ea9bf6349cce9b9fb5be6b27d0b8477fc57e5a0849ad7c828ba3de79f15
+  loki-canary-linux-amd64.zip: sha256:e4ff7cfb302851b98d4df1dc7793b3fdc7fd9680d2e75fc0484abcd08412f198
+  loki-canary-linux-arm.zip: sha256:02750db39ecba743da3036ca28a3b426c7d068efeee86b875f7870ba8798dca2
+  loki-canary-linux-arm64.zip: sha256:e0c0c31c89cad8ddffbd11f9467778e9b30bdfbdce955fba67871365a07ab3a1
+  loki-canary-windows-amd64.exe.zip: sha256:54564cbd123fbdd1b95fe9882bd916e2e9432b53826a97c04179c48ff0314912
+  loki-darwin-amd64.zip: sha256:b5831c0da363b3b075ddbdaa6e6e1323858b17c0d6c0052908aebaa637bc522c
+  loki-darwin-arm64.zip: sha256:1b73e4867730c252ce0e3720dd42fea5bd7921dd3cda4aa5f3764e43e1495374
+  loki-freebsd-amd64.zip: sha256:c3ac9b0aa16ca494a1537c28fe036440cd701d5273c5c8bbdb47426ecb5a041e
+  loki-linux-amd64.zip: sha256:9d919a55e7a2dbaeab46e777a0589d7e304c71fed011f989143883cbc887e348
+  loki-linux-arm.zip: sha256:104efc28b322523bf5bced67bdcc3746e1f7f872057f6ef54f25ab00ce426b39
+  loki-linux-arm64.zip: sha256:491833bf201c55388b82c3d1f583a9d4426c1b778ed3dc710cd67c8cbbbb67bb
+  loki-windows-amd64.exe.zip: sha256:1acee64bb69bd54ff6549edd2f670d0a3802727d9efced8705c7a712412d8ef7
+  promtail-darwin-amd64.zip: sha256:54032f2781d3acfef7dd7ad12b7f38ec4f5d0eb8ba047ebecb9911a6dd4b6cc6
+  promtail-darwin-arm64.zip: sha256:405ed21efcaa21ae5bbe4b7e16ca888ae8238716c46a176ea9c5e2a7b2b2a633
+  promtail-freebsd-amd64.zip: sha256:5a68f6fa6c7ae96919f13b4fffb188f72f9b16e38f40cf3962b97989c9739a99
+  promtail-linux-amd64.zip: sha256:e444bcff2d6677d284350819d3d1b7b473a1699357689230254fbc602b28dac7
+  promtail-linux-arm.zip: sha256:d0cc7552b8ce69534893040e6518288a6899c4f3acf9d4e7d32335f5f2f6145d
+  promtail-linux-arm64.zip: sha256:b23bd750dc5f6a76d808826ebc9d3c8b3540adb329578b650571a10d2be348b8
+  promtail-windows-386.exe.zip: sha256:a121de0b043db194c65422f863211efe566da3bec338a92f0623dff6f3c435d1
+  promtail-windows-amd64.exe.zip: sha256:d9c4b5bb58d3ece2e4ff78cd7fef65f5fadd7d9fe73ceb2dfa4a2990f944466f
+
+logcli_github_rel_path: grafana/loki
+logcli_github_project_url: "https://github.com/{{ logcli_github_rel_path }}"
+logcli_release_file: "logcli-{{ ansible_system | lower }}-{{ logcli_go_arch }}.zip"
+logcli_release_url: "{{ logcli_github_project_url }}/releases/download/v{{ logcli_version }}/{{ logcli_release_file }}"
+logcli_download_path: "/tmp/logcli-{{ logcli_version }}-{{ ansible_system | lower }}-{{ logcli_go_arch }}.zip"
+
+logcli_opt_path: "/opt/logcli-{{ logcli_version }}"
+
+logcli_unarchive_dest_path: /tmp/
+logcli_extracted_path: "/tmp/logcli-{{ ansible_system | lower }}-{{ logcli_go_arch }}"
+logcli_binaries:
+ - logcli
+
+logcli_loki_addr: http://localhost:3100
+
+logcli_profile_d_path: /etc/profile.d/logcli.sh
+logcli_profile_d_env:
+  LOKI_ADDR: "{{ logcli_loki_addr }}"

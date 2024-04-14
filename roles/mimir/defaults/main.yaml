@@ -1,0 +1,68 @@
+---
+mimir_package_name: mimir
+mimir_package_state: present
+
+mimir_service_name: mimir.service
+mimir_service_enabled: true
+mimir_service_state: started
+
+mimir_apt_repository_repo: deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main
+mimir_apt_repository_state: present
+
+mimir_version_regex: ^mimir, version ([\d.]+)
+
+mimir_user_name: mimir
+mimir_user_comment: mimir user
+mimir_user_state: present
+mimir_user_shell: /usr/sbin/nologin
+mimir_user_system: true
+mimir_user_createhome: false
+
+mimir_group_name: mimir
+mimir_group_state: "{{ mimir_user_state | default('present') }}"
+mimir_group_system: true
+
+mimir_var_dir_path: /var/lib/mimir
+mimir_var_dir_owner: "{{ mimir_user_name }}"
+mimir_var_dir_group: "{{ mimir_group_name }}"
+mimir_var_dir_mode: "0700"
+
+mimir_etc_dir_path: /etc/mimir
+mimir_etc_dir_owner: "{{ mimir_user_name }}"
+mimir_etc_dir_group: "{{ mimir_group_name }}"
+mimir_etc_dir_mode: "0755"
+
+mimir_config_file_path: "{{ mimir_etc_dir_path }}/config.yml"
+mimir_config_file_path_owner: "{{ mimir_user_name }}"
+mimir_config_file_path_group: "{{ mimir_group_name }}"
+mimir_config_file_path_mode: "0755"
+
+m#  imir_common:
+ #   {}
+
+mimir_server:
+  http_listen_port: 9009
+
+mimir_alertmanager:
+  sharding_ring:
+    replication_factor: 1
+
+# mimir_compactor:
+#   {}
+
+#  mimir_distributor:
+#    {}
+
+mimir_ingester:
+  ring:
+    replication_factor: 1
+
+mimir_store_gateway:
+  sharding_ring:
+    replication_factor: 1
+
+#  mimir_blocks_storage:
+#    {}
+
+#  mimir_ruler_storage:
+#    {}

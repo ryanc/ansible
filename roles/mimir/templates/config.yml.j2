@@ -1,0 +1,51 @@
+# {{ ansible_managed }}
+---
+{% if mimir_common is defined %}
+common:
+  {{ mimir_common | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_server is defined %}
+server:
+  {{ mimir_server | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_alertmanager is defined %}
+alertmanager:
+  {{ mimir_alertmanager | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_compactor is defined %}
+compactor:
+  {{ mimir_compactor | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_distributor is defined %}
+distributor:
+  {{ mimir_distributor | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_ingester is defined %}
+ingester:
+  {{ mimir_ingester | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_store_gateway is defined %}
+store_gateway:
+  {{ mimir_store_gateway | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_alertmanager_storage is defined %}
+alertmanager_storage:
+  {{ mimir_alertmanager_storage | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_blocks_storage is defined %}
+blocks_storage:
+  {{ mimir_blocks_storage | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}
+
+{% if mimir_ruler_storage is defined %}
+ruler_storage:
+  {{ mimir_ruler_storage | to_nice_yaml(indent=2) | indent(4, False) }}
+{% endif -%}

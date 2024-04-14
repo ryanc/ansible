@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Smokeping Prober
+After=network.target
+
+[Service]
+Type=simple
+User={{ smokeping_prober_user }}
+ExecStart={{ smokeping_prober_bin_path }} \
+{% for arg in smokeping_prober_args %}
+  {{ arg }} {% if not loop.last %}\{% endif %}
+{% if loop.last %}
+
+{% endif %}
+{% endfor %}
+
+WorkingDirectory={{ smokeping_prober_var_path }}
+
+TimeoutSec = 60
+Restart=on-failure
+RestartSec=2
+
+AmbientCapabilities=CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target

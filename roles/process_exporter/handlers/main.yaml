@@ -1,0 +1,6 @@
+---
+- name: restart process-exporter
+  systemd:
+    name: "{{ process_exporter_service_name }}"
+    daemon_reload: true
+    state: restarted

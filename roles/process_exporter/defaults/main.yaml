@@ -1,0 +1,43 @@
+---
+process_exporter_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+process_exporter_go_arch: "{{ process_exporter_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+process_exporter_service_name: process-exporter.service
+process_exporter_service_enabled: true
+process_exporter_service_state: started
+
+process_exporter_version_regex: (.+)
+
+process_exporter_checksum_algo: sha256
+process_exporter_github_rel_path: ncabatoff/process-exporter
+process_exporter_github_project_url: "https://github.com/{{ process_exporter_github_rel_path }}"
+process_exporter_release_file: "process-exporter-{{ process_exporter_version }}.{{ ansible_system | lower }}-{{ process_exporter_go_arch }}.tar.gz"
+process_exporter_release_url: "{{ process_exporter_github_project_url }}/releases/download/v{{ process_exporter_version }}/{{ process_exporter_release_file }}"
+process_exporter_checksum_url: "{{ process_exporter_github_project_url }}/releases/download/v{{ process_exporter_version }}/checksums.txt"
+process_exporter_download_path: "/tmp/{{ process_exporter_release_file }}"
+process_exporter_unarchive_dest_path: /tmp
+process_exporter_extracted_path: "{{ process_exporter_download_path | replace('.tar.gz', '') }}"
+process_exporter_binaries:
+ - process-exporter
+
+process_exporter_user: process-exporter
+process_exporter_user_state: present
+process_exporter_user_shell: /usr/sbin/nologin
+
+process_exporter_group: process-exporter
+process_exporter_group_state: "{{ process_exporter_user_state | default('present') }}"
+
+process_exporter_etc_path: /etc/process-exporter
+process_exporter_etc_owner: root
+process_exporter_etc_group: root
+process_exporter_etc_mode: "0755"
+
+process_exporter_var_path: /var/lib/process-exporter
+process_exporter_var_owner: "{{ process_exporter_user }}"
+process_exporter_var_group: "{{ process_exporter_group }}"
+process_exporter_var_mode: "0755"
+
+process_exporter_bin_path: /usr/local/bin

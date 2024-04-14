@@ -1,0 +1,6 @@
+---
+- name: restart mimir
+  systemd:
+    name: "{{ mimir_service_name }}"
+    daemon_reload: true
+    state: restarted

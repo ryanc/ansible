@@ -1,0 +1,30 @@
+---
+- name: gather os specific variables
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - vars
+
+- name: include os specific tasks
+  ansible.builtin.include_tasks: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+        - "default.yaml"
+      paths:
+        - tasks
+
+- ansible.builtin.include_tasks: pre.yaml
+
+- ansible.builtin.include_tasks: install.yaml
+
+- ansible.builtin.include_tasks: configure.yaml

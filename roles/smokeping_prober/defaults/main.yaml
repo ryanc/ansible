@@ -1,0 +1,100 @@
+---
+smokeping_prober_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+smokeping_prober_go_arch: "{{ smokeping_prober_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+smokeping_prober_version: 0.7.3
+smokeping_prober_checksums:
+  smokeping_prober-0.7.3.aix-ppc64.tar.gz: sha256:13df5d0fc4205c30e3e6887324990dd56285a17bfe1fed263d2b87134061a700
+  smokeping_prober-0.7.3.darwin-amd64.tar.gz: sha256:70a4fc89c1277c78541e5157aa418940d7660aa2915fe0fc34d95870b9aab705
+  smokeping_prober-0.7.3.darwin-arm64.tar.gz: sha256:c6ba90ef426dc3a4efcc80a33a30492e22dd2031730ce0d99caa3503dae87df9
+  smokeping_prober-0.7.3.dragonfly-amd64.tar.gz: sha256:723ec9c8841444fa80a398677f7e3d567537570895ce0d6a778e207c8d4679ea
+  smokeping_prober-0.7.3.freebsd-386.tar.gz: sha256:6291caed80438c62ef2603b28f5f767cc90012c3ea8aa0d4bb6ae0b799a4ed6c
+  smokeping_prober-0.7.3.freebsd-amd64.tar.gz: sha256:7d7da04d07b02cc0e10b1f9c5a567c1abdd80effa6f7e830bf6e5e59510057a0
+  smokeping_prober-0.7.3.freebsd-arm64.tar.gz: sha256:33a251ce899a0fbc244b12dd7fdadef6d36294925dd96edf12bb210edfe10010
+  smokeping_prober-0.7.3.freebsd-armv6.tar.gz: sha256:4ffcae8da2609a6d2491ce5ccee982620a7e9a0e70ee1272f0f6ffcc30d62221
+  smokeping_prober-0.7.3.freebsd-armv7.tar.gz: sha256:78986b4a673fae5c5b6f665dc160bb63c996611533faacdebc4b496dea93612e
+  smokeping_prober-0.7.3.illumos-amd64.tar.gz: sha256:603d673b8f33bd0da74349992a4a4f372381a09c7b8fceef81cf409a0c09eea9
+  smokeping_prober-0.7.3.linux-386.tar.gz: sha256:f5234a097d93ebc039b727c8343af2811ea5ef953af9fe53275a333acbfb3fc2
+  smokeping_prober-0.7.3.linux-amd64.tar.gz: sha256:00277fcd494002fbb0e24df398fc9bb06bb7f1406ecc0d2d71b6c0cb63bca872
+  smokeping_prober-0.7.3.linux-arm64.tar.gz: sha256:e93945a630eb58e9e88acd5c404be8b488b1593d2a07d721b8bf48d38471a67d
+  smokeping_prober-0.7.3.linux-armv5.tar.gz: sha256:514d5fdb6f8ccfcc0d5a4d0f98a91324c65bf0f6cfa37f54e5b4c5f30ba489d4
+  smokeping_prober-0.7.3.linux-armv6.tar.gz: sha256:75b4fec3840eaf87b1b46b5d43f84eef2acb3f630e2949caa15ff0f2ed6e4aff
+  smokeping_prober-0.7.3.linux-armv7.tar.gz: sha256:97a1c4c4e8502be192b6196a528647c93b9902ca3c7a855c0078d6be04260bc6
+  smokeping_prober-0.7.3.linux-mips.tar.gz: sha256:019e92d66bf4226d04cf5fadfa059d1c594d4b1cf8e35f3b491b40056e4a3e0a
+  smokeping_prober-0.7.3.linux-mips64.tar.gz: sha256:c054566106f751a01ccc0a1eb43748363d7ef0a6ee1aa9a8d421f487943b7871
+  smokeping_prober-0.7.3.linux-mips64le.tar.gz: sha256:95ef43cba12ee64cfe85ae6a28b9f6df3e800b13a2d121d41e60fce1dcac31eb
+  smokeping_prober-0.7.3.linux-mipsle.tar.gz: sha256:5beb3b1df782a177c1c0cbe3757815b5eabc977bedd95e1584d4512ed55f20df
+  smokeping_prober-0.7.3.linux-ppc64.tar.gz: sha256:dc403d910ee4c9f3e08ecbb6717e9a8caa195b911c48872900c811689e586d23
+  smokeping_prober-0.7.3.linux-ppc64le.tar.gz: sha256:c446660a14b53c9ed771a3d833a411c4929c8dd5b28c021ff36b6a246393c487
+  smokeping_prober-0.7.3.linux-s390x.tar.gz: sha256:9b53921cbe22dad60c6f8bea5ac2f75e1601a5b4e30b75c0e2b5b6c82a5d51de
+  smokeping_prober-0.7.3.netbsd-386.tar.gz: sha256:2cad359f42af0efe743e7ac326a552235e387e9d23c3fb6a753dd0f88a50d2d0
+  smokeping_prober-0.7.3.netbsd-amd64.tar.gz: sha256:e5c646848cc80a2d59c7e09b9fcb1dcffca205ca8e4ba16295ed8bc7b3900aba
+  smokeping_prober-0.7.3.netbsd-arm64.tar.gz: sha256:718f5f4fad07e8dfec1513a269a9899cd5f8d329c30e290bb6ecf3ce74013286
+  smokeping_prober-0.7.3.netbsd-armv6.tar.gz: sha256:20120fb928dcc85a97933737965b9b0abc5b09798ddcb720efc3f51a3abf0f01
+  smokeping_prober-0.7.3.netbsd-armv7.tar.gz: sha256:eae37f6c24cbf19e5a7248f7831b06e22a9f66ecd7d0d016ab217c67759dd3c0
+  smokeping_prober-0.7.3.openbsd-386.tar.gz: sha256:350b48242569594d59a3a7b3df1f10070896a4e1a38c1aa1f6561d522d114622
+  smokeping_prober-0.7.3.openbsd-amd64.tar.gz: sha256:d70f803922b425f4d5af39e261bea8ae7ea17916156126f8ea4b4fc6df139bcd
+  smokeping_prober-0.7.3.openbsd-arm64.tar.gz: sha256:35b43966f399df85601fdfd46d9a87417d3fec2fdd272d7b8ca3f59c17db890b
+  smokeping_prober-0.7.3.openbsd-armv7.tar.gz: sha256:965854e022e67cf0ccd094aff06b37e3b80f0b84e0251a5513c5745e0d98e5e0
+  smokeping_prober-0.7.3.windows-386.tar.gz: sha256:4567ffa0dfdf2bebe0debed67c599379707f8d957e5050e5ad2a86296a4545b1
+  smokeping_prober-0.7.3.windows-386.zip: sha256:45d017e34bb58ea093402a3030a3afd37bddfd524704ea2a2b54e9756d5fd2f3
+  smokeping_prober-0.7.3.windows-amd64.tar.gz: sha256:99d32b77a0c30f70921e842c724573659593069da97fbb6fe51fb9955a4a2a7e
+  smokeping_prober-0.7.3.windows-amd64.zip: sha256:dde0897b180ecd04f2e670d3613e6282ecf5fb457ec08ce8b4cde4a34bc39d69
+  smokeping_prober-0.7.3.windows-arm64.tar.gz: sha256:973a07635285feabb3a9050cb6b4d8706352f10b982130713108f13fd41b15c2
+  smokeping_prober-0.7.3.windows-arm64.zip: sha256:abf7342b029e43777ba82f10ea49b3a8bcb19e5aabbda32c2418628817b17f29
+
+smokeping_prober_github_rel_path: SuperQ/smokeping_prober
+smokeping_prober_github_project_url: "https://github.com/{{ smokeping_prober_github_rel_path }}"
+smokeping_prober_release_file: "smokeping_prober-{{ smokeping_prober_version }}.{{ ansible_system | lower }}-{{ smokeping_prober_go_arch }}.tar.gz"
+smokeping_prober_release_url: "{{ smokeping_prober_github_project_url }}/releases/download/v{{ smokeping_prober_version }}/{{ smokeping_prober_release_file }}"
+smokeping_prober_download_path: "/tmp/{{ smokeping_prober_release_file }}"
+
+smokeping_prober_opt_path: "/opt/smokeping_prober-{{ smokeping_prober_version }}"
+
+smokeping_prober_unarchive_dest_path: /tmp
+smokeping_prober_extracted_path: "{{ smokeping_prober_download_path | replace('.tar.gz', '') }}"
+smokeping_prober_binaries:
+ - smokeping_prober
+
+smokeping_prober_bin_path: /usr/local/bin/smokeping_prober
+
+smokeping_prober_var_path: /var/lib/smokeping_prober
+smokeping_prober_var_path_owner: "{{ smokeping_prober_user }}"
+smokeping_prober_var_path_group: "{{ smokeping_prober_group }}"
+smokeping_prober_var_path_mode: 0755
+smokeping_prober_var_path_state: directory
+
+smokeping_prober_user: smokeping_prober
+smokeping_prober_user_shell: /usr/sbin/nologin
+smokeping_prober_user_home: "{{ smokeping_prober_var_path }}"
+smokeping_prober_group: smokeping_prober
+
+smokeping_prober_etc_path: /etc/smokeping_prober
+smokeping_prober_etc_path_owner: "{{ smokeping_prober_user }}"
+smokeping_prober_etc_path_group: "{{ smokeping_prober_group }}"
+smokeping_prober_etc_path_mode: 0755
+smokeping_prober_etc_path_state: directory
+
+smokeping_prober_config_path: "{{ smokeping_prober_etc_path }}/config.yaml"
+smokeping_prober_config_path_owner: "{{ smokeping_prober_user }}"
+smokeping_prober_config_path_group: "{{ smokeping_prober_group }}"
+smokeping_prober_config_path_mode: 0444
+
+smokeping_prober_config:
+  targets:
+    - hosts:
+      - localhost
+      network: ip4
+    - hosts:
+      - localhost
+      network: ip6
+
+smokeping_prober_args:
+  - "--config.file={{ smokeping_prober_config_path }}"
+
+smokeping_prober_service_name: smokeping_prober.service
+smokeping_prober_service_state: started
+smokeping_prober_service_enabled: true

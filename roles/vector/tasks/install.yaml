@@ -1,0 +1,5 @@
+---
+- name: install package
+  package:
+    name: "{{ vector_package_name }}"
+    state: "{{ vector_package_state }}"

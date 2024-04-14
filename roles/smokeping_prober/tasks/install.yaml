@@ -1,0 +1,56 @@
+---
+- name: determine install status
+  ansible.builtin.stat:
+    path: "{{ smokeping_prober_opt_path }}/smokeping_prober"
+  register: st
+
+- name: create opt path
+  ansible.builtin.file:
+    path: "{{ smokeping_prober_opt_path }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+    
+- block:
+  - name: download
+    ansible.builtin.get_url:
+      url: "{{ smokeping_prober_release_url }}"
+      dest: "{{ smokeping_prober_download_path }}"
+      checksum: "{{ smokeping_prober_checksums[smokeping_prober_release_file] }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract
+    ansible.builtin.unarchive:
+      src: "{{ smokeping_prober_download_path }}"
+      dest: "{{ smokeping_prober_unarchive_dest_path }}"
+      remote_src: true
+
+  - name: install
+    ansible.builtin.copy:
+      src: "{{ smokeping_prober_extracted_path }}/{{ item }}"
+      dest: "{{ smokeping_prober_opt_path }}/{{ item }}"
+      remote_src: true
+    loop: "{{ smokeping_prober_binaries }}"
+  when: not st.stat.exists
+
+- name: permissions
+  ansible.builtin.file:
+    path: "{{ smokeping_prober_opt_path }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop: "{{ smokeping_prober_binaries }}"
+
+- name: symlink
+  ansible.builtin.file:
+    src: "{{ smokeping_prober_opt_path }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: link
+  loop: "{{ smokeping_prober_binaries }}"

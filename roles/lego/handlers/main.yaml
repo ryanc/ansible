@@ -1,0 +1,5 @@
+---
+- name: restart lego
+  systemd:
+    name: "{{ lego_service_name }}"
+    daemon_reload: true

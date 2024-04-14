@@ -1,0 +1,11 @@
+[Unit]
+Description=Certbot renewal
+Description=Let's Encrypt client and ACME library written in Go
+Requires={{ lego_service_name }}%i
+
+[Timer]
+OnCalendar=*-*-* 00,12:00:00
+# RandomizedDelaySec=1
+
+[Install]
+WantedBy=timers.target

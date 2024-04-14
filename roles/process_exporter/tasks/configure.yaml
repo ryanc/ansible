@@ -1,0 +1,47 @@
+---
+- name: create group
+  group:
+    name: "{{ process_exporter_group }}"
+    system: true
+    state: "{{ process_exporter_group_state | default('present') }}"
+
+- name: create user
+  user:
+    name: "{{ process_exporter_user }}"
+    system: true
+    shell: "{{ process_exporter_user_shell }}"
+    group: "{{ process_exporter_group }}"
+    createhome: false
+    home: "{{ process_exporter_var_path }}"
+    state: "{{ process_exporter_user_state | default('present') }}"
+
+- name: create etc path
+  file:
+    path: "{{ process_exporter_etc_path }}"
+    state: directory
+    owner: "{{ process_exporter_etc_owner }}"
+    group: "{{ process_exporter_etc_group }}"
+    mode: "{{ process_exporter_etc_mode }}"
+
+- name: create var path
+  file:
+    path: "{{ process_exporter_var_path }}"
+    state: directory
+    owner: "{{ process_exporter_var_owner }}"
+    group: "{{ process_exporter_var_group }}"
+    mode: "{{ process_exporter_var_mode }}"
+
+- name: configure systemd template
+  template:
+    src: "{{ process_exporter_service_name }}.j2"
+    dest: "/etc/systemd/system/{{ process_exporter_service_name }}"
+    owner: root
+    group: root
+    mode: 0444
+  notify: restart process-exporter
+
+- name: manage service
+  service:
+    name: "{{ process_exporter_service_name }}"
+    enabled: "{{ process_exporter_service_enabled }}"
+    state: "{{ process_exporter_service_state }}"

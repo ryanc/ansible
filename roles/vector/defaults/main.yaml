@@ -1,0 +1,34 @@
+---
+vector_package_name: vector
+vector_package_state: present
+
+vector_service_name: vector.service
+vector_service_state: started
+vector_service_enabled: true
+
+vector_user: vector
+vector_group: vector
+
+vector_etc_path: /etc/vector
+
+vector_config_file_mode: 0600
+
+vector_config:
+  api:
+    enabled: true
+
+vector_sources:
+  sources:
+    journald:
+      type: journald
+
+vector_transforms:
+  transforms:
+    {}
+
+vector_sinks:
+  sinks:
+    blackhole:
+      type: blackhole
+      inputs:
+        - journald

@@ -1,0 +1,22 @@
+---
+- name: configure apt repositories
+  block:
+    - name: add repository key
+      ansible.builtin.get_url:
+        url: https://repositories.timber.io/public/vector/gpg.3543DB2D0A2BC4B8.key
+        dest: /etc/apt/keyrings/timber-vector-archive-keyring.asc
+
+    #- name: dearmor GPG key
+    #  ansible.builtin.shell: gpg --dearmor /tmp/timber-vector-archive-keyring.asc --output /etc/apt/keyrings/timber-vector-archive-keyring.gpg
+    #  args:
+    #    creates: /etc/apt/keyrings/timber-vector-archive-keyring.gpg
+
+    - name: add apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/timber-vector-archive-keyring.asc] https://repositories.timber.io/public/vector/deb/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: add apt source repository
+      ansible.builtin.apt_repository:
+        repo: "deb-src [signed-by=/etc/apt/keyrings/timber-vector-archive-keyring.asc] https://repositories.timber.io/public/vector/deb/ubuntu {{ ansible_distribution_release }} main"
+        state: present

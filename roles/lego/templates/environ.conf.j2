@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+[Service]
+{% if lego_user_environ is defined %}
+{% for k, v in lego_user_environ.items() %}
+Environment={{ k | upper }}={{ v }}
+{% endfor %}
+{% endif %}

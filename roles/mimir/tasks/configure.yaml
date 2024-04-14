@@ -1,0 +1,48 @@
+---
+- name: create group
+  ansible.builtin.group:
+    name: "{{ mimir_group_name }}"
+    system: "{{ mimir_group_system | default(true) }}"
+    state: "{{ mimir_group_name_state | default('present') }}"
+
+- name: create user
+  ansible.builtin.user:
+    name: "{{ mimir_user_name }}"
+    comment: "{{ mimir_user_comment  }}"
+    system: "{{ mimir_user_system | default(true) }}"
+    shell: "{{ mimir_user_shell | default('/usr/sbin/nologin') }}"
+    group: "{{ mimir_group_name }}"
+    createhome: "{{ mimir_user_createhome | default(false) }}"
+    home: "{{ mimir_var_dir_path }}"
+    state: "{{ mimir_user_state | default('present') }}"
+
+- name: create etc path
+  ansible.builtin.file:
+    path: "{{ mimir_etc_dir_path }}"
+    state: directory
+    owner: "{{ mimir_etc_dir_owner }}"
+    group: "{{ mimir_etc_dir_group }}"
+    mode: "{{ mimir_etc_dir_mode }}"
+
+- name: create var path
+  ansible.builtin.file:
+    path: "{{ mimir_var_dir_path }}"
+    state: directory
+    owner: "{{ mimir_var_dir_owner }}"
+    group: "{{ mimir_var_dir_group }}"
+    mode: "{{ mimir_var_dir_mode }}"
+
+- name: configure
+  template:
+    src: config.yml.j2
+    dest: "{{ mimir_config_file_path }}"
+    owner: "{{ mimir_user_name }}"
+    group: "{{ mimir_group_name }}"
+    mode: 0400
+  notify: restart mimir
+
+- name: manage service
+  service:
+    name: "{{ mimir_service_name }}"
+    enabled: "{{ mimir_service_enabled }}"
+    state: "{{ mimir_service_state }}"

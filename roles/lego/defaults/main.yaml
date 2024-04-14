@@ -1,0 +1,130 @@
+---
+lego_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+lego_go_arch: "{{ lego_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+lego_version: 4.16.1
+# curl -L -s https://github.com/go-acme/lego/releases/download/v4.14.2/lego_4.14.2_checksums.txt | awk '{ printf "%s: sha256:%s\n", $2, $1 }' | sort
+lego_checksums:
+  lego_v4.16.1_darwin_amd64.tar.gz: sha256:2555ae9c3976bb6d3d783819c7012572fecbd309330a5010dd1f9882332fa349
+  lego_v4.16.1_darwin_arm64.tar.gz: sha256:609789c72a9c8e7f4f5916aa08440a299f63c75fee14f42e61904cda01f0736f
+  lego_v4.16.1_freebsd_386.tar.gz: sha256:41408e99b9f1fb823e53d53feb15cd0cb929ad3cd093b9010c7af7ba71077e55
+  lego_v4.16.1_freebsd_amd64.tar.gz: sha256:9353c009c4801d7646b3c99803a77aa0f2a041f802c8794d16ba4b31af4a8dfb
+  lego_v4.16.1_freebsd_arm64.tar.gz: sha256:c39a98c8401a0fe506ac206ae5ef5e167d1dcd9e7f6bb27def954089c0f99839
+  lego_v4.16.1_freebsd_armv5.tar.gz: sha256:b96b88a84aa51e77da8d4b92f6920b1890ae47c53e59c477d7b3b556b1273446
+  lego_v4.16.1_freebsd_armv6.tar.gz: sha256:ea41ff383adcf98ff70a65e6da49c7c82d16071f3057e44e1c41b2fe34543f19
+  lego_v4.16.1_freebsd_armv7.tar.gz: sha256:6e883cb6c12a7bb703018e85623bf2c548eebfd01047bda75820264bb8ff85f2
+  lego_v4.16.1_linux_386.tar.gz: sha256:3eb2e75cc474b0a0b9a990ddd9c70e7c9631a150487d8434e03a295cfd4b0caa
+  lego_v4.16.1_linux_amd64.tar.gz: sha256:e9826f955337c1fd825d21b073168692711985e25db013ff6b00e9a55a9644b4
+  lego_v4.16.1_linux_arm64.tar.gz: sha256:0669037c2bcff11d0599765c63f186dfc98397b6a827f5cb2e48e9e69c12626c
+  lego_v4.16.1_linux_armv5.tar.gz: sha256:33ff82f3aff43825b0fca7f173825c6cc6b02d9e5607dec147ba172e62c883c9
+  lego_v4.16.1_linux_armv6.tar.gz: sha256:3532a986667fe4ba42366fe09a5487c273c168779f803d878b4cc990d29c5c94
+  lego_v4.16.1_linux_armv7.tar.gz: sha256:b9727c1282a320c22d9fbdbdb59e35810c8b7f94d1382bfa87d564429a89629e
+  lego_v4.16.1_linux_mips64_hardfloat.tar.gz: sha256:055914fab0e26432590fccb54e400e1c0b1ad8d9932f0d418ed9ee7857765eed
+  lego_v4.16.1_linux_mips64_softfloat.tar.gz: sha256:6d79cde9f3f7598276e9f82d2c0fe94b541b35112c0d03797cae4bd9de289d78
+  lego_v4.16.1_linux_mips64le_hardfloat.tar.gz: sha256:5a2421aed70c009d746eff8ffb8a1429dbfdda9c60d08790b53b88d7d4e0b270
+  lego_v4.16.1_linux_mips64le_softfloat.tar.gz: sha256:c1e8afedc29d18e7cb6da4d42c77d41b11041f58637e453be1ac70f65dfba0bc
+  lego_v4.16.1_linux_mips_hardfloat.tar.gz: sha256:07bcd8f03dda24e7db4ef0be065680a8db2d1ec7b217aea2c4ee7f6a6d731928
+  lego_v4.16.1_linux_mips_softfloat.tar.gz: sha256:0367bd328a9355b0191ae0f1b77a20e6a7f6c84a0a65d0a7e4a5f240e7737ed4
+  lego_v4.16.1_linux_mipsle_hardfloat.tar.gz: sha256:49c6117c24e351921e9fdfc0fa01dc7dd007001602b4743f2854b85dde7dd410
+  lego_v4.16.1_linux_mipsle_softfloat.tar.gz: sha256:e5771a43504deab162291c957c1cf549e287c15f645712c08e56f08e5ed97d4c
+  lego_v4.16.1_openbsd_386.tar.gz: sha256:7aaa14b081b8c2d18717c463b6ecea434c963366c82ad9824bcf61750b130c73
+  lego_v4.16.1_openbsd_amd64.tar.gz: sha256:4249afea73a1f8cdec964a0471e841103d6575f6d8549005ec2c06efa063d0fe
+  lego_v4.16.1_openbsd_arm64.tar.gz: sha256:4e94b6714bfed91c06e7365da1da36624126b323dc2c0fdabe7fd3fb155f7cb5
+  lego_v4.16.1_solaris_amd64.tar.gz: sha256:e9d33547a2671636bf02148677bd790996fb94688b0a055393675c645de150ec
+  lego_v4.16.1_windows_386.zip: sha256:980e5d8e6afb700f28c9b9ab539141c45fbd556e12c5b3deb114d7db056d7f0f
+  lego_v4.16.1_windows_amd64.zip: sha256:2716e8cc14facd60d804f849c1aeff6bb31bfa09719905d8f65ec801ead628ca
+  lego_v4.16.1_windows_arm64.zip: sha256:28179af7c79f01e8347dcaab65fba5b70abd36dcd0a2bcc2d6803cb177f2b72c
+  lego_v4.16.1_windows_armv5.zip: sha256:4017c2f1cbd8c838377e6816daccabc96d063b44749407c68e985af7f04fff6c
+  lego_v4.16.1_windows_armv6.zip: sha256:099992c58012440f693206ab0ea23dd1794f4093fd2ad62b744d6a08e3749efd
+  lego_v4.16.1_windows_armv7.zip: sha256:4b9557137c5d24996c3b44c223edf9495f0ea7df7f9a2d5da5f3dbc8f8ec8b50
+
+lego_github_rel_path: go-acme/lego
+lego_github_project_url: "https://github.com/{{ lego_github_rel_path }}"
+lego_release_file: "lego_v{{ lego_version }}_{{ ansible_system | lower }}_{{ lego_go_arch }}.tar.gz"
+lego_release_url: "{{ lego_github_project_url }}/releases/download/v{{ lego_version }}/{{ lego_release_file }}"
+lego_download_path: "/tmp/{{ lego_release_file }}"
+
+lego_opt_dir_path: "/opt/lego-{{ lego_version }}"
+
+lego_unarchive_dest_path: /tmp/
+lego_extracted_path: "/tmp"
+lego_binaries:
+ - lego
+
+lego_user_name: lego
+lego_user_shell: /usr/sbin/nologin
+lego_user_home: "{{ lego_var_dir_path }}"
+lego_group_name: lego
+
+lego_bin_dir_path: /usr/local/bin
+lego_bin_path: "{{ lego_bin_dir_path }}/lego"
+
+lego_etc_dir_path: /etc/lego
+lego_etc_dir_path_owner: "{{ lego_user_name }}"
+lego_etc_dir_path_group: "{{ lego_group_name }}"
+lego_etc_dir_path_mode: ugo=rx
+lego_etc_dir_path_state: directory
+
+lego_var_dir_path: /var/lib/lego
+lego_var_dir_path_owner: "{{ lego_user_name }}"
+lego_var_dir_path_group: "{{ lego_group_name }}"
+lego_var_dir_path_mode: u=rwx,go=rx
+lego_var_dir_path_state: directory
+
+lego_bin_args:
+  - --accept-tos
+  - --domains %i
+  - --domains www.%i
+
+lego_environ:
+  LEGO_PATH: "{{ lego_var_dir_path }}"
+
+lego_bin_user_args: []
+lego_user_environ: {}
+lego_credential_files: []
+
+lego_service_name: lego@.service
+lego_service_enabled: true
+lego_service_state: started
+
+lego_timer_name: lego@.timer
+lego_timer_enabled: true
+lego_timer_state: started
+
+lego_service_template_src: "{{ lego_service_name }}.j2"
+lego_service_template_dest: "/etc/systemd/system/{{ lego_service_name }}"
+lego_service_template_owner: root
+lego_service_template_group: root
+lego_service_template_mode: ugo=r
+
+lego_timer_template_src: "{{ lego_timer_name }}.j2"
+lego_timer_template_dest: "/etc/systemd/system/{{ lego_timer_name }}"
+lego_timer_template_owner: root
+lego_timer_template_group: root
+lego_timer_template_mode: ugo=r
+
+lego_systemd_service_d_dir_path: /etc/systemd/system/lego@.service.d
+lego_systemd_service_d_dir_path_owner: root
+lego_systemd_service_d_dir_path_group: root
+lego_systemd_service_d_dir_path_mode: ugo=rx
+lego_systemd_service_d_dir_path_state: directory
+
+lego_systemd_service_d_template_src: "environ.conf.j2"
+lego_systemd_service_d_template_dest: "{{ lego_systemd_service_d_dir_path }}/environ.conf"
+lego_systemd_service_d_template_path_owner: root
+lego_systemd_service_d_template_path_group: root
+lego_systemd_service_d_template_path_mode: u=r,go=
+
+lego_credential_file_owner: "{{ lego_user_name }}"
+lego_credential_file_group: "{{ lego_group_name }}"
+lego_credential_file_mode: u=r,go=
+
+# lego_domains:
+#   - name: example.com
+#     # not required
+#     enabled: true
+#     # not required
+#     state: started

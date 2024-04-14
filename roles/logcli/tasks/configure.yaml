@@ -1,0 +1,11 @@
+---
+- name: set logcli environment variables
+  ansible.builtin.copy:
+    dest: "{{ logcli_profile_d_path }}"
+    owner: root
+    group: root
+    mode: 0755
+    content: |
+      {% for k, v in logcli_profile_d_env.items() %}
+      export {{ k }}="{{ v }}"
+      {% endfor %}

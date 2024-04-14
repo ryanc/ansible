@@ -1,0 +1,54 @@
+---
+- name: determine if installed
+  stat:
+    path: "{{ process_exporter_bin_path }}/process-exporter"
+  register: st
+
+- name: set process_exporter_installed
+  set_fact:
+    process_exporter_installed: "{{ st.stat.exists | bool }}"
+
+- block:
+  - name: determine latest version
+    uri:
+      url: "https://api.github.com/repos/{{ process_exporter_github_rel_path }}/releases/latest"
+      return_content: true
+      body_format: json
+    register: _latest_version
+    until: _latest_version.status == 200
+    retries: 3
+
+  - name: set process_exporter_version
+    set_fact:
+      process_exporter_version: "{{ _latest_version.json['tag_name'] | regex_replace('^v', '') }}"
+
+- block:
+  - name: determine installed version
+    command: "{{ process_exporter_bin_path }}/process-exporter --version"
+    register: _installed_version_string
+    changed_when: false
+
+  - name: set process_exporter_local_version
+    set_fact:
+      process_exporter_local_version: "{{ _installed_version_string.stdout | regex_search(process_exporter_version_regex, '\\1') | first }}"
+  rescue:
+  - name: set process_exporter_local_version
+    set_fact:
+      process_exporter_local_version: "{{ _installed_version_string.stderr | regex_search(process_exporter_version_regex, '\\1') | first }}"
+  when: process_exporter_installed
+
+- name: set process_exporter_local_version to 0
+  set_fact:
+    process_exporter_local_version: "0"
+  when: not process_exporter_installed
+
+- block:
+  - name: get checksums
+    set_fact:
+      _checksums: "{{ lookup('url', process_exporter_checksum_url, wantlist=True) }}"
+
+  - name: set process_exporter_checksum
+    set_fact:
+      process_exporter_checksum: "{{ process_exporter_checksum_algo }}:{{ item.split(' ') | first }}"
+    loop: "{{ _checksums }}"
+    when: "process_exporter_release_file in item"

@@ -1,0 +1,56 @@
+---
+- name: determine install status
+  ansible.builtin.stat:
+    path: "{{ lego_opt_dir_path }}/lego"
+  register: st
+
+- name: create opt path
+  ansible.builtin.file:
+    path: "{{ lego_opt_dir_path }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+    
+- block:
+  - name: download
+    ansible.builtin.get_url:
+      url: "{{ lego_release_url }}"
+      dest: "{{ lego_download_path }}"
+      checksum: "{{ lego_checksums[lego_release_file] }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract
+    ansible.builtin.unarchive:
+      src: "{{ lego_download_path }}"
+      dest: "{{ lego_unarchive_dest_path }}"
+      remote_src: true
+
+  - name: install
+    ansible.builtin.copy:
+      src: "{{ lego_extracted_path }}/{{ item }}"
+      dest: "{{ lego_opt_dir_path }}/{{ item }}"
+      remote_src: true
+    loop: "{{ lego_binaries }}"
+  when: not st.stat.exists
+
+- name: permissions
+  ansible.builtin.file:
+    path: "{{ lego_opt_dir_path }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop: "{{ lego_binaries }}"
+
+- name: symlink
+  ansible.builtin.file:
+    src: "{{ lego_opt_dir_path }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: link
+  loop: "{{ lego_binaries }}"

@@ -1,0 +1,17 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=process-exporter
+Wants=network-online.target
+After=network-online.target
+After=alertmanager.service
+ 
+[Service]
+Type=simple
+User={{ process_exporter_user }}
+Group={{ process_exporter_group }}
+WorkingDirectory={{ process_exporter_etc_path }}
+ExecStart={{ process_exporter_bin_path }}/process-exporter \
+ 
+[Install]
+WantedBy=multi-user.target
