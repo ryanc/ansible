@@ -1,0 +1,23 @@
+---
+- name: configure linode credentials
+  ansible.builtin.copy:
+    dest: "{{ certbot_credential_path }}/linode.ini"
+    owner: root
+    group: root
+    mode: 0600
+    content: "{{ certbot_dns_linode_credentials }}"
+  no_log: true
+
+- name: certbot (linode)
+  ansible.builtin.shell: >
+    certbot certonly \
+      --dns-linode \
+      --dns-linode-credentials "{{ certbot_credential_path }}/linode.ini" \
+      --quiet \
+      --agree-tos \
+      --noninteractive \
+      --email "{{ item.email }}" \
+      --domain "{{ item.domains | join(',') }}"
+  args:
+    creates: "{{ certbot_live_path }}/{{ item.domains | first }}/cert.pem"
+  loop: "{{ certbot_certificates | default([]) }}"

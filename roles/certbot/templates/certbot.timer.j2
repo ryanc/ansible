@@ -1,5 +1,12 @@
 # {{ ansible_managed }}
 
+[Unit]
+Description=Certbot renewal
+Requires={{ certbot_service_name }}
+
 [Timer]
 OnCalendar={{ certbot_system_timer_on_calender }} 
 RandomizedDelaySec={{ certbot_system_timer_randomized_delay_sec }}
+
+[Install]
+WantedBy=timers.target

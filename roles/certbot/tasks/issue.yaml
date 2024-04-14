@@ -1,9 +1,1 @@
 ---
-- name: "determine if certificate for {{ item.domains | join(', ') }}" 
-  stat:
-    path: "/etc/letsencrypt/live/{{ item.domains | first }}/cert.pem"
-  register: st
-
-- name: "request certificate for {{ item.domains | join(', ') }}"
-  command: "certbot certonly -q --webroot -w {{ certbot_challenge_webroot_path }} --agree-tos --noninteractive --email {{ item.email }} -d {{ item.domains | join(',') }}"
-  when: not st.stat.exists

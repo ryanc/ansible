@@ -1,22 +1,35 @@
 ---
 certbot_package_name: certbot
-certbot_package_state: present
+certbot_package_state: latest
+
+certbot_plugins:
+  - certbot-dns-cloudflare
+  - certbot-dns-digitalocean
+  - certbot-dns-dnsimple
+  - certbot-dns-dnsmadeeasy
+  - certbot-dns-gehirn
+  - certbot-dns-google
+  - certbot-dns-linode
+  - certbot-dns-luadns
+  - certbot-dns-nsone
+  - certbot-dns-ovh
+  - certbot-dns-rfc2136
+  - certbot-dns-route53
+  - certbot-dns-sakuracloud
 
 certbot_service_name: certbot.service
 
+certbot_bin_path: /usr/local/bin
+certbot_path: "{{ certbot_bin_path }}/certbot"
+
 certbot_timer_name: certbot.timer
 certbot_timer_state: started
-certbot_timer_enabled: yes
+certbot_timer_enabled: true
 
-certbot_cron_state: present
-certbot_cron_user: root
-certbot_cron_file_path: /etc/cron.d/certbot
-certbot_cron_env:
-  path: /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-  shell: /bin/sh
-certbot_cron_command: test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e 'sleep int(rand(43200))' && certbot -q renew
-certbot_cron_hour: "*/12"
-certbot_cron_minute: "0"
+certbot_etc_path: /etc/letsencrypt
+certbot_live_path: "{{ certbot_etc_path }}/live"
 
 certbot_system_timer_on_calender: "*-*-* 00,12:00:00"
 certbot_system_timer_randomized_delay_sec: 43200
+
+certbot_credential_path: /root/.secrets/certbot

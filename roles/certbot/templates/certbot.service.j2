@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Certbot renewal
+After=network-online.target
+Wants=network-online.target
+Wants={{ certbot_timer_name }}
+
+[Service]
+Type=oneshot
+ExecStart={{ certbot_path }} --quiet renew
+
+[Install]
+WantedBy=multi-user.target

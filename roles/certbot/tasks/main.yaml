@@ -23,65 +23,51 @@
       paths:
         - tasks
 
-- name: install certbot modules
-  package:
+- name: install certbot
+  ansible.builtin.pip:
     name: "{{ certbot_package_name }}"
     state: "{{ certbot_package_state }}"
 
-- name: configure challenge webroot
-  file:
-    path: "{{ certbot_challenge_webroot_path }}"
-    state: "directory"
+- name: install certbot plugins
+  ansible.builtin.pip:
+    name: "{{ certbot_plugins }}"
+    state: latest
+
+- name: create credential path
+  ansible.builtin.file:
+    path: "{{ certbot_credential_path }}"
     owner: root
     group: root
-    mode: 0755
+    mode: 0700
+    state: directory
 
 - name: request certificates
   ansible.builtin.include_tasks: "issue.yaml"
   loop: "{{ certbot_certificates }}"
 
-- name: configure systemd timer
-  block:
-    - name: create systemd timer override directory
-      file:
-        path: "/etc/systemd/system/{{ certbot_timer_name }}.d"
-        owner: root
-        group: root
-        mode: 0755
-        state: directory
+- name: include linode tasks
+  ansible.builtin.include_tasks: configure-linode.yaml
 
-    - name: configure systemd timer options
-      template:
-        src: certbot.timer.j2
-        dest: "/etc/systemd/system/{{ certbot_timer_name }}.d/override.conf"
-        owner: root
-        group: root
-        mode: 0644
-      notify: systemd daemon-reload
-    - name: enable the timer
-      systemd:
-        name: "{{ certbot_timer_name }}"
-        state: "{{ certbot_timer_state }}"
-        enabled: "{{ certbot_timer_enabled }}"
-  when: ansible_service_mgr == "systemd"
+- name: configure renewal service
+  ansible.builtin.template:
+    src: certbot.service.j2
+    dest: "/etc/systemd/system/certbot.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify: systemd daemon-reload
 
-- name: configure cron job
-  block:
-    - name: configure env
-      cron:
-        name: "{{ item.key | upper }}"
-        env: yes
-        job: "{{ item.value }}"
-        user: "{{ certbot_cron_user }}"
-        cron_file: "{{ certbot_cron_file_path }}"
-        state: "{{ certbot_cron_state }}"
-      loop: "{{ certbot_cron_env | dict2items }}"
-    - name: create job
-      cron:
-        name: certbot
-        user: "{{ certbot_cron_user }}"
-        hour: "{{ certbot_cron_hour }}"
-        minute: "{{ certbot_cron_minute }}"
-        cron_file: "{{ certbot_cron_file_path }}"
-        job: "{{ certbot_cron_command }}"
-        state: "{{ certbot_cron_state }}"
+- name: configure renewal timer
+  ansible.builtin.template:
+    src: certbot.timer.j2
+    dest: "/etc/systemd/system/certbot.timer"
+    owner: root
+    group: root
+    mode: 0644
+  notify: systemd daemon-reload
+
+- name: manage timer
+  ansible.builtin.systemd:
+    name: "{{ certbot_timer_name }}"
+    enabled: "{{ certbot_timer_enabled }}"
+    state: "{{ certbot_timer_state }}"
