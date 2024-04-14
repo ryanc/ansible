@@ -130,6 +130,9 @@
 {% endif %}
 {% if firewall_ipset_syslog is defined %}
 -A INPUT -p tcp -m tcp --dport 514 -m set --match-set syslog6 src -m comment --comment "accept syslog 514/tcp6" -j LOG_ACCEPT
+-A INPUT -p udp -m udp --dport 514 -m set --match-set syslog6 src -m comment --comment "accept syslog 514/udp6" -j LOG_ACCEPT
+-A INPUT -p tcp -m tcp --dport 1514 -m set --match-set syslog6 src -m comment --comment "accept syslog 1514/tcp6" -j LOG_ACCEPT
+-A INPUT -p udp -m udp --dport 1514 -m set --match-set syslog6 src -m comment --comment "accept syslog 1514/udp6" -j LOG_ACCEPT
 {% endif %}
 {% if firewall_ipset_influxdb is defined %}
 -A INPUT -p tcp -m tcp --dport 8086 -m set --match-set influxdb6 src -m comment --comment "accept influxdb 8086/tcp6" -j LOG_ACCEPT
