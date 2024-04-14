@@ -15,6 +15,9 @@ Address = {{ address }}
 {%   if "listen_port" in i %}
 ListenPort = {{ i.listen_port }}
 {%   endif %}
+{%   if "table" in i %}
+Table = {{ i.table }}
+{%   endif %}
 {% endmacro -%}
 
 {%- macro render_peer(p) %}
@@ -34,6 +37,12 @@ AllowedIPs = {{ p.allowed_ips }}
 {%     elif p.allowed_ips is sequence %}
 AllowedIPs = {{ p.allowed_ips | join(', ') }}
 {%     endif %}
+{%   endif %}
+{%   if "preshared_key" in p %}
+PresharedKey = {{ p.preshared_key }}
+{%   endif %}
+{%   if "persistent_keepalive" in p %}
+PersistentKeepalive = {{ p.persistent_keepalive }}
 {%   endif %}
 {% endmacro -%}
 
