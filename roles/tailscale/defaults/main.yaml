@@ -1,0 +1,10 @@
+---
+# tailscale_package_name: tailscale
+# tailscale_package_state: present
+
+# tailscale_service_name: tailscaled
+# tailscale_service_state: started
+# tailscale_service_enabled: true
+
+tailscale_up_args:
+  []

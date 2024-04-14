@@ -1,0 +1,13 @@
+---
+- name: add tailscale repo
+  block:
+    - name: install apt key
+      ansible.builtin.get_url:
+        url: "https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}.noarmor.gpg"
+        dest: /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg
+
+    - name: install apt repo
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} main"
+        state: present
+        filename: tailscale

@@ -1,0 +1,10 @@
+---
+cloudflared_package_name: cloudflared
+cloudflared_package_state: present
+
+cloudflared_service_name: cloudflared.service
+cloudflared_service_enabled: true
+cloudflared_service_state: started
+
+cloudflared_apt_repository_repo: "deb [signed-by=/etc/apt/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared {{ ansible_lsb.codename }} main"
+cloudflared_apt_repository_state: present

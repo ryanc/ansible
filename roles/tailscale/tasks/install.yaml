@@ -1,0 +1,5 @@
+---
+- name: install
+  ansible.builtin.package:
+    name: "{{ tailscale_package_name | default('tailscale') }}"
+    state: "{{ tailscale_package_state | default('present') }}"

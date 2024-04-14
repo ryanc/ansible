@@ -1,0 +1,14 @@
+---
+- name: trust cloudflare apt respository key
+  ansible.builtin.copy:
+    src: "cloudflare-main.gpg"
+    dest: "/etc/apt/keyrings/cloudflare-main.gpg"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: configure cloudflare apt repository
+  ansible.builtin.apt_repository:
+    repo: "{{ cloudflared_apt_repository_repo }}"
+    state: "{{ cloudflared_apt_repository_state | default('present') }}"
+    filename: cloudflared

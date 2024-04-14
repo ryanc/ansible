@@ -1,0 +1,11 @@
+---
+- name: manage service
+  ansible.builtin.service:
+    name: "{{ tailscale_service_name | default('tailscaled') }}"
+    state: "{{ tailscale_service_state | default('started') }}"
+    enabled: "{{ tailscale_service_enabled | default(true) }}"
+
+- name: tailscale up
+  ansible.builtin.shell:
+    cmd: "tailscale up {{ tailscale_up_args | join(' ') }} --authkey {{ tailscale_authkey }}"
+  no_log: true
