@@ -1,0 +1,56 @@
+---
+- name: determine install status
+  ansible.builtin.stat:
+    path: "{{ snmp_exporter_opt_dir_path }}/snmp_exporter"
+  register: st
+
+- name: create opt path
+  ansible.builtin.file:
+    path: "{{ snmp_exporter_opt_dir_path }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+    
+- block:
+  - name: download
+    ansible.builtin.get_url:
+      url: "{{ snmp_exporter_release_url }}"
+      dest: "{{ snmp_exporter_download_path }}"
+      checksum: "{{ snmp_exporter_checksums[snmp_exporter_release_file] }}"
+    register: dl
+    until: dl is success
+    retries: 5
+    delay: 10
+
+  - name: extract
+    ansible.builtin.unarchive:
+      src: "{{ snmp_exporter_download_path }}"
+      dest: "{{ snmp_exporter_unarchive_dest_path }}"
+      remote_src: true
+
+  - name: install
+    ansible.builtin.copy:
+      src: "{{ snmp_exporter_extracted_path }}/{{ item }}"
+      dest: "{{ snmp_exporter_opt_dir_path }}/{{ item }}"
+      remote_src: true
+    loop: "{{ snmp_exporter_binaries }}"
+  when: not st.stat.exists
+
+- name: permissions
+  ansible.builtin.file:
+    path: "{{ snmp_exporter_opt_dir_path }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop: "{{ snmp_exporter_binaries }}"
+
+- name: symlink
+  ansible.builtin.file:
+    src: "{{ snmp_exporter_opt_dir_path }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: link
+  loop: "{{ snmp_exporter_binaries }}"

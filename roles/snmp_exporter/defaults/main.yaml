@@ -1,0 +1,102 @@
+---
+snmp_exporter_go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+
+snmp_exporter_go_arch: "{{ snmp_exporter_go_arch_map[ansible_architecture] | default('amd64') }}"
+
+snmp_exporter_version: 0.25.0
+snmp_exporter_checksums:
+  snmp_exporter-0.25.0.aix-ppc64.tar.gz: sha256:457524708e136a1c559567eb5170352b25591d33646ad85940f4692b13de8208
+  snmp_exporter-0.25.0.darwin-amd64.tar.gz: sha256:83f820691ec4013614c5e8771c37741ba7732a41f01ac4675428a95cf50785db
+  snmp_exporter-0.25.0.darwin-arm64.tar.gz: sha256:2de16c8ab56c96721ba71ce7b16cdcfaced50f0f7e78fc7ded1747017717a953
+  snmp_exporter-0.25.0.dragonfly-amd64.tar.gz: sha256:a17a8277a134d0f3f5913fdb89b3218e308c01c0749e4b1fe6eff860216c3f06
+  snmp_exporter-0.25.0.freebsd-386.tar.gz: sha256:dc5bb9943ce5abfc4610eb51b98d21754333828acd17e1058f4979dec83ec4bd
+  snmp_exporter-0.25.0.freebsd-amd64.tar.gz: sha256:65c527a32426b781968ee2b1ed9b13542f3333b2f60941ed7261c578d3a19515
+  snmp_exporter-0.25.0.freebsd-arm64.tar.gz: sha256:3ce5dd7c205e148eceef20d4a7f6042b49874d37b2f84cea1ad2b41a7adf27cc
+  snmp_exporter-0.25.0.freebsd-armv6.tar.gz: sha256:fecd7b648de5818f445ee3543b3a0e16090419b83481cb9268f1b070515f4719
+  snmp_exporter-0.25.0.freebsd-armv7.tar.gz: sha256:2750f4d469145a4e9bcf3ae2cf47c3a379581359c224fa3860d88a7671208fe0
+  snmp_exporter-0.25.0.illumos-amd64.tar.gz: sha256:71fbd5973d2b9e06e63728490e820fe5e33f27333a54dcb6b42d152d3cf36d2f
+  snmp_exporter-0.25.0.linux-386.tar.gz: sha256:a78577d5651557a67973363a87db3755170e61a79c8d698f14bc72cde3205e1a
+  snmp_exporter-0.25.0.linux-amd64.tar.gz: sha256:de206a27466656e8b4948ef66dd57cc80c5511ccd285b231fde4e044534db625
+  snmp_exporter-0.25.0.linux-arm64.tar.gz: sha256:d61a38544598921067b546cbdca2cce0165fede0414b2dd769e11b09037164ca
+  snmp_exporter-0.25.0.linux-armv5.tar.gz: sha256:a86cae97116524fc2479bbef211931ca375d78479a276f1c99e4a2ee033d54aa
+  snmp_exporter-0.25.0.linux-armv6.tar.gz: sha256:fed73deb4b2864b9793f07679308117e2b9568e08cf993c640b9fd9a534f2508
+  snmp_exporter-0.25.0.linux-armv7.tar.gz: sha256:ff4ce9ac6f8f489d40d2319ea07428cb58bc6b49ad5cc0054d7475a71b1a68bb
+  snmp_exporter-0.25.0.linux-mips.tar.gz: sha256:616f7d9a798425864852bf8acef1d1fde38e6c85cbc2b6fd176f5bad5aa2ce79
+  snmp_exporter-0.25.0.linux-mips64.tar.gz: sha256:4d7cf894079593e4ae4eba9c10f740514d3defe0ebc362953ffa6ba2ccb93127
+  snmp_exporter-0.25.0.linux-mips64le.tar.gz: sha256:ea3e346a702729daa2a4acb9389cc2fe95549afd6aa5806c173ae0b21340ea0c
+  snmp_exporter-0.25.0.linux-mipsle.tar.gz: sha256:b6fedb56c0ac64b87ec808448ef113bb3a44049d41a70c35004e0e05204a9ba7
+  snmp_exporter-0.25.0.linux-ppc64.tar.gz: sha256:6b6c67ba8e49e1e3e247799f151b74bf1cb6cb65d9e4efcf8c6d0eefa6467dbe
+  snmp_exporter-0.25.0.linux-ppc64le.tar.gz: sha256:b345a5b6808627ca119267f53b4d4835fc831cdbe25922359637b8068b6d2722
+  snmp_exporter-0.25.0.linux-riscv64.tar.gz: sha256:6f3659115b78f05349ce1cc61d17c03e7dbb5830d6a4f13433028efe198e4a66
+  snmp_exporter-0.25.0.linux-s390x.tar.gz: sha256:8a428c63081efee2d15df508c7da5588cc6582a3254561c2ddbd9898520d247e
+  snmp_exporter-0.25.0.netbsd-386.tar.gz: sha256:3b56b8feba1119737fe167db47afb2d53179f03fd1ed2c97a02745486cf78e9d
+  snmp_exporter-0.25.0.netbsd-amd64.tar.gz: sha256:e1e2f82047ec726be64434d45e4d18cff45bf739c8ac7ffcd39d2680148be4f6
+  snmp_exporter-0.25.0.netbsd-arm64.tar.gz: sha256:f1be651984a8aa9fb2793358545da1351cb66c0f94abfa67d97003276aeb64cb
+  snmp_exporter-0.25.0.netbsd-armv6.tar.gz: sha256:d250a3cdd4d6fb572ed740c7f800f2aaa11350294d9275e4054c39bcfed86710
+  snmp_exporter-0.25.0.netbsd-armv7.tar.gz: sha256:0ecc87cc94c6e4f9444e5a508bb3f848753eae551f38715d90531626a09eb21b
+  snmp_exporter-0.25.0.openbsd-386.tar.gz: sha256:93f600e3c8e51c9e4fe2888a6fcac28b6bf4128ff90cf833938c25fcd607d731
+  snmp_exporter-0.25.0.openbsd-amd64.tar.gz: sha256:68b5b7bf8903e02636ea1145a313bad6316950116c7dbcb8e62214acafb76a64
+  snmp_exporter-0.25.0.openbsd-arm64.tar.gz: sha256:ca0ff15972207d7efb0ec08ca3c74ab1940dd780430ebe409214ca6261b4a521
+  snmp_exporter-0.25.0.openbsd-armv7.tar.gz: sha256:094072fcc645e170fbcf617f86f41f35781f6eff83c2a5f3a4327b55c3aae6ba
+  snmp_exporter-0.25.0.windows-386.tar.gz: sha256:feb0eae7fdbff7d96eb489a61e7d4cb6f9065d84e80c5e0f6331893dd3c5e37a
+  snmp_exporter-0.25.0.windows-386.zip: sha256:10cb099383f990303ba293343a98377aabb0575f5d87b8702cd366bd787293b9
+  snmp_exporter-0.25.0.windows-amd64.tar.gz: sha256:78398d2553548f21eaf8920daf86df15865e7c4a93351be01abb10cc2508cc8c
+  snmp_exporter-0.25.0.windows-amd64.zip: sha256:b0872fc2d2cebc60244220c3412185a45b72ac56f2cb36f1e4f35d42e830de2d
+  snmp_exporter-0.25.0.windows-arm64.tar.gz: sha256:e3122f902b714b908884fb10fff61e93960c1ce1a1491d21d7be736ac6c9f833
+  snmp_exporter-0.25.0.windows-arm64.zip: sha256:f3465c09e7a28ced47b15da368074b7df6d610e4c82ea6ae647d916abb541dc8
+
+snmp_exporter_github_rel_path: prometheus/snmp_exporter
+snmp_exporter_github_project_url: "https://github.com/{{ snmp_exporter_github_rel_path }}"
+snmp_exporter_release_file: "snmp_exporter-{{ snmp_exporter_version }}.{{ ansible_system | lower }}-{{ snmp_exporter_go_arch }}.tar.gz"
+snmp_exporter_release_url: "{{ snmp_exporter_github_project_url }}/releases/download/v{{ snmp_exporter_version }}/{{ snmp_exporter_release_file }}"
+snmp_exporter_download_path: "/tmp/{{ snmp_exporter_release_file }}"
+
+snmp_exporter_opt_dir_path: "/opt/snmp_exporter-{{ snmp_exporter_version }}"
+
+snmp_exporter_unarchive_dest_path: /tmp/
+snmp_exporter_extracted_path: "/tmp/{{ snmp_exporter_release_file | replace('.tar.gz', '') }}"
+snmp_exporter_binaries:
+ - snmp_exporter
+
+snmp_exporter_user_name: snmp_exporter
+snmp_exporter_user_shell: /usr/sbin/nologin
+snmp_exporter_user_home: "{{ snmp_exporter_var_dir_path }}"
+snmp_exporter_group_name: snmp_exporter
+
+snmp_exporter_bin_dir_path: /usr/local/bin
+snmp_exporter_bin_path: "{{ snmp_exporter_bin_dir_path }}/snmp_exporter"
+
+snmp_exporter_etc_dir_path: /etc/snmp_exporter
+snmp_exporter_etc_dir_path_owner: "{{ snmp_exporter_user_name }}"
+snmp_exporter_etc_dir_path_group: "{{ snmp_exporter_group_name }}"
+snmp_exporter_etc_dir_path_mode: 0500
+snmp_exporter_etc_dir_path_state: directory
+
+snmp_exporter_var_dir_path: /var/lib/snmp_exporter
+snmp_exporter_var_dir_path_owner: "{{ snmp_exporter_user_name }}"
+snmp_exporter_var_dir_path_group: "{{ snmp_exporter_group_name }}"
+snmp_exporter_var_dir_path_mode: 0500
+snmp_exporter_var_dir_path_state: directory
+
+snmp_exporter_config_file_path: "{{ snmp_exporter_etc_dir_path }}/snmp.yml"
+snmp_exporter_config_file_template_src: snmp.yml.j2
+snmp_exporter_config_file_template_dest: "{{ snmp_exporter_config_file_path }}"
+snmp_exporter_config_file_template_owner: "{{ snmp_exporter_user_name }}"
+snmp_exporter_config_file_template_group: "{{ snmp_exporter_group_name }}"
+snmp_exporter_config_file_template_mode: 0400
+
+snmp_exporter_bin_args:
+  - "--config.file={{ snmp_exporter_config_file_path }}"
+  - "--snmp.module-concurrency={{ ansible_processor_vcpus }}"
+
+snmp_exporter_service_name: snmp_exporter.service
+snmp_exporter_service_enabled: true
+snmp_exporter_service_state: started
+
+snmp_exporter_service_template_src: "{{ snmp_exporter_service_name }}.j2"
+snmp_exporter_service_template_dest: "/etc/systemd/system/{{ snmp_exporter_service_name }}"
+snmp_exporter_service_template_owner: root
+snmp_exporter_service_template_group: root
+snmp_exporter_service_template_mode: 0444

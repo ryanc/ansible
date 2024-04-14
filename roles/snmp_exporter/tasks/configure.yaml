@@ -1,0 +1,55 @@
+---
+- name: create group
+  ansible.builtin.group:
+    name: "{{ snmp_exporter_group_name }}"
+    system: true
+
+- name: create user
+  ansible.builtin.user:
+    name: "{{ snmp_exporter_user_name }}"
+    shell: "{{ snmp_exporter_user_shell }}"
+    home: "{{ snmp_exporter_user_home }}"
+    system: true
+    group: "{{ snmp_exporter_group_name }}"
+
+- name: create var path
+  ansible.builtin.file:
+    path: "{{ snmp_exporter_var_dir_path }}"
+    owner: "{{ snmp_exporter_var_dir_path_owner }}"
+    group: "{{ snmp_exporter_var_dir_path_group }}"
+    mode: "{{ snmp_exporter_var_dir_path_mode }}"
+    state: "{{ snmp_exporter_var_dir_path_state }}"
+
+- name: create etc path
+  ansible.builtin.file:
+    path: "{{ snmp_exporter_etc_dir_path }}"
+    owner: "{{ snmp_exporter_etc_dir_path_owner }}"
+    group: "{{ snmp_exporter_etc_dir_path_group }}"
+    mode: "{{ snmp_exporter_etc_dir_path_mode }}"
+    state: "{{ snmp_exporter_etc_dir_path_state }}"
+
+- name: configure
+  ansible.builtin.template:
+    src: "{{ snmp_exporter_config_file_template_src }}"
+    dest: "{{ snmp_exporter_config_file_template_dest }}"
+    owner: "{{ snmp_exporter_config_file_template_owner }}"
+    group: "{{ snmp_exporter_config_file_template_group }}"
+    mode: "{{ snmp_exporter_config_file_template_mode }}"
+  notify:
+    - restart snmp_exporter
+
+- name: configure systemd unit
+  ansible.builtin.template:
+    src: "{{ snmp_exporter_service_template_src }}"
+    dest: "{{ snmp_exporter_service_template_dest }}"
+    owner: "{{ snmp_exporter_service_template_owner }}"
+    group: "{{ snmp_exporter_service_template_group }}"
+    mode: "{{ snmp_exporter_service_template_mode }}"
+  notify:
+    - restart snmp_exporter
+
+- name: manage service
+  ansible.builtin.service:
+    name: "{{ snmp_exporter_service_name }}"
+    enabled: "{{ snmp_exporter_service_enabled | default(true) }}"
+    state: "{{ snmp_exporter_service_state | default('started') }}"

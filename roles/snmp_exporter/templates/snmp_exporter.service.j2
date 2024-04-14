@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=SNMP Exporter
+After=network-online.target
+
+[Service]
+User={{ snmp_exporter_user_name }}
+Restart=on-failure
+ExecStart={{ snmp_exporter_bin_path }} \
+{% for arg in snmp_exporter_bin_args %}
+  {{ arg }} {% if not loop.last %}\{{ "\n"}}{% endif %}
+{% if loop.last %}
+
+{% endif %}
+{% endfor %}
+
+WorkingDirectory={{ snmp_exporter_var_dir_path }}
+
+[Install]
+WantedBy=multi-user.target

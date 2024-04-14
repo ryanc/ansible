@@ -1,0 +1,6 @@
+---
+- name: restart snmp_exporter
+  systemd:
+    name: "{{ snmp_exporter_service_name }}"
+    daemon_reload: true
+    state: restarted
