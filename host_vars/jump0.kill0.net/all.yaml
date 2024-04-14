@@ -18,6 +18,28 @@ certbot_certificates:
   - domains:
       - cavi.cc
     email: rcavicchioni@gmail.com
+  - domains:
+      - proxy.kill0.net
+    email: rcavicchioni@gmail.com
+
+lego_user_environ:
+  GCE_PROJECT: kill0-net
+  GCE_SERVICE_ACCOUNT_FILE: "{{ lego_etc_dir_path }}/credentials.json"
+
+lego_bin_user_args:
+  - --email rcavicchioni@gmail.com
+  - --dns gcloud
+
+lego_bin_renew_user_args:
+  - --renew-hook "systemctl reload nginx"
+
+lego_domains:
+  - name: cavi.cc
+  - name: dl.kill0.net
+  - name: git.kill0.net
+  - name: monitor.kill0.net
+  - name: proxy.kill0.net
+  - name: stats.kill0.net
 
 autossh_config: []
 

@@ -368,3 +368,7 @@ influxdb_package_state: absent
 telegraf_service_enabled: false
 telegraf_service_state: stopped
 telegraf_package_state: absent
+
+lego_credential_files:
+  - name: credentials.json
+    content: "{{ vault_lego_gcp_service_account | string }}"
