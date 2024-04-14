@@ -6,6 +6,23 @@ network_netplan_config_path: "{{ network_netplan_etc_path }}/ansible.yaml"
 network_netplan_default_config_path: "{{ network_netplan_etc_path }}/01-netcfg.yaml"
 # network_netplan_default_config_state: absent
 
+network_netplan:
+  network:
+    version: 2
+    ethernets:
+      eth0:
+        dhcp4: false
+        dhcp6: false
+        accept-ra: true
+        addresses:
+          - "{{ ansible_default_ipv4.address }}/{{ (ansible_default_ipv4.network + '/' + ansible_default_ipv4.netmask) | ansible.utils.ipaddr('prefix') }}"
+          - "{{ ansible_default_ipv6.address }}/{{ ansible_default_ipv6.prefix }}"
+        routes:
+          - to: default
+            via: "{{ ansible_default_ipv4.gateway }}"
+        nameservers:
+          addresses: "{{ network_dns_nameservers }}"
+
 network_interfaces:
   - name: eth0
     inet4:
@@ -15,6 +32,7 @@ network_interfaces:
       gateway: "{{ ansible_default_ipv4.gateway }}"
     inet6:
       dhcp: false
+      accept_ra: true
       address:
         - "{{ ansible_default_ipv6.address }}/{{ ansible_default_ipv6.prefix }}"
       gateway: "{{ ansible_default_ipv6.gateway }}"

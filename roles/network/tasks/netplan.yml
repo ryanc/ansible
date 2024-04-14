@@ -5,14 +5,14 @@
     state: "{{ network_netplan_default_config_state | default('absent') }}"
     owner: root
     group: root
-    mode: 0644
+    mode: '0400'
   notify: netplan apply
 
 - name: Configure netplan
-  ansible.builtin.template:
+  ansible.builtin.copy:
     dest: "{{ network_netplan_config_path }}"
-    src: netplan.yaml.j2
+    content: "{{ network_netplan | to_nice_yaml }}"
     owner: root
     group: root
-    mode: '0644'
+    mode: '0400'
   notify: netplan apply

@@ -1,16 +1,19 @@
 ---
 network:
-  version: "{{ network_netplan_version | default(2) }}"
-  renderer: "{{ network_netplan_renderer | default("networkd") }}"
+  version: {{ network_netplan_version | default(2) }}
+  renderer: {{ network_netplan_renderer | default('networkd') }}
 {% if network_interfaces is defined and network_interfaces | length %}
   ethernets:
 {%   for iface in network_interfaces %}
     {{ iface['name'] }}:
 {%     if iface['inet4']['dhcp'] is defined %}
-      dhcp4: "{{ iface['inet4']['dhcp'] | ternary('yes', 'no') }}"
+      dhcp4: {{ iface['inet4']['dhcp'] | ternary('true', 'false') }}
 {%     endif %}
 {%     if iface['inet4']['dhcp'] is defined %}
-      dhcp6: "{{ iface['inet6']['dhcp'] | ternary('yes', 'no') }}"
+      dhcp6: {{ iface['inet6']['dhcp'] | ternary('true', 'false') }}
+{%     endif %}
+{%     if iface['inet6']['accept_ra'] is defined %}
+      accept-ra: {{ iface['inet6']['accept_ra'] | ternary('true', 'false') }}
 {%     endif %}
 {%     if iface['inet4']['address'] is defined or iface['inet6']['address'] is defined %}
       addresses:
@@ -22,10 +25,10 @@ network:
 {%       endfor %}
 {%     endif %}
 {%     if iface['inet4']['gateway'] is defined %}
-      gateway4: "{{ iface['inet4']['gateway'] }}"
+      gateway4: {{ iface['inet4']['gateway'] }}
 {%     endif %}
 {%     if iface['inet6']['gateway'] is defined %}
-      gateway6: "{{ iface['inet6']['gateway'] }}"
+      gateway6: {{ iface['inet6']['gateway'] }}
 {%     endif %}
 {%     if network_dns_nameservers is defined %}
       nameservers:
