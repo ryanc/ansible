@@ -102,9 +102,7 @@ rsyslog_archival_format_enabled: true
 rsyslog_outputs:
   - name: omfwd
     params:
-      #target: 127.254.254.1
-      target: 10.255.0.1
-      #port: 1514
+      target: 169.254.0.1
       port: 514
       protocol: tcp
       action.resumeretrycount: -1
@@ -210,17 +208,17 @@ teleport_config:
 firewall_ipset_node_exporter:
   - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
   - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
-  - 10.255.0.1
+  - 169.254.0.1
 
 firewall_ipset_blackbox_exporter:
   - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
   - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
-  - 10.255.0.1
+  - 169.254.0.1
 
 firewall_ipset_mtail:
   - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
   - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
-  - 10.255.0.1
+  - 169.254.0.1
 
 node_exporter_du_directories:
   - /var/log/syslog
@@ -230,7 +228,7 @@ wireguard_iptables:
   wg0:
     input: true
 
-wireguard_network_prefix: 10.255.0
+wireguard_network_prefix: 169.254.0
 wireguard_peers:
   wg0:
   - public_key: 1ipGUnK8XDbIoBIEF440BhwLUe0yHa5l3kZZc4eFxV8=
@@ -241,10 +239,18 @@ supervisor_unix_http_server_socket_chown: root:node_exporter
 supervisor_unix_http_server_socket_chmod: "0770"
 
 firewall_ipset_loki:
-  - 10.255.0.1
+  - 169.254.0.0/24
+
+firewall_ipset_promtail:
+  - "{{ lookup('dig', 'jump0.kill0.net./A') }}"
+  - "{{ lookup('dig', 'jump0.kill0.net./AAAA') }}"
+  - 169.264.0.0/24
 
 promtail_clients:
-  - url: http://10.255.0.1:3100/loki/api/v1/push
+  - url: http://169.254.0.1:3100/loki/api/v1/push
+    external_labels:
+      region: dallas
+      provider: linode
 
 promtail_scrape_configs:
 - job_name: system

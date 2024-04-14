@@ -75,10 +75,13 @@ prometheus_config:
             - dns.google
             - vpn-home.kill0.net
             - ping-home.kill0.net
-            - 10.255.0.16
+            - 169.254.0.2
             - vpn1-sch.corp.nmi.com
-            - vpn-chi.ops.nmi.com
-            - vpn-ash.ops.nmi.com
+            - gp-chi.ops.nmi.com
+            - gp-ash.ops.nmi.com
+            - 172.16.100.1
+            - 172.16.100.2
+            - 172.16.10.16
       relabel_configs:
         - source_labels: [__address__]
           target_label: __param_target
@@ -371,7 +374,7 @@ node_exporter_du_directories:
   - /var/lib/loki
 
 firewall_ipset_loki:
-  - 10.255.0.0/24
+  - 169.254.0.0/24
 
 karma_config:
   alertmanager:

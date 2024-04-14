@@ -7,7 +7,7 @@ firewall_allowed_udp_ports:
   - 1194
 
 firewall_ipset_syslog:
-  - 10.255.0.0/24
+  - 169.254.0.0/24
 
 autossh_authorized_keys:
   - key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOvKqDI6VUYFgMUC54pVr5U8CX+Xl2ewV7PIYkTiQ70o
@@ -46,7 +46,7 @@ telegraf_config_d:
           name_override: ping6
           binary: ping6
         - urls:
-            - 10.255.0.1
+            - 169.254.0.1
           count: 10
           ipv6: false
           binary: ping4
@@ -311,43 +311,49 @@ wireguard_peers:
   wg0:
     - comment: mine0.kill0.net
       public_key: Cm9yZNczjghAh4hV4fSvy3rsmuLsQFZk+ET5CoWxVnI=
-      #endpoint: "{{ lookup('dig', 'mine0.kill0.net./A') }}:{{ wireguard_port }}"
       endpoint: "mine0.kill0.net:{{ wireguard_port }}"
-      allowed_ips: "{{ hostvars['mine0.kill0.net'].wireguard_interfaces.wg0.address }}"
-    - comment: vpn-home.kill0.net
-      public_key: j5AgKWcXx8we7QVkt6//oQWsGfXj+5IJKt9mx0EpTW0=
-      endpoint: "vpn-home.kill0.net:{{ wireguard_port }}"
-      allowed_ips: 172.16.0.0/16, 10.255.0.2/32
-  wg1:
-    - comment: pixel-2
-      public_key: GzQOU0x1POvkY4+6smBGkE/B1XytoVxIJa6zGX8j6Bc=
       allowed_ips:
-        - 192.168.255.16/32
-        - 2600:3c00:e000:343::10/128
+        - 169.254.0.2/32
+        - fc00::ffff:169.254.0.2/128
+    - comment: vpn-home.kill0.net
+      allowed_ips:
+        - 172.16.0.0/16
+        - 169.254.0.16/32
+        - fc00::ffff:169.254.0.16/128
+      endpoint: "vpn-home.kill0.net:{{ wireguard_port }}"
+      persistent_keepalive: 25
+      preshared_key: "{{ vault_wireguard_preshared_key.home }}"
+      public_key: fUSQ7Uxkxij/0p+SIRekb6moqW0t/qdFaP2HsjRsNRs=
+    - comment: retropie
+      allowed_ips:
+        - 172.31.0.0/16
+        - 169.254.0.17/32
+        - fc00::ffff:169.254.0.17/128
+      persistent_keepalive: 25
+      preshared_key: "{{ vault_wireguard_preshared_key.retropie }}"
+      public_key: lLvracXkf8HNfgKpJkzei9ys58aAs4DT3Z3bjNRFsQY=
+  wg1:
+    - comment: pixel
+      public_key: zCDfH5Eqv0oRNWC8TtrkGby3+BAtiQtXxbsmA/lZtXQ=
+      allowed_ips:
+        - 192.168.255.16/24
+        - fc01::ffff:192.168.255.16/128
+        - 2600:3c00:e000:343::ffff:192.168.255.16/128
     - comment: work laptop
       public_key: TRT1SRQd3mFJDJK9tdglqsydXJmkzyrNdUOm4nr7M3k=
       allowed_ips:
-        - 192.168.255.17/32
-        - 2600:3c00:e000:343::11/128
-    - comment: home workstation
-      public_key: ISvgu8zZWjmKyKrJi2mbqoJg2mrvIjPbQRs0Sp+dLzc=
-      allowed_ips:
-        - 192.168.255.18/32
-        - 2600:3c00:e000:343::12/128
-    - comment: rick
-      public_key: oFJcRhs7tQ4vPHTjbKwwWirpjx9T9ng7PFj3+iAVYWo=
-      allowed_ips:
-        - 192.168.255.32/32
-        - 2600:3c00:e000:343::20/128
+        - 192.168.255.17/24
+        - fc01::ffff:192.168.255.17/128
+        - 2600:3c00:e000:343::ffff:192.168.255.17/128
 
 unbound_interfaces:
   - 127.0.0.1
   - 192.168.255.1
   - ::1
-  - 2600:3c00:e000:343::1
+  - 2600:3c00:e000:343::ffff:192.168.255.1
 
 unbound_access_control:
   - 127.0.0.1 allow
   - 192.168.255.0/24 allow
   - ::1 allow
-  - 2600:3c00:e000:343::/64 allow
+  - 2600:3c00:e000:343::ffff:192.168.255.0/120 allow

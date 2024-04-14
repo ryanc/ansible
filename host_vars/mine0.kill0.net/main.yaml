@@ -161,6 +161,8 @@ openvpn_certificates:
 
 wireguard_interfaces:
   wg0:
-    address: 10.255.0.16/32
+    address:
+      - 169.254.0.2/24
+      - fc00::ffff:169.254.0.2/64
     private_key: "{{ vault_wireguard_private_keys.wg0 }}"
     listen_port: 51820
