@@ -23,6 +23,14 @@
     group: "{{ prometheus_etc_group }}"
     mode: "{{ prometheus_etc_mode }}"
 
+- name: create file_sd_config.d path
+  file:
+    path: "{{ prometheus_etc_path }}/file_sd_config.d"
+    state: directory
+    owner: "{{ prometheus_etc_owner }}"
+    group: "{{ prometheus_etc_group }}"
+    mode: "{{ prometheus_etc_mode }}"
+
 - name: create var path
   file:
     path: "{{ prometheus_var_path }}"
@@ -48,6 +56,15 @@
     group: root
     mode: 0444
   notify: reload prometheus
+
+- name: configure file_sd_config.d
+  copy:
+    dest: "{{ prometheus_etc_path }}/file_sd_config.d/{{ item.name }}"
+    content: "{{ (item.targets | default([])) | to_json }}"
+    owner: root
+    group: root
+    mode: 0444
+  loop: "{{ prometheus_file_sd_config_d_files | default([]) }}"
 
 - name: configure systemd template
   template:
