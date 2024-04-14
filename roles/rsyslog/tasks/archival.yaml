@@ -50,7 +50,7 @@
 - name: configure archival format
   template:
     src: archival.conf.j2
-    dest: /etc/rsyslog.d/10-archival.conf
+    dest: "{{ rsyslog_etc_path }}/10-archival.conf"
     owner: root
     group: root
     mode: 0644
@@ -59,7 +59,7 @@
 
 - name: manage archive rules
   file:
-    path: /etc/rsyslog.d/10-archival.conf
+    path: "{{ rsyslog_etc_path }}/10-archival.conf"
     state: "{{ rsyslog_archival_format_enabled | ternary('file', 'absent') }}"
 
 - name: compress log cron job

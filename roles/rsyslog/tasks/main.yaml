@@ -14,7 +14,7 @@
 - name: configure
   template:
     src: rsyslog.conf.j2
-    dest: /etc/rsyslog.conf
+    dest: "{{ rsyslog_config_path }}"
     owner: root
     group: root
     mode: 0644
@@ -26,7 +26,7 @@
 - name: configure default rules
   template:
     src: default.conf.j2
-    dest: /etc/rsyslog.d/50-default.conf
+    dest: "{{ rsyslog_etc_path }}/50-default.conf"
     owner: root
     group: root
     mode: 0644
@@ -35,8 +35,19 @@
 
 - name: manage default rules
   file:
-    path: /etc/rsyslog.d/50-default.conf
+    path: "{{ rsyslog_etc_path }}/50-default.conf"
     state: "{{ rsyslog_default_rules_state }}"
+  notify: restart rsyslog
+
+- name: configure rsyslog.d rules
+  ansible.builtin.copy:
+    dest: "{{ rsyslog_etc_path }}/{{ item.priority }}-{{ item.name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    content: "{{ item.content }}"
+  loop: "{{ rsyslog_d | default([]) }}"
+  notify: restart rsyslog
 
 - name: manage service
   service:

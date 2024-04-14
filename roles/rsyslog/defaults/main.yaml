@@ -33,3 +33,9 @@ rsyslog_default_rules_state: file
 rsyslog_default_rules: []
 rsyslog_rules: []
 rsyslog_archival_format_enabled: false
+
+rsyslog_etc_path: /etc/rsyslog.d
+rsyslog_config_path: /etc/rsyslog.conf
+
+rsyslog_d:
+  []
