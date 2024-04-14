@@ -486,6 +486,78 @@ thanos_bucket_config: "{{ vault_thanos_bucket_config }}"
 
 kthxbye_listen: :8081
 
+loki_storage_config:
+  tsdb_shipper:
+    active_index_directory: "{{ loki_var_path }}/tsdb-index"
+    cache_location: "{{ loki_var_path }}/tsdb-cache"
+  gcs:
+    bucket_name: kill0-net-loki
+    service_account: "{{ vault_loki_gcs_service_account | string }}"
+
+loki_schema_config:
+  configs:
+    - from: 2023-08-11
+      index:
+        period: 24h
+        prefix: index_
+      object_store: gcs
+      schema: v12
+      store: tsdb
+    - from: 2024-04-10
+      index:
+        period: 24h
+        prefix: index_
+      object_store: gcs
+      schema: v13
+      store: tsdb
+
+loki_query_scheduler:
+  max_outstanding_requests_per_tenant: 32768
+
+loki_querier:
+  max_concurrent: 16
+
+loki_compactor:
+  working_directory: "{{ loki_var_path }}/retention"
+  delete_request_store: gcs
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+
+loki_ruler:
+  alertmanager_url: http://localhost:9093
+  storage:
+    type: gcs
+    gcs:
+      bucket_name: kill0-net-loki
+      service_account: "{{ vault_loki_gcs_service_account | string }}"
+  ring:
+    kvstore:
+      store: inmemory
+  enable_api: true
+
+rsyslog_d:
+  - name: loki
+    priority: 10
+    content: |
+      if $hostname == [ "ap0", "coresw0", "fw0", "power0", "172.16.100.1", "172.16.100.2" ] then {
+        action(
+          type="omfwd"
+          target="localhost"
+          port="1514"
+          protocol="tcp"
+          action.resumeretrycount="-1"
+          queue.type="linkedlist"
+          queue.size="1000000"
+          queue.filename="loki-fwd"
+          queue.saveonshutdown="on"
+          keepalive="on"
+          template="RSYSLOG_SyslogProtocol23Format"
+          tcp_framing="octet-counted"
+        )
+      }
+
 smokeping_prober_config:
   targets:
     - hosts:
