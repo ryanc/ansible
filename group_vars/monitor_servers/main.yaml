@@ -579,3 +579,18 @@ smokeping_prober_config:
       - fc00::ffff:169.255.0.16
       network: ip6
 
+mimir_common:
+  storage:
+    backend: gcs
+    gcs:
+      bucket_name: kill0-net-mimir
+      service_account: "{{ vault_mimir_gcs_service_account | string }}"
+
+mimir_blocks_storage:
+  storage_prefix: blocks
+
+mimir_alertmanager_storage:
+  storage_prefix: alertmanager
+
+mimir_ruler_storage:
+  storage_prefix: ruler
